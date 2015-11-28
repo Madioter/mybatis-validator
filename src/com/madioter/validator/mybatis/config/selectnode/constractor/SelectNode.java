@@ -87,6 +87,15 @@ public class SelectNode {
             原理：
                 1、如果存在union或union all字符，将当前的sql单句做进一步拆分
                 2、如果不存在，则执行语句结构划分
+
+            目前未解决的语句:
+            SELECT 1 FROM (SELECT 18884 AS vendor_id
+                    UNION
+                    SELECT 8594 AS vendor_id
+                    UNION
+                    SELECT 25390 AS vendor_id
+                    UNION
+                    SELECT 25253 AS vendor_id) a
          */
         String[] selectItems = simpleSelect.split("(\\s+union\\s+|\\s+union\\s+all\\s+)");
         if (selectItems.length > 1) {

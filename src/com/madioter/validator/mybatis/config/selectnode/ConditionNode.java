@@ -8,7 +8,7 @@ package com.madioter.validator.mybatis.config.selectnode;
  * @taskId  <br>
  * @CreateDate 2015年11月25日 <br>
  */
-public class ConditionNode implements SelectElement{
+public class ConditionNode implements SelectElement {
 
     /**
      * 条件字段
@@ -71,5 +71,20 @@ public class ConditionNode implements SelectElement{
      */
     public void setValue(String value) {
         this.value = value;
+    }
+
+    /**
+     * 结构重构方法
+     */
+    public void rebuild() {
+        if (this.conditionType == null || this.value == null) {
+            String express = columnName.trim() + conditionType.trim() + value.trim();
+            String[] str = express.split("(=|!=|<=|<|>|>=|<>)");
+            if (str.length == 2) {
+                this.columnName = str[0];
+                this.value = str[1];
+                this.conditionType = express.replace(str[0], "").replace(str[1], "");
+            }
+        }
     }
 }

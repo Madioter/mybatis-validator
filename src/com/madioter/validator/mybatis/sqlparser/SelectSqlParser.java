@@ -52,7 +52,8 @@ public class SelectSqlParser {
                 lastTemp = lastTemp.replaceFirst("\\)", "@frg#blank@");
             } else {
                 fragments.add(temp);
-                lastTemp = lastTemp.replaceFirst(temp + "\\)", "@frg#" + (fragments.size() - 1) + "@");
+                lastTemp = "@frg#" + (fragments.size() - 1) + "@" + lastTemp.substring(temp.length() + 1);
+                //lastTemp = lastTemp.replaceFirst(temp + "\\)", "@frg#" + (fragments.size() - 1) + "@");
             }
         }
         fragments.add(strArr[0] + lastTemp);
@@ -85,10 +86,10 @@ public class SelectSqlParser {
         return selectNodeList;
     }
 
-    /*public static void main(String[] args) {
-        String str = "select count(id) from (select id,max(name),now() from table where id in (1,2,3) union select 1 from dual)";
+    public static void main(String[] args) {
+        String str = "select wf.id, wf.type, wf.status, wf.nb_status, wf.result, wf.revert_time, wf.send_time, wf.send_flag, wf.add_time, wf.owner_id, wf.owner_name, wf.is_ticket, wfe.order_id, wfe.product_id, wfe.product_type, wfe.product_name, wfe.resource_id, wfe.resource_type, wfe.resource_name, wfe.vendor_id, wfe.vendor_name, wfe.default_channel, wfe.final_channel, wfe.release_time, wfe.tour_date, wfe.departrue_city, wfe.depart_dates, wfe.promotion_num, wfe.budget, wfe.is_changed from wkf_workform wf left join wkf_workform_extend wfe on wf.id = wfe.workform_id left join wkf_workform_vendor wfv on wf.id = wfv.workform_id and wfe.id = wfv.workform_extend_id where wf.del_flag = 0 and wfe.product_type in (0,31) and not exists (select 1 from (select 18884 as vendor_id union select 8594 as vendor_id union select 25390 as vendor_id union select 25253 as vendor_id) a where a.vendor_id = wfe.vendor_id) and wf.type in (#{item})  and wf.id = #{workformid}  and wf.owner_name = #{ownername}  and wf.is_ticket = #{isticket}  and wfe.order_id = #{orderid}  and wf.result = #{result}  and wfe.vendor_id = #{supplier}  and wf.status = #{status}  and wf.send_flag = #{sendflag}  and wf.revert_time >= concat(#{reverttimestart},\" 00:00:00\")  and wf.revert_time <= concat(#{reverttimeend},\" 23:59:59\")  and wf.add_time >= concat(#{addtimestart},\" 00:00:00\")  and wf.add_time <= concat(#{addtimeend},\" 23:59:59\")  and wfe.resource_id = #{resid}  and wfe.is_changed = #{ischanged}  and wfe.resource_type in (#{item})  and wfe.resource_name like '%${resname}%'  and wfe.product_id = #{productid}  and wfe.product_name = #{productname}  and wfe.contact = #{contact}  and wfe.departrue_city = #{departruecity}  and wfe.tour_date >= concat(#{tourdatestart},\" 00:00:00\")  and wfe.tour_date <= concat(#{tourdateend},\" 23:59:59\")  and wfe.vendor_id = #{vendorid}  and wf.nb_status = #{nbstatus}  and wfv.depart_date >= concat(#{departdatestart},\" 00:00:00\")  and wfv.depart_date <= concat(#{departdateend},\" 23:59:59\") group by wf.id order by wf.id desc limit #{start},#{limit}";
         new SelectSqlParser(str);
-    }*/
+    }
 
 
 }
