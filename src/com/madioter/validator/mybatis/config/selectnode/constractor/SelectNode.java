@@ -1,0 +1,212 @@
+package com.madioter.validator.mybatis.config.selectnode.constractor;
+
+import com.madioter.validator.mybatis.util.SelectTextClassification;
+import com.madioter.validator.mybatis.util.SqlConstant;
+import com.madioter.validator.mybatis.util.StringUtil;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <Description> <br>
+ *
+ * @author wangyi8<br>
+ * @version 1.0<br>
+ * @taskId  <br>
+ * @CreateDate 2015年11月28日 <br>
+ */
+public class SelectNode {
+
+    /**
+     * union结构
+     */
+    private List<SelectNode> unionSelects;
+
+    /**
+     * 保留的sql语句
+     */
+    private String sql;
+
+    /**
+     * 输出字段部分
+     */
+    private ColumnNode columnNode;
+
+    /**
+     * 查询表部分
+     */
+    private FromNode fromNode;
+
+    /**
+     * 条件部分
+     */
+    private WhereNode whereNode;
+
+    /**
+     * 分组部分
+     */
+    private GroupByNode groupByNode;
+
+    /**
+     * 排序部分
+     */
+    private OrderByNode orderByNode;
+
+    /**
+     * 查询字符串片段组
+     */
+    private List<String> columnText = new ArrayList<String>();
+
+    /**
+     * 表字符串片段组
+     */
+    private List<String> tableText = new ArrayList<String>();
+
+    /**
+     * where条件字符串片段组
+     */
+    private List<String> whereText = new ArrayList<String>();
+
+    /**
+     * 其他字符串片段组
+     */
+    private List<String> otherText = new ArrayList<String>();
+
+    /**
+     * 字符串开始标记
+     */
+    private SelectTextClassification classification = SelectTextClassification.NULL;
+
+    /**
+     * Instantiates a new Select node.
+     *
+     * @param simpleSelect the simple select
+     */
+    public SelectNode(String simpleSelect) {
+        this.sql = simpleSelect;
+        String[] selectItems = simpleSelect.split("(\\s+union\\s+|\\s+union\\s+all\\s+)");
+        if (selectItems.length > 1) {
+            unionSelects = new ArrayList<SelectNode>();
+            for (int i = 0; i < selectItems.length; i++) {
+                unionSelects.add(new SelectNode(selectItems[i]));
+            }
+        } else {
+            textClassify(simpleSelect);
+            columnNode = new ColumnNode(columnText);
+            fromNode = new FromNode(tableText);
+            whereNode = new WhereNode(whereText);
+            groupByNode = new GroupByNode(otherText);
+            orderByNode = new OrderByNode(otherText);
+        }
+    }
+
+    /**
+     * 字符串分类
+     * @param text 字符串
+     */
+    private void textClassify(String text) {
+        String[] textArr = StringUtil.splitWithBlank(text);
+        for (int k = 0; k < textArr.length; k++) {
+            if (textArr[k].toLowerCase().equals("select") && classification == SelectTextClassification.NULL) {
+                classification = SelectTextClassification.COLUMN;
+            } else if (textArr[k].toLowerCase().equals("from") && classification == SelectTextClassification.COLUMN) {
+                classification = SelectTextClassification.FROM;
+            } else if (textArr[k].toLowerCase().equals("where") && classification == SelectTextClassification.FROM) {
+                classification = SelectTextClassification.WHERE;
+            } else if ((textArr[k].toLowerCase().equals(SqlConstant.ORDER) || textArr[k].toLowerCase().equals(SqlConstant.GROUP))
+                    && k < textArr.length - 1 && textArr[k + 1].toLowerCase().equals(SqlConstant.BY) && classification == SelectTextClassification.WHERE) {
+                classification = SelectTextClassification.OTHER;
+                otherText.add(textArr[k]);
+            } else {
+                if (classification == SelectTextClassification.COLUMN) {
+                    columnText.add(textArr[k]);
+                } else if (classification == SelectTextClassification.FROM) {
+                    tableText.add(textArr[k]);
+                } else if (classification == SelectTextClassification.WHERE) {
+                    whereText.add(textArr[k]);
+                } else if (classification == SelectTextClassification.OTHER) {
+                    otherText.add(textArr[k]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets column node.
+     * @return column node
+     */
+    public ColumnNode getColumnNode() {
+        return columnNode;
+    }
+
+    /**
+     * Sets column node.
+     * @param columnNode the column node
+     */
+    public void setColumnNode(ColumnNode columnNode) {
+        this.columnNode = columnNode;
+    }
+
+    /**
+     * Gets from node.
+     * @return the from node
+     */
+    public FromNode getFromNode() {
+        return fromNode;
+    }
+
+    /**
+     * Sets from node.
+     * @param fromNode the from node
+     */
+    public void setFromNode(FromNode fromNode) {
+        this.fromNode = fromNode;
+    }
+
+    /**
+     * Gets where node.
+     * @return the where node
+     */
+    public WhereNode getWhereNode() {
+        return whereNode;
+    }
+
+    /**
+     * Sets where node.
+     * @param whereNode the where node
+     */
+    public void setWhereNode(WhereNode whereNode) {
+        this.whereNode = whereNode;
+    }
+
+    /**
+     * Gets group by node.
+     * @return the group by node
+     */
+    public GroupByNode getGroupByNode() {
+        return groupByNode;
+    }
+
+    /**
+     * Sets group by node.
+     * @param groupByNode the group by node
+     */
+    public void setGroupByNode(GroupByNode groupByNode) {
+        this.groupByNode = groupByNode;
+    }
+
+    /**
+     * Gets order by node.
+     * @return the order by node
+     */
+    public OrderByNode getOrderByNode() {
+        return orderByNode;
+    }
+
+    /**
+     * Sets order by node.
+     * @param orderByNode the order by node
+     */
+    public void setOrderByNode(OrderByNode orderByNode) {
+        this.orderByNode = orderByNode;
+    }
+}
