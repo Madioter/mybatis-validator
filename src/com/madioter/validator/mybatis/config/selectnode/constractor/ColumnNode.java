@@ -91,6 +91,10 @@ public class ColumnNode {
         return lastNode;
     }
 
+    /**
+     * 获取解析后的结构
+     * @return List<SelectElement>
+     */
     public List<SelectElement> getSelectElementList() {
         return selectElementList;
     }

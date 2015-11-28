@@ -78,4 +78,12 @@ public class FromNode {
             joinOnNodes = new WhereNode(joinOn);
         }
     }
+
+    /**
+     * 获取解析后的结构
+     * @return List<SelectElement>
+     */
+    public List<SelectElement> getSelectElementList() {
+        return selectElementList;
+    }
 }

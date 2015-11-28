@@ -30,11 +30,6 @@ public class SelectMappedStatementItem extends MappedStatementItem {
     private MappedStatement mappedStatement;
 
     /**
-     * 字段名
-     */
-    private List<SelectElement> elements;
-
-    /**
      * 返回对象
      */
     private ClassModel classModel;
@@ -109,22 +104,6 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      */
     public void setClassModel(ClassModel classModel) {
         this.classModel = classModel;
-    }
-
-    /**
-     * Gets elements.
-     * @return the elements
-     */
-    public List<SelectElement> getElements() {
-        return elements;
-    }
-
-    /**
-     * Sets elements.
-     * @param elements the elements
-     */
-    public void setElements(List<SelectElement> elements) {
-        this.elements = elements;
     }
 
     /**

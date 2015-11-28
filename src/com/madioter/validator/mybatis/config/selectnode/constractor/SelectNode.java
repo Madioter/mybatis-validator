@@ -83,6 +83,11 @@ public class SelectNode {
      */
     public SelectNode(String simpleSelect) {
         this.sql = simpleSelect;
+        /*解析单句sql语句的结构
+            原理：
+                1、如果存在union或union all字符，将当前的sql单句做进一步拆分
+                2、如果不存在，则执行语句结构划分
+         */
         String[] selectItems = simpleSelect.split("(\\s+union\\s+|\\s+union\\s+all\\s+)");
         if (selectItems.length > 1) {
             unionSelects = new ArrayList<SelectNode>();
@@ -90,6 +95,7 @@ public class SelectNode {
                 unionSelects.add(new SelectNode(selectItems[i]));
             }
         } else {
+            //语句结构分类
             textClassify(simpleSelect);
             columnNode = new ColumnNode(columnText);
             fromNode = new FromNode(tableText);
@@ -104,6 +110,13 @@ public class SelectNode {
      * @param text 字符串
      */
     private void textClassify(String text) {
+        /**
+         * 由于都是单句，所以不存在select嵌套的情况
+         * select字样出现到from字符出现的间隔内，都为查询结构字符串
+         * from字符串到where字符串间隔内的字符串，都为表字符串
+         * where字符串到group by或order by字符串，都为条件字符串
+         * 剩余字符串都为其他字符串
+         */
         String[] textArr = StringUtil.splitWithBlank(text);
         for (int k = 0; k < textArr.length; k++) {
             if (textArr[k].toLowerCase().equals("select") && classification == SelectTextClassification.NULL) {
