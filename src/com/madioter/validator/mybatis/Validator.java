@@ -91,9 +91,7 @@ public class Validator {
         StatementResource statementResource = configurationManager.getStatementResource();
         MappedStatementItem item = statementResource.getNext();
         while (item != null) {
-            if (item instanceof SelectMappedStatementItem) {
-                item.validate(connectionManager);
-            }
+            item.validate(connectionManager);
             item = statementResource.getNext();
         }
     }
