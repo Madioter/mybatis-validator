@@ -1,18 +1,10 @@
 package com.madioter.validator.mybatis.config.statement.select;
 
-import com.madioter.validator.mybatis.config.selectnode.ConditionNode;
-import com.madioter.validator.mybatis.config.selectnode.FunctionNode;
-import com.madioter.validator.mybatis.config.selectnode.GroupNode;
-import com.madioter.validator.mybatis.config.selectnode.OrderNode;
-import com.madioter.validator.mybatis.config.selectnode.QueryNode;
-import com.madioter.validator.mybatis.config.selectnode.SelectElement;
-import com.madioter.validator.mybatis.config.selectnode.TableNode;
 import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.config.tagnode.ForEachNode;
 import com.madioter.validator.mybatis.config.tagnode.SelectIfNode;
 import com.madioter.validator.mybatis.sqlparser.SelectSqlParser;
 import com.madioter.validator.mybatis.util.ReflectHelper;
-import com.madioter.validator.mybatis.util.SelectTextClassification;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
@@ -80,11 +72,7 @@ public class BaseSelectStatementParser implements SelectStatementParser {
             } else if (node instanceof ForEachSqlNode) {
                 fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(new ForEachNode((ForEachSqlNode) node).toString())));
             } else if (node instanceof MixedSqlNode) {
-                List<SqlNode> sqlNodeList = (List<SqlNode>) ReflectHelper.getPropertyValue(node, CONTENTS);
-                for (int k = 0; k < sqlNodeList.size(); k++) {
-                    String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(k), TEXT);
-                    fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(text)));
-                }
+                convertMixedNode((MixedSqlNode)node);
             } else if (node instanceof IfSqlNode) {
                 SelectIfNode selectIfNode = new SelectIfNode((IfSqlNode) node);
                 selectIfNodeList.add(selectIfNode);
@@ -98,12 +86,29 @@ public class BaseSelectStatementParser implements SelectStatementParser {
         //对sql语句进行标准化，使用单个空格进行分割字符串，并且所有字符串改为小写
         StringBuilder standardSql = new StringBuilder();
         for (int i = 0; i < fragments.size(); i++) {
-            standardSql.append(fragments.get(i).toLowerCase()).append(SymbolConstant.SYMBOL_BLANK);
+            standardSql.append(StringUtil.toLowerCaseExceptBrace(fragments.get(i))).append(SymbolConstant.SYMBOL_BLANK);
         }
         //使用select语句的sql解析器进行sql解析
         SelectSqlParser selectSqlParser = new SelectSqlParser(standardSql.toString());
         selectStatementItem.setSelectNodeList(selectSqlParser.getSelectNodeList());
 
         selectStatementItem.setIfConditions(selectIfNodeList);
+    }
+
+    /**
+     * 解析MixedSqlNode 循环
+     * @param node MixedSqlNode节点
+     * @throws ConfigException 异常
+     */
+    private void convertMixedNode(MixedSqlNode node) throws ConfigException {
+        List<SqlNode> sqlNodeList = (List<SqlNode>) ReflectHelper.getPropertyValue(node, CONTENTS);
+        for (int k = 0; k < sqlNodeList.size(); k++) {
+            if (sqlNodeList instanceof TextSqlNode) {
+                String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(k), TEXT);
+                fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(text)));
+            } else if (sqlNodeList.get(k) instanceof MixedSqlNode) {
+                convertMixedNode((MixedSqlNode)sqlNodeList.get(k));
+            }
+        }
     }
 }

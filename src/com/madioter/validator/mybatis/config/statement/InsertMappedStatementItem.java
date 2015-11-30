@@ -147,7 +147,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
                     InsertIfValueNode valueNode = ifValueNodeList.get(i);
                     //验证字段是否存在
                     try {
-                        columnNode.validate(columnDao, tableName);
+                        columnNode.validate(columnDao, tableName, parameterType);
                     } catch (MapperException e) {
                         e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
                                 + SymbolConstant.SYMBOL_COLON + e.getDescription());
@@ -177,14 +177,14 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     private boolean checkTrimNodeProperty(TrimSqlNode node, List<? extends IfNode> ifNodeList) throws ConfigException {
         //判断prefix属性是否设置
         String prefix = ((String) ReflectHelper.getPropertyValue(node, "prefix")).trim();
-        if (!prefix.equals("(") && !prefix.equals("values (")) {
+        if (!prefix.equals(SymbolConstant.SYMBOL_LEFT_BRACKET) && !prefix.equals("values (")) {
             new MapperException(ExceptionCommonConstant.INSERT_TRIM_PREFIX_ERROR,
                     String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
         }
 
         //判断suffix属性是否设置
         String suffix = (String) ReflectHelper.getPropertyValue(node, "suffix");
-        if (!suffix.equals(")")) {
+        if (!suffix.equals(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
             new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIX_ERROR,
                     String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
         }

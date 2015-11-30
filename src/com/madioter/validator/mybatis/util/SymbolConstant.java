@@ -40,5 +40,30 @@ public class SymbolConstant {
      */
     public static final String SYMBOL_BLANK = " ";
 
+    /**
+     * )
+     */
+    public static final String SYMBOL_RIGHT_BRACKET = ")";
+
+    /**
+     * (
+     */
+    public static final String SYMBOL_LEFT_BRACKET = "(";
+
+    /**
+     * #{
+     */
+    public static final String SYMBOL_LEFT_BRACE = "#{";
+
+    /**
+     * }
+     */
+    public static final String SYMBOL_RIGHT_BRACE = "}";
+
+    /**
+     * @
+     */
+    public static final String SYMBOL_AT = "@";
+
 
 }

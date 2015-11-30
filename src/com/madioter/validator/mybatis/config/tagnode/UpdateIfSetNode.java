@@ -49,9 +49,11 @@ public class UpdateIfSetNode extends IfNode {
      * @throws MapperException 发生对应关系异常
      */
     public boolean validate(ColumnDao columnDao, String tableName, Class parameterType) throws MapperException {
+        super.validate(parameterType);
+
         MapperException mapperException = null;
         if (getIfContent() == null) {
-            throw  new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
+            throw new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
         }
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
             mapperException = new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
@@ -62,7 +64,7 @@ public class UpdateIfSetNode extends IfNode {
             throw new MapperException(ExceptionCommonConstant.CAN_NOT_EXPLAIN_ERROR, String.format(ERROR_MSG, getIfContent()));
         }
         String columnName = strArr[0];
-        String propertyName = strArr[1].replace("#{", "").replace("}", "").trim();
+        String propertyName = strArr[1].replace(SymbolConstant.SYMBOL_LEFT_BRACE, "").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").trim();
         //验证字段是否存在
         boolean result = columnDao.checkColumnExist(columnName, tableName);
         if (!result) {
@@ -103,7 +105,7 @@ public class UpdateIfSetNode extends IfNode {
     public boolean validateColumn(ColumnDao columnDao, String tableName) throws MapperException {
         MapperException mapperException = null;
         if (getIfContent() == null) {
-            throw  new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
+            throw new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
         }
         //判断表达式是否以逗号结尾
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
@@ -144,7 +146,7 @@ public class UpdateIfSetNode extends IfNode {
     public boolean validateProperty(Class parameterType) throws MapperException {
         MapperException mapperException = null;
         if (getIfContent() == null) {
-            throw  new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
+            throw new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
         }
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
             mapperException = new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
@@ -154,7 +156,7 @@ public class UpdateIfSetNode extends IfNode {
         if (strArr.length < 2) {
             throw new MapperException(ExceptionCommonConstant.CAN_NOT_EXPLAIN_ERROR, String.format(ERROR_MSG, getIfContent()));
         }
-        String propertyName = strArr[1].replace("#{", "").replace("}", "").trim();
+        String propertyName = strArr[1].replace(SymbolConstant.SYMBOL_LEFT_BRACE, "").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").trim();
 
         //验证属性是否存在
         Boolean result = ReflectHelper.haveGetMethod(propertyName, parameterType);

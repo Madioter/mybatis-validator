@@ -3,9 +3,12 @@ package com.madioter.validator.mybatis.config.selectnode.constractor;
 import com.madioter.validator.mybatis.config.selectnode.GroupNode;
 import com.madioter.validator.mybatis.config.selectnode.OrderNode;
 import com.madioter.validator.mybatis.config.selectnode.SelectElement;
+import com.madioter.validator.mybatis.config.selectnode.TableNode;
+import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <Description> <br>
@@ -66,5 +69,16 @@ public class GroupByNode {
      */
     public List<SelectElement> getSelectElementList() {
         return selectElementList;
+    }
+
+    /**
+     * 自验证方法
+     * @param aliasTable 表定义
+     * @param columnDao  数据库字段操作类
+     * @param errMsg 异常信息
+     */
+    public void validate(Map<String, TableNode> aliasTable, ColumnDao columnDao, String errMsg) {
+        // TODO 验证分组字段和条件字段是否存在
+        return;
     }
 }

@@ -30,9 +30,21 @@ public class FromNode {
     /**
      * Instantiates a new From node.
      *
+     * 表内容为：
+     *  SELECT 1 FROM (SELECT 18884 AS vendor_id
+     *      UNION
+     *      SELECT 8594 AS vendor_id
+     *      UNION
+     *      SELECT 25390 AS vendor_id
+     *      UNION
+     *      SELECT 25253 AS vendor_id) a
+     *
+     *  解析思路：括号作为最先级别的完整对象
+     *
      * @param tableText the table text
      */
     public FromNode(List<String> tableText) {
+        rebuildText(tableText);
         List<String> joinOn = new ArrayList<String>();
         boolean onBegin = false;
         TableNode lastNode = null;
@@ -80,10 +92,45 @@ public class FromNode {
     }
 
     /**
+     * 重新组织拆分结构，保持括号的完整性
+     *
+     * @param tableText 表字符列表
+     */
+    private void rebuildText(List<String> tableText) {
+        StringBuilder builder = null;
+        List<String> textList = new ArrayList<String>();
+        for (String text : tableText) {
+            if (text.contains(SymbolConstant.SYMBOL_LEFT_BRACKET) && text.contains(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
+                textList.add(text);
+            } else if (text.contains(SymbolConstant.SYMBOL_LEFT_BRACKET)) {
+                builder = new StringBuilder(text);
+            } else if (text.contains(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
+                builder.append(SymbolConstant.SYMBOL_BLANK).append(text);
+                textList.add(builder.toString());
+                builder = null;
+            } else if (builder != null) {
+                builder.append(SymbolConstant.SYMBOL_BLANK).append(text);
+            } else {
+                textList.add(text);
+            }
+        }
+        tableText.clear();
+        tableText.addAll(textList);
+    }
+
+    /**
      * 获取解析后的结构
-     * @return List<SelectElement>
+     * @return List<SelectElement> select element list
      */
     public List<SelectElement> getSelectElementList() {
         return selectElementList;
+    }
+
+    /**
+     * Gets join on nodes.
+     * @return join on nodes
+     */
+    public WhereNode getJoinOnNodes() {
+        return joinOnNodes;
     }
 }

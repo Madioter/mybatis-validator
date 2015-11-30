@@ -42,9 +42,11 @@ public class InsertIfColumnNode extends IfNode {
      *
      * @param columnDao 验证工具服务
      * @param tableName 表名
+     * @param parameterType 入参类型
      * @throws MapperException 发生对应关系异常
      */
-    public boolean validate(ColumnDao columnDao, String tableName) throws MapperException {
+    public boolean validate(ColumnDao columnDao, String tableName, Class parameterType) throws MapperException {
+        super.validate(parameterType);
         MapperException mapperException = null;
         if (getIfContent() == null) {
             throw  new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));

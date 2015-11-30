@@ -4,6 +4,7 @@ import com.madioter.validator.mybatis.config.ConfigurationManager;
 import com.madioter.validator.mybatis.config.ResultMapResource;
 import com.madioter.validator.mybatis.config.StatementResource;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.ClassModel;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
@@ -90,7 +91,9 @@ public class Validator {
         StatementResource statementResource = configurationManager.getStatementResource();
         MappedStatementItem item = statementResource.getNext();
         while (item != null) {
-            item.validate(connectionManager);
+            if (item instanceof SelectMappedStatementItem) {
+                item.validate(connectionManager);
+            }
             item = statementResource.getNext();
         }
     }

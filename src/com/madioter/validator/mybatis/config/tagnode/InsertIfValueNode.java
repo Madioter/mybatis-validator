@@ -40,6 +40,7 @@ public class InsertIfValueNode extends IfNode {
      * @throws MapperException 异常
      */
     public boolean validate(Class parameterType) throws MapperException {
+        super.validate(parameterType);
         MapperException mapperException = null;
         if (getIfContent() == null) {
             throw  new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
@@ -47,7 +48,7 @@ public class InsertIfValueNode extends IfNode {
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
             mapperException = new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
         }
-        String propertyName = getIfContent().replace("#{","").replace("}", "").replace(",","").trim();
+        String propertyName = getIfContent().replace(SymbolConstant.SYMBOL_LEFT_BRACE,"").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").replace(",","").trim();
 
         boolean result = ReflectHelper.haveGetMethod(propertyName, parameterType);
         if (!result) {

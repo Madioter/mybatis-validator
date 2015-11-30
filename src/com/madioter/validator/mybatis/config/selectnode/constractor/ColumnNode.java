@@ -69,7 +69,7 @@ public class ColumnNode {
                 ((QueryNode) lastNode).setColumnAlias(text);
                 return null;
             } else if (lastNode instanceof FunctionNode) {
-                if (((FunctionNode) lastNode).getExpress().contains(")")) {
+                if (((FunctionNode) lastNode).getExpress().contains(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
                     ((FunctionNode) lastNode).setAlias(text);
                     return null;
                 } else {
@@ -78,7 +78,7 @@ public class ColumnNode {
                 }
             }
         } else if (!text.equals(SymbolConstant.SYMBOL_NUMBER)) {
-            if (text.contains("(")) {
+            if (text.contains(SymbolConstant.SYMBOL_LEFT_BRACKET)) {
                 FunctionNode node = new FunctionNode();
                 node.setExpress(text);
                 return node;

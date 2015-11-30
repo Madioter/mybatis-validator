@@ -40,4 +40,38 @@ public class SqlConstant {
      */
     public static final String DESC = "desc";
 
+    /**
+     * select
+     */
+    public static final String SELECT = "select";
+
+    /**
+     * from
+     */
+    public static final String FROM = "from";
+
+    /**
+     * where
+     */
+    public static final String WHERE = "where";
+
+    /**
+     * limit
+     */
+    public static final String LIMIT = "limit";
+
+    /**
+     * exists
+     */
+    public static final String EXISTS = "exists";
+
+    /**
+     * not
+     */
+    public static final String NOT = "not";
+
+    /**
+     * distinct
+     */
+    public static final String DISTINCT = "distinct";
 }

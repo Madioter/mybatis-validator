@@ -4,6 +4,7 @@ import com.madioter.validator.mybatis.config.selectnode.GroupNode;
 import com.madioter.validator.mybatis.config.selectnode.OrderNode;
 import com.madioter.validator.mybatis.config.selectnode.SelectElement;
 import com.madioter.validator.mybatis.util.SqlConstant;
+import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class OrderByNode {
         boolean orderFlag = false;
         boolean groupFlag = false;
         OrderNode orderNode = null;
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < otherText.size(); i++) {
             String temp = otherText.get(i);
             if (temp.toLowerCase().trim().equals(SqlConstant.ORDER) && i < otherText.size() - 1
@@ -44,17 +46,28 @@ public class OrderByNode {
                 groupFlag = true;
                 i = i + 1;
             } else if (orderFlag) {
-                if (orderNode == null && !temp.toLowerCase().trim().equals(SqlConstant.ASC) && !temp.toLowerCase().trim().equals(SqlConstant.DESC)) {
-                    orderNode = new OrderNode();
-                    orderNode.setOrderColumn(temp);
-                    selectElementList.add(orderNode);
-                } else if (temp.toLowerCase().trim().equals(SqlConstant.ASC)) {
-                    orderNode.setOrderType(OrderNode.OrderType.ASC);
-                } else if (temp.toLowerCase().trim().equals(SqlConstant.DESC)) {
-                    orderNode.setOrderType(OrderNode.OrderType.DESC);
-                }
+                builder.append(SymbolConstant.SYMBOL_BLANK).append(temp);
             } else if (groupFlag) {
                 continue;
+            }
+        }
+        if (!builder.toString().isEmpty()) {
+            String[] splitWithComma = builder.toString().split(",");
+            for (int i = 0; i < splitWithComma.length; i++) {
+                String temp = splitWithComma[i];
+                if (temp.toLowerCase().trim().contains(SymbolConstant.SYMBOL_BLANK + SqlConstant.ASC)) {
+                    orderNode = new OrderNode();
+                    orderNode.setOrderColumn(temp.toLowerCase().trim().replace(SymbolConstant.SYMBOL_BLANK + SqlConstant.ASC, ""));
+                    orderNode.setOrderType(OrderNode.OrderType.ASC);
+                } else if (temp.toLowerCase().trim().contains(SymbolConstant.SYMBOL_BLANK + SqlConstant.DESC)){
+                    orderNode = new OrderNode();
+                    orderNode.setOrderColumn(temp.toLowerCase().trim().replace(SymbolConstant.SYMBOL_BLANK + SqlConstant.DESC, ""));
+                    orderNode.setOrderType(OrderNode.OrderType.DESC);
+                } else {
+                    orderNode = new OrderNode();
+                    orderNode.setOrderColumn(temp.toLowerCase().trim());
+                    orderNode.setOrderType(OrderNode.OrderType.ASC);
+                }
             }
         }
     }

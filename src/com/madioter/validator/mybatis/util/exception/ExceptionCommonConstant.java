@@ -109,4 +109,9 @@ public class ExceptionCommonConstant {
      * if标签解析错误
      */
     public static final String IF_TAG_EXPLAIN_ERROR = "if标签解析错误";
+
+    /**
+     * 多表关联查询的别称不能为空
+     */
+    public static final String TABLE_ALIAS_IS_NULL = "多表关联查询的别称不能为空";
 }

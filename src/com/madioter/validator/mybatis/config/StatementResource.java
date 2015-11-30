@@ -4,6 +4,8 @@ import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
+import com.madioter.validator.mybatis.util.ArrayUtil;
+import com.madioter.validator.mybatis.util.Config;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +37,9 @@ public class StatementResource {
             Object temp = iterator.next();
             if (temp instanceof MappedStatement) {
                 MappedStatement statement = (MappedStatement) temp;
+                if (ArrayUtil.contains(Config.IGNORE_STATEMENT_MAPPER_ID, statement.getId())) {
+                    continue;
+                }
                 if (!mappedStatementMap.containsKey(statement.getId())) {
                     if (statement.getSqlCommandType() == SqlCommandType.INSERT) {
                         mappedStatementMap.put(statement.getId(), new InsertMappedStatementItem(statement));

@@ -1,8 +1,10 @@
 package com.madioter.validator.mybatis.config.selectnode.constractor;
 
+import com.madioter.validator.mybatis.config.selectnode.SelectElement;
 import com.madioter.validator.mybatis.util.SelectTextClassification;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
+import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +54,11 @@ public class SelectNode {
     private OrderByNode orderByNode;
 
     /**
+     * 分页部分
+     */
+    private LimitNode limitNode;
+
+    /**
      * 查询字符串片段组
      */
     private List<String> columnText = new ArrayList<String>();
@@ -70,6 +77,11 @@ public class SelectNode {
      * 其他字符串片段组
      */
     private List<String> otherText = new ArrayList<String>();
+
+    /**
+     * limit字符片段组
+     */
+    private List<String> limitText = new ArrayList<String>();
 
     /**
      * 字符串开始标记
@@ -96,22 +108,52 @@ public class SelectNode {
                     SELECT 25390 AS vendor_id
                     UNION
                     SELECT 25253 AS vendor_id) a
+                    解决方案：必须具备完整的select...from结构才被认为是单句
          */
         String[] selectItems = simpleSelect.split("(\\s+union\\s+|\\s+union\\s+all\\s+)");
+        String lastSeq = null;
+        StringBuilder selectSeq = new StringBuilder();
         if (selectItems.length > 1) {
             unionSelects = new ArrayList<SelectNode>();
             for (int i = 0; i < selectItems.length; i++) {
-                unionSelects.add(new SelectNode(selectItems[i]));
+                selectSeq.append(selectItems[i]).append(SymbolConstant.SYMBOL_BLANK);
+                List<String> stringList = StringUtil.arrayToList(StringUtil.splitWithBlank(selectSeq.toString()));
+                if (stringList.contains(SqlConstant.SELECT) && stringList.contains(SqlConstant.FROM)) {
+                    if (lastSeq != null) {
+                        unionSelects.add(new SelectNode(lastSeq));
+                    }
+                    lastSeq = selectSeq.toString();
+                    selectSeq = new StringBuilder();
+                }
+            }
+            if (selectSeq.toString().length() > 0) {
+                if (unionSelects.isEmpty()) {
+                    classify(simpleSelect);
+                } else if (lastSeq != null) {
+                    selectSeq.insert(0, lastSeq + SymbolConstant.SYMBOL_BLANK);
+                    unionSelects.add(new SelectNode(selectSeq.toString()));
+                } else {
+                    unionSelects.add(new SelectNode(selectSeq.toString()));
+                }
             }
         } else {
-            //语句结构分类
-            textClassify(simpleSelect);
-            columnNode = new ColumnNode(columnText);
-            fromNode = new FromNode(tableText);
-            whereNode = new WhereNode(whereText);
-            groupByNode = new GroupByNode(otherText);
-            orderByNode = new OrderByNode(otherText);
+            classify(simpleSelect);
         }
+    }
+
+    /**
+     * 语句结构分类
+     * @param simpleSelect select单句
+     */
+    private void classify(String simpleSelect) {
+        //语句结构分类
+        textClassify(simpleSelect);
+        columnNode = new ColumnNode(columnText);
+        fromNode = new FromNode(tableText);
+        whereNode = new WhereNode(whereText);
+        groupByNode = new GroupByNode(otherText);
+        orderByNode = new OrderByNode(otherText);
+        limitNode = new LimitNode(limitText);
     }
 
     /**
@@ -128,16 +170,20 @@ public class SelectNode {
          */
         String[] textArr = StringUtil.splitWithBlank(text);
         for (int k = 0; k < textArr.length; k++) {
-            if (textArr[k].toLowerCase().equals("select") && classification == SelectTextClassification.NULL) {
+            if (textArr[k].toLowerCase().equals(SqlConstant.SELECT) && classification == SelectTextClassification.NULL) {
                 classification = SelectTextClassification.COLUMN;
-            } else if (textArr[k].toLowerCase().equals("from") && classification == SelectTextClassification.COLUMN) {
+            } else if (textArr[k].toLowerCase().equals(SqlConstant.FROM) && classification == SelectTextClassification.COLUMN) {
                 classification = SelectTextClassification.FROM;
-            } else if (textArr[k].toLowerCase().equals("where") && classification == SelectTextClassification.FROM) {
+            } else if (textArr[k].toLowerCase().equals(SqlConstant.WHERE) && classification == SelectTextClassification.FROM) {
                 classification = SelectTextClassification.WHERE;
             } else if ((textArr[k].toLowerCase().equals(SqlConstant.ORDER) || textArr[k].toLowerCase().equals(SqlConstant.GROUP))
-                    && k < textArr.length - 1 && textArr[k + 1].toLowerCase().equals(SqlConstant.BY) && classification == SelectTextClassification.WHERE) {
+                    && k < textArr.length - 1 && textArr[k + 1].toLowerCase().equals(SqlConstant.BY)
+                    && (classification == SelectTextClassification.WHERE || classification == SelectTextClassification.FROM)) {
                 classification = SelectTextClassification.OTHER;
                 otherText.add(textArr[k]);
+            } else if (textArr[k].toLowerCase().equals(SqlConstant.LIMIT) && (classification == SelectTextClassification.WHERE
+                    || classification == SelectTextClassification.FROM || classification == SelectTextClassification.OTHER)) {
+                classification = SelectTextClassification.LIMIT;
             } else {
                 if (classification == SelectTextClassification.COLUMN) {
                     columnText.add(textArr[k]);
@@ -147,6 +193,8 @@ public class SelectNode {
                     whereText.add(textArr[k]);
                 } else if (classification == SelectTextClassification.OTHER) {
                     otherText.add(textArr[k]);
+                } else if (classification == SelectTextClassification.LIMIT) {
+                    limitText.add(textArr[k]);
                 }
             }
         }
@@ -230,5 +278,30 @@ public class SelectNode {
      */
     public void setOrderByNode(OrderByNode orderByNode) {
         this.orderByNode = orderByNode;
+    }
+
+    /**
+     * 获取内部的所有元素
+     *
+     * @author wangyi8 * @taskId *
+     * @return List<SelectElement> list
+     */
+    public List<SelectElement> selectElements() {
+        List<SelectElement> selectElementList = new ArrayList<SelectElement>();
+        selectElementList.addAll(columnNode.getSelectElementList());
+        selectElementList.addAll(fromNode.getSelectElementList());
+        selectElementList.addAll(whereNode.getSelectElementList());
+        selectElementList.addAll(orderByNode.getSelectElementList());
+        selectElementList.addAll(groupByNode.getSelectElementList());
+        selectElementList.add(limitNode);
+        return selectElementList;
+    }
+
+    /**
+     * Gets limit node.
+     * @return limit node
+     */
+    public LimitNode getLimitNode() {
+        return limitNode;
     }
 }

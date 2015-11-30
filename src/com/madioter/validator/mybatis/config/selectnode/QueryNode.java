@@ -1,5 +1,15 @@
 package com.madioter.validator.mybatis.config.selectnode;
 
+import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
+import com.madioter.validator.mybatis.database.ColumnDao;
+import com.madioter.validator.mybatis.database.ConnectionManager;
+import com.madioter.validator.mybatis.util.SqlUtil;
+import com.madioter.validator.mybatis.util.SymbolConstant;
+import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
+import com.madioter.validator.mybatis.util.exception.MapperException;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * <Description> 查询字段部分<br>
  *
@@ -9,6 +19,11 @@ package com.madioter.validator.mybatis.config.selectnode;
  * @CreateDate 2015年11月25日 <br>
  */
 public class QueryNode implements SelectElement {
+
+    /**
+     * 异常表达式
+     */
+    private static final String SQL_EXPRESS_TEXT = "表达式: %s";
 
     /**
      * 字段名
@@ -71,5 +86,40 @@ public class QueryNode implements SelectElement {
      */
     public void setColumnAlias(String columnAlias) {
         this.columnAlias = columnAlias;
+    }
+
+    /**
+     * 自验证方法
+     * @param aliasTable 表定义
+     * @param columnDao  数据库字段操作类
+     * @param errMsg 异常信息
+     */
+    public void validate(Map<String, TableNode> aliasTable, ColumnDao columnDao, String errMsg) {
+        if (SqlUtil.checkIsColumn(this.columnName)) {
+            String[] strArr = columnName.split("\\" + SymbolConstant.SYMBOL_POINT);
+            TableNode curTableNode = null;
+            String curColumnName = null;
+            if (strArr.length > 1) {
+                curTableNode = aliasTable.get(strArr[0]);
+                curColumnName = strArr[1];
+            } else if (aliasTable.size() == 1) {
+                Iterator<TableNode> tableNodeIterator = aliasTable.values().iterator();
+                curTableNode = tableNodeIterator.next();
+                curColumnName = strArr[0];
+            } else if (aliasTable.containsKey(SelectMappedStatementItem.CURRENT_TABLE)) {
+                curTableNode = aliasTable.get(SelectMappedStatementItem.CURRENT_TABLE);
+                curColumnName = strArr[0];
+            }
+            if (curTableNode == null) {
+                new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
+                        errMsg + String.format(SQL_EXPRESS_TEXT, this.columnName)).printException();
+            } else if (curTableNode.isCanCheck()) {
+                boolean exist = columnDao.checkColumnExist(curColumnName, curTableNode.getTableName());
+                if (!exist) {
+                    new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
+                            errMsg + String.format(SQL_EXPRESS_TEXT, this.columnName)).printException();
+                }
+            }
+        }
     }
 }

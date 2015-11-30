@@ -4,6 +4,7 @@ import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.builder.xml.dynamic.ForEachSqlNode;
@@ -65,6 +66,17 @@ public abstract class IfNode {
     }
 
     /**
+     * 验证条件是否存在
+     * @param parameterType 入参
+     * @return boolean
+     * @throws MapperException 异常
+     */
+    public boolean validate(Class parameterType) throws MapperException {
+        //TODO 验证查询条件中的入参属性是否存在
+        return true;
+    }
+
+    /**
      * Gets if test.
      * @return if test
      */
@@ -111,5 +123,4 @@ public abstract class IfNode {
     public void setContents(List<SqlNode> contents) {
         this.contents = contents;
     }
-
 }
