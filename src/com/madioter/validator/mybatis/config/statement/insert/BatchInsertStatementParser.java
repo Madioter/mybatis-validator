@@ -6,10 +6,6 @@ import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.NotSupportException;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.MixedSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TextSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TrimSqlNode;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -47,11 +43,11 @@ public class BatchInsertStatementParser implements InsertStatementParser {
     public void parser(MappedStatement mappedStatement, InsertMappedStatementItem insertMappedStatementItem) throws ConfigException {
         this.statementItem = insertMappedStatementItem;
         SqlSource sqlSource = mappedStatement.getSqlSource();
-        MixedSqlNode rootSqlNode = (MixedSqlNode) ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<SqlNode> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
+        Object rootSqlNode = ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
         if (!contents.isEmpty()) {
-            for (SqlNode node : contents) {
-                if (node instanceof TextSqlNode && statementItem.getTableName() == null) {
+            for (Object node : contents) {
+                if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
                     String text = (String) ReflectHelper.getPropertyValue(node, "text");
                     if (text.toLowerCase().contains(INSERT)) {
                         statementItem.setTableName(getTableName(text));

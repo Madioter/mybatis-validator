@@ -1,19 +1,12 @@
 package com.madioter.validator.mybatis.config.statement.update;
 
 import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
-import com.madioter.validator.mybatis.config.tagnode.InsertIfColumnNode;
 import com.madioter.validator.mybatis.config.tagnode.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.MixedSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SetSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TextSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TrimSqlNode;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -51,18 +44,18 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
     public void parser(MappedStatement mappedStatement, UpdateMappedStatementItem upateStatementItem) throws ConfigException {
         this.statementItem = upateStatementItem;
         SqlSource sqlSource = mappedStatement.getSqlSource();
-        MixedSqlNode rootSqlNode = (MixedSqlNode) ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<SqlNode> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
+        Object rootSqlNode = (Object) ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
         if (!contents.isEmpty()) {
-            for (SqlNode node : contents) {
-                if (node instanceof TextSqlNode && statementItem.getTableName() == null) {
+            for (Object node : contents) {
+                if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
                     String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
                     if (text.toLowerCase().contains(UPDATE)) {
                         statementItem.setTableName(getTableName(text));
                     }
-                } else if (node instanceof SetSqlNode) {
-                    createSetNodeList((SetSqlNode) node);
-                } else if (node instanceof TextSqlNode && statementItem.getTableName() != null) {
+                } else if (node.getClass().getName().endsWith("SetSqlNode")) {
+                    createSetNodeList(node);
+                } else if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() != null) {
                     String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
                     if (!text.trim().equals("")) {
                         statementItem.setWhereCondition(text.trim());
@@ -78,14 +71,14 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
      * @param node xml节点
      * @throws ConfigException <br>
      */
-    private void createSetNodeList(SetSqlNode node) throws ConfigException {
+    private void createSetNodeList(Object node) throws ConfigException {
         statementItem.setSetSqlNode(node);
         List<UpdateIfSetNode> updateIfSetNodeList = new ArrayList<UpdateIfSetNode>();
-        MixedSqlNode contentNode = (MixedSqlNode) ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<SqlNode> contents = (List<SqlNode>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
-        for (SqlNode sqlNode : contents) {
-            if (sqlNode instanceof IfSqlNode) {
-                updateIfSetNodeList.add(new UpdateIfSetNode((IfSqlNode)sqlNode));
+        Object contentNode = ReflectHelper.getPropertyValue(node, CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith("IfSqlNode")) {
+                updateIfSetNodeList.add(new UpdateIfSetNode(sqlNode));
             }
         }
         statementItem.setSetNodeList(updateIfSetNodeList);

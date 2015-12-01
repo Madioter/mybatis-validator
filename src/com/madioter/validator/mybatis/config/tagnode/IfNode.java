@@ -1,20 +1,16 @@
 package com.madioter.validator.mybatis.config.tagnode;
 
-import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.ForEachSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TextSqlNode;
 
 /**
  * <Description> if标签节点 <br>
  *
+ * 解决3.1.1和3.2.6版本类路径不同
  * @author wangyi8<br>
  * @version 1.0<br>
  * @taskId  <br>
@@ -40,7 +36,7 @@ public abstract class IfNode {
     /**
      * if内部嵌套节点
      */
-    private List<SqlNode> contents;
+    private List<Object> contents;
 
     /**
      * 构造方法
@@ -48,16 +44,16 @@ public abstract class IfNode {
      * @param sqlNode if标签
      * @throws ConfigException 配置异常
      */
-    public IfNode(IfSqlNode sqlNode) throws ConfigException {
+    public IfNode(Object sqlNode) throws ConfigException {
         this.ifTest = ((String) ReflectHelper.getPropertyValue(sqlNode, "test")).trim();
-        SqlNode contentNode = (SqlNode) ReflectHelper.getPropertyValue(sqlNode, CONTENTS);
-        this.contents = (ArrayList<SqlNode>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        Object contentNode = (Object) ReflectHelper.getPropertyValue(sqlNode, CONTENTS);
+        this.contents = (ArrayList<Object>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
         for (int i = 0; i < contents.size(); i++) {
             String nodeText = "";
-            if (contents.get(i) instanceof TextSqlNode) {
+            if (contents.get(i).getClass().getName().endsWith("TextSqlNode")) {
                 nodeText = (String) ReflectHelper.getPropertyValue(contents.get(i), "text");
-            } else if (contents.get(i) instanceof ForEachSqlNode) {
-                nodeText = new ForEachNode((ForEachSqlNode)contents.get(i)).toString();
+            } else if (contents.get(i).getClass().getName().endsWith("ForEachSqlNode")) {
+                nodeText = new ForEachNode(contents.get(i)).toString();
             }
             if (nodeText.trim() != null && !nodeText.trim().equals("")) {
                 this.ifContent = this.ifContent + SymbolConstant.SYMBOL_BLANK + nodeText.trim();
@@ -112,7 +108,7 @@ public abstract class IfNode {
      * Gets contents.
      * @return contents
      */
-    public List<SqlNode> getContents() {
+    public List<Object> getContents() {
         return contents;
     }
 
@@ -120,7 +116,7 @@ public abstract class IfNode {
      * Sets contents.
      * @param contents the contents
      */
-    public void setContents(List<SqlNode> contents) {
+    public void setContents(List<Object> contents) {
         this.contents = contents;
     }
 }

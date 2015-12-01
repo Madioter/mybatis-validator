@@ -5,7 +5,6 @@ import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
 import com.madioter.validator.mybatis.util.SymbolConstant;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
 
 /**
  * <Description> insert的字段名定义节点 <br>
@@ -33,7 +32,7 @@ public class InsertIfColumnNode extends IfNode {
      * @param sqlNode if节点
      * @throws ConfigException 配置异常
      */
-    public InsertIfColumnNode(IfSqlNode sqlNode) throws ConfigException {
+    public InsertIfColumnNode(Object sqlNode) throws ConfigException {
         super(sqlNode);
     }
 

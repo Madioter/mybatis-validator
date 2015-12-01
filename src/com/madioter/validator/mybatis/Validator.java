@@ -8,6 +8,7 @@ import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.ClassModel;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
@@ -59,7 +60,7 @@ public class Validator {
      * spring配置文件传入参数
      * @param sqlSessionFactory mybatis配置
      */
-    public void setSqlSessionFactory(DefaultSqlSessionFactory sqlSessionFactory) {
+    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
         try {
             configurationManager = new ConfigurationManager(sqlSessionFactory.getConfiguration());
         } catch (Exception e) {

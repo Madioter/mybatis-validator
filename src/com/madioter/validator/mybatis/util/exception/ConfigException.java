@@ -18,4 +18,12 @@ public class ConfigException extends Exception {
     public ConfigException(String message, Exception e) {
         super(message, e);
     }
+
+    /**
+     * 异常构造方法
+     * @param message 异常信息
+     */
+    public ConfigException(String message) {
+        super(message);
+    }
 }

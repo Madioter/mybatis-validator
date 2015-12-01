@@ -3,12 +3,11 @@ package com.madioter.validator.mybatis.config.tagnode;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.ForEachSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.MixedSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SqlNode;
+
 
 /**
- * <Description> <br>
+ * <Description> foreache节点 <br>
+ * 改用Object为了解决不同版本问题
  *
  * @author wangyi8<br>
  * @version 1.0<br>
@@ -35,21 +34,21 @@ public class ForEachNode {
     /**
      * forEachSqlNode
      */
-    private ForEachSqlNode forEachSqlNode;
+    private Object forEachSqlNode;
 
     /**
      * 构造方法
      * @param forEachSqlNode ForEachSqlNode
      */
-    public ForEachNode(ForEachSqlNode forEachSqlNode) {
+    public ForEachNode(Object forEachSqlNode) {
         this.forEachSqlNode = forEachSqlNode;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         try {
-            MixedSqlNode mixedSqlNode = (MixedSqlNode) ReflectHelper.getPropertyValue(forEachSqlNode, CONTENTS);
-            List<SqlNode> sqlNodeList = (List<SqlNode>) ReflectHelper.getPropertyValue(mixedSqlNode, CONTENTS);
+            Object mixedSqlNode = ReflectHelper.getPropertyValue(forEachSqlNode, CONTENTS);
+            List<Object> sqlNodeList = (List<Object>) ReflectHelper.getPropertyValue(mixedSqlNode, CONTENTS);
             String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(0), TEXT);
             String item = (String) ReflectHelper.getPropertyValue(forEachSqlNode, ITEM);
             String open = (String) ReflectHelper.getPropertyValue(forEachSqlNode, "open");

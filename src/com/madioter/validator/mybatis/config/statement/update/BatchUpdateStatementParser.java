@@ -8,12 +8,6 @@ import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.NotSupportException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.ForEachSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.MixedSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SetSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TextSqlNode;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -58,18 +52,18 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
     public void parser(MappedStatement mappedStatement, UpdateMappedStatementItem updateMappedStatementItem) throws ConfigException {
         this.statementItem = updateMappedStatementItem;
         SqlSource sqlSource = mappedStatement.getSqlSource();
-        MixedSqlNode rootSqlNode = (MixedSqlNode) ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<SqlNode> nodes = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
+        Object rootSqlNode = ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
+        List<Object> nodes = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
         if (!nodes.isEmpty()) {
-            for (SqlNode node : nodes) {
-                if (node instanceof TextSqlNode && statementItem.getTableName() == null) {
+            for (Object node : nodes) {
+                if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
                     String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
                     if (text.toLowerCase().contains(UPDATE)) {
                         statementItem.setTableName(getTableName(text));
                     }
-                } else if (node instanceof ForEachSqlNode) {
-                    parseEachNode((ForEachSqlNode) node);
-                } else if (node instanceof TextSqlNode) {
+                } else if (node.getClass().getName().endsWith("ForEachSqlNode")) {
+                    parseEachNode(node);
+                } else if (node.getClass().getName().endsWith("TextSqlNode")) {
                     String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
                     if (!text.trim().equals("")) {
                         statementItem.setWhereCondition(text.trim());
@@ -89,19 +83,19 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
      * @param node 节点
      * @throws ConfigException 配置异常
      */
-    private void parseEachNode(ForEachSqlNode node) throws ConfigException {
-        MixedSqlNode mixedSqlNode = (MixedSqlNode) ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<SqlNode> contents = (List) ReflectHelper.getPropertyValue(mixedSqlNode, CONTENTS);
+    private void parseEachNode(Object node) throws ConfigException {
+        Object mixedSqlNode = ReflectHelper.getPropertyValue(node, CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(mixedSqlNode, CONTENTS);
         if (!contents.isEmpty()) {
-            for (SqlNode innerNode : contents) {
-                if (innerNode instanceof TextSqlNode && statementItem.getTableName() == null) {
+            for (Object innerNode : contents) {
+                if (innerNode.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
                     String text = (String) ReflectHelper.getPropertyValue(innerNode, TEXT);
                     if (text.toLowerCase().contains(UPDATE)) {
                         statementItem.setTableName(getTableName(text));
                     }
-                } else if (innerNode instanceof SetSqlNode) {
-                    createSetNodeList((SetSqlNode) innerNode);
-                } else if (innerNode instanceof TextSqlNode && statementItem.getTableName() != null) {
+                } else if (innerNode.getClass().getName().endsWith("SetSqlNode")) {
+                    createSetNodeList(innerNode);
+                } else if (innerNode.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() != null) {
                     String text = (String) ReflectHelper.getPropertyValue(innerNode, TEXT);
                     if (!text.trim().equals("")) {
                         statementItem.setWhereCondition(text.trim());
@@ -129,14 +123,14 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
      * @param node xml节点
      * @throws ConfigException <br>
      */
-    private void createSetNodeList(SetSqlNode node) throws ConfigException {
+    private void createSetNodeList(Object node) throws ConfigException {
         statementItem.setSetSqlNode(node);
         List<UpdateIfSetNode> updateIfSetNodeList = new ArrayList<UpdateIfSetNode>();
-        MixedSqlNode contentNode = (MixedSqlNode) ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<SqlNode> contents = (List<SqlNode>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
-        for (SqlNode sqlNode : contents) {
-            if (sqlNode instanceof IfSqlNode) {
-                updateIfSetNodeList.add(new UpdateIfSetNode((IfSqlNode) sqlNode));
+        Object contentNode = ReflectHelper.getPropertyValue(node, CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith("IfSqlNode")) {
+                updateIfSetNodeList.add(new UpdateIfSetNode(sqlNode));
             }
         }
         statementItem.setSetNodeList(updateIfSetNodeList);

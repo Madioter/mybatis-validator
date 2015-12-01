@@ -5,8 +5,6 @@ import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
-import java.util.Map;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
 
 /**
  * <Description> insert的值定义节点 <br>
@@ -29,7 +27,7 @@ public class InsertIfValueNode extends IfNode {
      * @param sqlNode if标签
      * @throws ConfigException 配置异常
      */
-    public InsertIfValueNode(IfSqlNode sqlNode) throws ConfigException {
+    public InsertIfValueNode(Object sqlNode) throws ConfigException {
         super(sqlNode);
     }
 
@@ -43,12 +41,12 @@ public class InsertIfValueNode extends IfNode {
         super.validate(parameterType);
         MapperException mapperException = null;
         if (getIfContent() == null) {
-            throw  new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
+            throw new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
         }
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
             mapperException = new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
         }
-        String propertyName = getIfContent().replace(SymbolConstant.SYMBOL_LEFT_BRACE,"").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").replace(",","").trim();
+        String propertyName = getIfContent().replace(SymbolConstant.SYMBOL_LEFT_BRACE, "").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").replace(",", "").trim();
 
         boolean result = ReflectHelper.haveGetMethod(propertyName, parameterType);
         if (!result) {

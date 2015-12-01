@@ -7,11 +7,6 @@ import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.MixedSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.SqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TextSqlNode;
-import org.apache.ibatis.builder.xml.dynamic.TrimSqlNode;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -36,6 +31,16 @@ public class BaseInsertStatementParser implements InsertStatementParser {
     private static final String INSERT = "insert";
 
     /**
+     * TrimSqlNode
+     */
+    private static final String TRIM_SQL_NODE = "TrimSqlNode";
+
+    /**
+     * IfSqlNode
+     */
+    private static final String IF_SQL_NODE = "IfSqlNode";
+
+    /**
      * 对象引用
      */
     private InsertMappedStatementItem statementItem;
@@ -44,19 +49,19 @@ public class BaseInsertStatementParser implements InsertStatementParser {
     public void parser(MappedStatement mappedStatement, InsertMappedStatementItem insertMappedStatementItem) throws ConfigException {
         this.statementItem = insertMappedStatementItem;
         SqlSource sqlSource = mappedStatement.getSqlSource();
-        MixedSqlNode rootSqlNode = (MixedSqlNode) ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<SqlNode> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
+        Object rootSqlNode = ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
+        List contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
         if (!contents.isEmpty()) {
-            for (SqlNode node : contents) {
-                if (node instanceof TextSqlNode && statementItem.getTableName() == null) {
+            for (Object node : contents) {
+                if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
                     String text = (String) ReflectHelper.getPropertyValue(node, "text");
                     if (text.toLowerCase().contains(INSERT)) {
                         statementItem.setTableName(text.toLowerCase().replace(INSERT, "").replace("into", "").trim());
                     }
-                } else if (node instanceof TrimSqlNode && statementItem.getIfColumnNodeList() == null) {
-                    createColumnNodeList((TrimSqlNode) node);
-                } else if (node instanceof TrimSqlNode && statementItem.getIfValueNodeList() == null) {
-                    createValueNodeList((TrimSqlNode) node);
+                } else if (node.getClass().getName().endsWith(TRIM_SQL_NODE) && statementItem.getIfColumnNodeList() == null) {
+                    createColumnNodeList(node);
+                } else if (node.getClass().getName().endsWith(TRIM_SQL_NODE) && statementItem.getIfValueNodeList() == null) {
+                    createValueNodeList(node);
                 }
             }
         }
@@ -68,14 +73,14 @@ public class BaseInsertStatementParser implements InsertStatementParser {
      * @param node xml节点
      * @throws ConfigException <br>
      */
-    private void createColumnNodeList(TrimSqlNode node) throws ConfigException {
+    private void createColumnNodeList(Object node) throws ConfigException {
         statementItem.setColumnSqlNode(node);
         List<InsertIfColumnNode> ifColumnNodeList = new ArrayList<InsertIfColumnNode>();
-        MixedSqlNode contentNode = (MixedSqlNode) ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<SqlNode> contents = (List<SqlNode>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
-        for (SqlNode sqlNode : contents) {
-            if (sqlNode instanceof IfSqlNode) {
-                ifColumnNodeList.add(new InsertIfColumnNode((IfSqlNode)sqlNode));
+        Object contentNode = ReflectHelper.getPropertyValue(node, CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith(IF_SQL_NODE)) {
+                ifColumnNodeList.add(new InsertIfColumnNode(sqlNode));
             }
         }
         statementItem.setIfColumnNodeList(ifColumnNodeList);
@@ -87,14 +92,14 @@ public class BaseInsertStatementParser implements InsertStatementParser {
      * @param node xml节点
      * @throws ConfigException <br>
      */
-    private void createValueNodeList(TrimSqlNode node) throws ConfigException {
+    private void createValueNodeList(Object node) throws ConfigException {
         statementItem.setValueSqlNode(node);
         List<InsertIfValueNode> ifValueNodeList = new ArrayList<InsertIfValueNode>();
-        MixedSqlNode contentNode = (MixedSqlNode) ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<SqlNode> contents = (List<SqlNode>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
-        for (SqlNode sqlNode : contents) {
-            if (sqlNode instanceof IfSqlNode) {
-                ifValueNodeList.add(new InsertIfValueNode((IfSqlNode)sqlNode));
+        Object contentNode = ReflectHelper.getPropertyValue(node, CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith(IF_SQL_NODE)) {
+                ifValueNodeList.add(new InsertIfValueNode(sqlNode));
             }
         }
         statementItem.setIfValueNodeList(ifValueNodeList);

@@ -13,7 +13,6 @@ import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.List;
 import java.util.Map;
-import org.apache.ibatis.builder.xml.dynamic.SetSqlNode;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
@@ -54,7 +53,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
     /**
      * SET中的sql节点
      */
-    private SetSqlNode setSqlNode;
+    private Object setSqlNode;
 
     /**
      * set中if节点对象列表
@@ -159,7 +158,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      * Gets set sql node.
      * @return set sql node
      */
-    public SetSqlNode getSetSqlNode() {
+    public Object getSetSqlNode() {
         return setSqlNode;
     }
 
@@ -167,7 +166,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      * Sets set sql node.
      * @param setSqlNode the set sql node
      */
-    public void setSetSqlNode(SetSqlNode setSqlNode) {
+    public void setSetSqlNode(Object setSqlNode) {
         this.setSqlNode = setSqlNode;
     }
 

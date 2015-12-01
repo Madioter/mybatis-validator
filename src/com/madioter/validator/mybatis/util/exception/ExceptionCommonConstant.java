@@ -16,6 +16,11 @@ public class ExceptionCommonConstant {
     public static final String CONFIG_READ_EXCEPTION = "配置信息读取异常";
 
     /**
+     * SqlSource实现类解析失败
+     */
+    public static final String CONFIG_PARSER_EXCEPITON = "SqlSource实现类解析失败";
+
+    /**
      * set或get方法不存在
      */
     public static final String SET_OR_GET_METHOD_NOT_EXIST = "set或get方法不存在";
@@ -114,4 +119,9 @@ public class ExceptionCommonConstant {
      * 多表关联查询的别称不能为空
      */
     public static final String TABLE_ALIAS_IS_NULL = "多表关联查询的别称不能为空";
+
+    /**
+     * 无法找到相应的解析类
+     */
+    public static final String CLASS_FOUNT_EXCEPTION = "无法找到相应的解析类";
 }

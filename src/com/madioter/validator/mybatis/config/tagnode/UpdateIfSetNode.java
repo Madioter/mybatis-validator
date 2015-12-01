@@ -7,7 +7,6 @@ import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
 
 /**
  * <Description> <br>
@@ -35,7 +34,7 @@ public class UpdateIfSetNode extends IfNode {
      * @param sqlNode if标签
      * @throws ConfigException 配置异常
      */
-    public UpdateIfSetNode(IfSqlNode sqlNode) throws ConfigException {
+    public UpdateIfSetNode(Object sqlNode) throws ConfigException {
         super(sqlNode);
     }
 

@@ -17,7 +17,6 @@ import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import java.util.List;
 import java.util.Map;
-import org.apache.ibatis.builder.xml.dynamic.TrimSqlNode;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
@@ -72,7 +71,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     /**
      * 用于解析insert字段名的标签
      */
-    private TrimSqlNode columnSqlNode;
+    private Object columnSqlNode;
 
     /**
      * insert的赋值节点
@@ -82,7 +81,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     /**
      * 用于解析insert value赋值的节点
      */
-    private TrimSqlNode valueSqlNode;
+    private Object valueSqlNode;
 
     /**
      * 构造方法
@@ -174,7 +173,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      * @return false 存在错误
      * @throws ConfigException 配置异常
      */
-    private boolean checkTrimNodeProperty(TrimSqlNode node, List<? extends IfNode> ifNodeList) throws ConfigException {
+    private boolean checkTrimNodeProperty(Object node, List<? extends IfNode> ifNodeList) throws ConfigException {
         //判断prefix属性是否设置
         String prefix = ((String) ReflectHelper.getPropertyValue(node, "prefix")).trim();
         if (!prefix.equals(SymbolConstant.SYMBOL_LEFT_BRACKET) && !prefix.equals("values (")) {
@@ -253,7 +252,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      * Sets value sql node.
      * @param valueSqlNode the value sql node
      */
-    public void setValueSqlNode(TrimSqlNode valueSqlNode) {
+    public void setValueSqlNode(Object valueSqlNode) {
         this.valueSqlNode = valueSqlNode;
     }
 
@@ -261,7 +260,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      * Sets column sql node.
      * @param columnSqlNode the column sql node
      */
-    public void setColumnSqlNode(TrimSqlNode columnSqlNode) {
+    public void setColumnSqlNode(Object columnSqlNode) {
         this.columnSqlNode = columnSqlNode;
     }
 }
