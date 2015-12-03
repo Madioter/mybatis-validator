@@ -1,8 +1,11 @@
 package com.madioter.validator.mybatis.config.statement.update;
 
+import com.madioter.validator.mybatis.config.parser.SqlSourceParser;
+import com.madioter.validator.mybatis.config.parser.SqlSourceVo;
 import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
 import com.madioter.validator.mybatis.config.tagnode.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.ArrayList;
@@ -21,21 +24,6 @@ import org.apache.ibatis.mapping.SqlSource;
 public class BaseUpdateStatementParser implements UpdateStatementParser {
 
     /**
-     * UPDATE
-     */
-    private static final String UPDATE = "update";
-
-    /**
-     * Contents
-     */
-    private static final String  CONTENTS = "contents";
-
-    /**
-     * text
-     */
-    private static final String TEXT = "text";
-
-    /**
      * 对象引用
      */
     private UpdateMappedStatementItem statementItem;
@@ -44,44 +32,24 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
     public void parser(MappedStatement mappedStatement, UpdateMappedStatementItem upateStatementItem) throws ConfigException {
         this.statementItem = upateStatementItem;
         SqlSource sqlSource = mappedStatement.getSqlSource();
-        Object rootSqlNode = (Object) ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<Object> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
-        if (!contents.isEmpty()) {
-            for (Object node : contents) {
-                if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
-                    String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
-                    if (text.toLowerCase().contains(UPDATE)) {
-                        statementItem.setTableName(getTableName(text));
-                    }
-                } else if (node.getClass().getName().endsWith("SetSqlNode")) {
-                    createSetNodeList(node);
-                } else if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() != null) {
-                    String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
-                    if (!text.trim().equals("")) {
-                        statementItem.setWhereCondition(text.trim());
-                    }
-                }
+        SqlSourceVo sqlSourceVo = SqlSourceParser.parser(sqlSource);
+        String sql = sqlSourceVo.getSql();
+        List<String> fragment = StringUtil.arrayToList(StringUtil.splitWithBlank(sql));
+        boolean whereFlag = false;
+        StringBuilder whereText = new StringBuilder();
+        for (int i = 0; i < fragment.size(); i++) {
+            if (fragment.get(i).equals(SqlConstant.UPDATE) && i < fragment.size() - 1) {
+                statementItem.setTableName(fragment.get(i + 1));
+            } else if (fragment.get(i).equals("where")) {
+                whereFlag = true;
+            }
+            if (whereFlag) {
+                whereText.append(fragment.get(i));
             }
         }
-    }
-
-    /**
-     * 构建表字段节点信息
-     *
-     * @param node xml节点
-     * @throws ConfigException <br>
-     */
-    private void createSetNodeList(Object node) throws ConfigException {
-        statementItem.setSetSqlNode(node);
-        List<UpdateIfSetNode> updateIfSetNodeList = new ArrayList<UpdateIfSetNode>();
-        Object contentNode = ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
-        for (Object sqlNode : contents) {
-            if (sqlNode.getClass().getName().endsWith("IfSqlNode")) {
-                updateIfSetNodeList.add(new UpdateIfSetNode(sqlNode));
-            }
-        }
-        statementItem.setSetNodeList(updateIfSetNodeList);
+        statementItem.setSetNodeList(sqlSourceVo.getSetNodeList());
+        statementItem.setSetSqlNode(sqlSourceVo.getSetSqlNode());
+        statementItem.setWhereCondition(whereText.toString());
     }
 
     /**
@@ -91,7 +59,7 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
      * @return String
      */
     private String getTableName(String text) {
-        String tableName = text.toLowerCase().replace(UPDATE, "").trim();
+        String tableName = text.toLowerCase().replace(SqlConstant.UPDATE, "").trim();
         String[] items = StringUtil.splitWithBlank(tableName);
         return items[0];
     }

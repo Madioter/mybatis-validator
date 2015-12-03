@@ -3,7 +3,11 @@ package com.madioter.validator.mybatis.config.parser.versionimpl.v3_1_1;
 import com.madioter.validator.mybatis.config.parser.ISqlSourceType;
 import com.madioter.validator.mybatis.config.parser.SqlSourceVo;
 import com.madioter.validator.mybatis.config.tagnode.ForEachNode;
+import com.madioter.validator.mybatis.config.tagnode.InsertIfColumnNode;
+import com.madioter.validator.mybatis.config.tagnode.InsertIfValueNode;
 import com.madioter.validator.mybatis.config.tagnode.SelectIfNode;
+import com.madioter.validator.mybatis.config.tagnode.UpdateIfSetNode;
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
@@ -21,17 +25,6 @@ import org.apache.ibatis.mapping.SqlSource;
  * @CreateDate 2015年12月01日 <br>
  */
 public class DynamicSqlSourceParser implements ISqlSourceType {
-
-
-    /**
-     * Mybatis解析SqlNode的contents属性名
-     */
-    private static final String CONTENTS = "contents";
-
-    /**
-     * text
-     */
-    private static final String TEXT = "text";
 
     @Override
     public boolean matches(Object object) {
@@ -51,7 +44,7 @@ public class DynamicSqlSourceParser implements ISqlSourceType {
     public SqlSourceVo parser(SqlSource sqlSource) throws ConfigException {
         SqlSourceVo sqlSourceVo = new SqlSourceVo();
         Object rootSqlNode = ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<Object> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(rootSqlNode, MyBatisTagConstant.CONTENTS);
         List<SelectIfNode> selectIfNodeList = new ArrayList<SelectIfNode>();
         /**
          * 语句字符碎片
@@ -59,14 +52,14 @@ public class DynamicSqlSourceParser implements ISqlSourceType {
         List<String> fragments = new ArrayList<String>();
         for (int i = 0; i < contents.size(); i++) {
             Object node = contents.get(i);
-            if (node.getClass().getName().endsWith("TextSqlNode")) {
-                String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
+            if (node.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE)) {
+                String text = (String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.TEXT);
                 fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(text)));
             } else if (node.getClass().getName().endsWith("ForEachSqlNode")) {
                 fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(new ForEachNode(node).toString())));
-            } else if (node.getClass().getName().endsWith("MixedSqlNode")) {
+            } else if (node.getClass().getName().endsWith(MyBatisTagConstant.MIXED_SQL_NODE)) {
                 convertMixedNode(node, fragments);
-            } else if (node.getClass().getName().endsWith("IfSqlNode")) {
+            } else if (node.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
                 SelectIfNode selectIfNode = new SelectIfNode(node);
                 selectIfNodeList.add(selectIfNode);
                 String content = selectIfNode.getIfContent();
@@ -74,6 +67,18 @@ public class DynamicSqlSourceParser implements ISqlSourceType {
                 for (int j = 0; j < contentArr.length; j++) {
                     fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(contentArr[j])));
                 }
+            } else if (node.getClass().getName().endsWith(MyBatisTagConstant.SET_SQL_NODE)) {
+                List<UpdateIfSetNode> updateIfSetNodeList = createSetNodeList(node);
+                sqlSourceVo.setSetNodeList(updateIfSetNodeList);
+                sqlSourceVo.setSetSqlNode(node);
+            } else if (node.getClass().getName().endsWith(MyBatisTagConstant.TRIM_SQL_NODE) && sqlSourceVo.getIfColumnNodes() == null) {
+                List<InsertIfColumnNode> insertIfColumnNodes = createColumnNodeList(node);
+                sqlSourceVo.setIfColumnNodes(insertIfColumnNodes);
+                sqlSourceVo.setColumnSqlNode(node);
+            } else if (node.getClass().getName().endsWith(MyBatisTagConstant.TRIM_SQL_NODE) && sqlSourceVo.getIfValueNodes() == null) {
+                List<InsertIfValueNode> ifValueNodes = createValueNodeList(node);
+                sqlSourceVo.setIfValueNodes(ifValueNodes);
+                sqlSourceVo.setValueSqlNode(node);
             }
         }
         //对sql语句进行标准化，使用单个空格进行分割字符串，并且所有字符串改为小写
@@ -87,20 +92,75 @@ public class DynamicSqlSourceParser implements ISqlSourceType {
     }
 
     /**
+     * 构建表字段节点信息
+     *
+     * @param node xml节点
+     * @return List<UpdateIfSetNode> 列表
+     * @throws ConfigException <br>
+     */
+    private List<UpdateIfSetNode> createSetNodeList(Object node) throws ConfigException {
+        List<UpdateIfSetNode> updateIfSetNodeList = new ArrayList<UpdateIfSetNode>();
+        Object contentNode = ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, MyBatisTagConstant.CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
+                updateIfSetNodeList.add(new UpdateIfSetNode(sqlNode));
+            }
+        }
+        return updateIfSetNodeList;
+    }
+
+    /**
      * 解析MixedSqlNode 循环
      * @param node MixedSqlNode节点
      * @param fragments 字符串碎片
      * @throws ConfigException 异常
      */
     private void convertMixedNode(Object node, List<String> fragments) throws ConfigException {
-        List<Object> sqlNodeList = (List) ReflectHelper.getPropertyValue(node, CONTENTS);
+        List<Object> sqlNodeList = (List) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
         for (int k = 0; k < sqlNodeList.size(); k++) {
-            if (sqlNodeList.get(k).getClass().getName().endsWith("TextSqlNode")) {
-                String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(k), TEXT);
+            if (sqlNodeList.get(k).getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE)) {
+                String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(k), MyBatisTagConstant.TEXT);
                 fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(text)));
-            } else if (sqlNodeList.get(k).getClass().getName().endsWith("MixedSqlNode")) {
+            } else if (sqlNodeList.get(k).getClass().getName().endsWith(MyBatisTagConstant.MIXED_SQL_NODE)) {
                 convertMixedNode(sqlNodeList.get(k), fragments);
             }
         }
+    }
+
+    /**
+     * 构建表字段节点信息
+     *
+     * @param node xml节点
+     * @throws ConfigException <br>
+     */
+    private List<InsertIfColumnNode> createColumnNodeList(Object node) throws ConfigException {
+        List<InsertIfColumnNode> ifColumnNodeList = new ArrayList<InsertIfColumnNode>();
+        Object contentNode = ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, MyBatisTagConstant.CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
+                ifColumnNodeList.add(new InsertIfColumnNode(sqlNode));
+            }
+        }
+        return ifColumnNodeList;
+    }
+
+    /**
+     * 构建表value节点信息
+     *
+     * @param node xml节点
+     * @throws ConfigException <br>
+     */
+    private List<InsertIfValueNode> createValueNodeList(Object node) throws ConfigException {
+        List<InsertIfValueNode> ifValueNodeList = new ArrayList<InsertIfValueNode>();
+        Object contentNode = ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, MyBatisTagConstant.CONTENTS);
+        for (Object sqlNode : contents) {
+            if (sqlNode.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
+                ifValueNodeList.add(new InsertIfValueNode(sqlNode));
+            }
+        }
+        return ifValueNodeList;
     }
 }

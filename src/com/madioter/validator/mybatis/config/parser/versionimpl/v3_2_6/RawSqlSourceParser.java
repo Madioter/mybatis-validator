@@ -18,7 +18,7 @@ public class RawSqlSourceParser implements ISqlSourceType {
 
     @Override
     public boolean matches(Object object) {
-        if (object.getClass().getName().equals("org.apache.ibatis.scripting.xmltags.RawSqlSource")) {
+        if (object.getClass().getName().equals("org.apache.ibatis.scripting.defaults.RawSqlSource")) {
             return true;
         } else {
             return false;

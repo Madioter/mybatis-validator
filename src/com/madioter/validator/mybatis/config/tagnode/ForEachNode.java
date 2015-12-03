@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.config.tagnode;
 
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
@@ -15,16 +16,6 @@ import java.util.List;
  * @CreateDate 2015年11月27日 <br>
  */
 public class ForEachNode {
-
-    /**
-     * Mybatis解析SqlNode的contents属性名
-     */
-    private static final String CONTENTS = "contents";
-
-    /**
-     * text
-     */
-    private static final String TEXT = "text";
 
     /**
      * item
@@ -47,9 +38,9 @@ public class ForEachNode {
     @Override
     public String toString() {
         try {
-            Object mixedSqlNode = ReflectHelper.getPropertyValue(forEachSqlNode, CONTENTS);
-            List<Object> sqlNodeList = (List<Object>) ReflectHelper.getPropertyValue(mixedSqlNode, CONTENTS);
-            String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(0), TEXT);
+            Object mixedSqlNode = ReflectHelper.getPropertyValue(forEachSqlNode, MyBatisTagConstant.CONTENTS);
+            List<Object> sqlNodeList = (List<Object>) ReflectHelper.getPropertyValue(mixedSqlNode, MyBatisTagConstant.CONTENTS);
+            String text = (String) ReflectHelper.getPropertyValue(sqlNodeList.get(0), MyBatisTagConstant.TEXT);
             String item = (String) ReflectHelper.getPropertyValue(forEachSqlNode, ITEM);
             String open = (String) ReflectHelper.getPropertyValue(forEachSqlNode, "open");
             String close = (String) ReflectHelper.getPropertyValue(forEachSqlNode, "close");

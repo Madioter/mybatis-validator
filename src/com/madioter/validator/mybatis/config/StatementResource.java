@@ -40,6 +40,10 @@ public class StatementResource {
                 if (ArrayUtil.contains(Config.IGNORE_STATEMENT_MAPPER_ID, statement.getId())) {
                     continue;
                 }
+                //单条记录测试代码
+                /*if (!statement.getId().equals("com.tuniu.mauritius.confirmation.support.train.vendor.persistence.TrainCustomerVendorInfoMapper.queryCustomerVendors")) {
+                    continue;
+                }*/
                 if (!mappedStatementMap.containsKey(statement.getId())) {
                     if (statement.getSqlCommandType() == SqlCommandType.INSERT) {
                         mappedStatementMap.put(statement.getId(), new InsertMappedStatementItem(statement));

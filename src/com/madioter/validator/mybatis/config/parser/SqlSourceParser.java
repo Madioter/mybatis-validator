@@ -24,7 +24,7 @@ public class SqlSourceParser {
      */
     public static SqlSourceVo parser(SqlSource sqlSource) throws ConfigException {
         try {
-            List<Class> classList = ClassUtil.getAllClassByInterface(ISqlSourceType.class);
+            List<Class> classList = ISqlSourceType.SUB_CLASSES;
             for (int i = 0; i < classList.size(); i++) {
                 ISqlSourceType sqlSourceType = (ISqlSourceType) classList.get(i).newInstance();
                 if (sqlSourceType.matches(sqlSource)) {

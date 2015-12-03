@@ -74,4 +74,34 @@ public class SqlConstant {
      * distinct
      */
     public static final String DISTINCT = "distinct";
+
+    /**
+     * insert
+     */
+    public static final String INSERT = "insert";
+
+    /**
+     * update
+     */
+    public static final String UPDATE = "update";
+
+    /**
+     * as
+     */
+    public static final String AS = "as";
+
+    /**
+     * on
+     */
+    public static final String ON = "on";
+
+    /**
+     * "join"
+     */
+    public static final String JOIN = "join";
+
+    /**
+     * dual
+     */
+    public static final String DUAL = "dual";
 }

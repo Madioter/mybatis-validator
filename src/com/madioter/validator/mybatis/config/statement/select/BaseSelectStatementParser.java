@@ -21,16 +21,6 @@ import org.apache.ibatis.mapping.SqlSource;
 public class BaseSelectStatementParser implements SelectStatementParser {
 
     /**
-     * Mybatis解析SqlNode的contents属性名
-     */
-    private static final String CONTENTS = "contents";
-
-    /**
-     * text
-     */
-    private static final String TEXT = "text";
-
-    /**
      * 对象引用
      */
     private SelectMappedStatementItem statementItem;

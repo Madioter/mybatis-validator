@@ -49,10 +49,10 @@ public class FromNode {
         boolean onBegin = false;
         TableNode lastNode = null;
         for (int i = 0; i < tableText.size(); i++) {
-            if (tableText.get(i).toLowerCase().equals("dual")) {
+            if (tableText.get(i).toLowerCase().equals(SqlConstant.DUAL)) {
                 continue;
             } else {
-                if (tableText.get(i).toLowerCase().equals("join")) {
+                if (tableText.get(i).toLowerCase().equals(SqlConstant.JOIN)) {
                     lastNode = null;
                     onBegin = false;
                 } else if (tableText.get(i).contains(SymbolConstant.SYMBOL_COMMA)) {
@@ -67,11 +67,14 @@ public class FromNode {
                             selectElementList.add(lastNode);
                         }
                     }
-                } else if (tableText.get(i).toLowerCase().equals("on")) {
+                } else if (tableText.get(i).toLowerCase().equals(SqlConstant.ON)) {
                     lastNode = null;
                     joinOn.add(SqlConstant.AND);
                     onBegin = true;
-                } else {
+                } else if (tableText.get(i).equals(SqlConstant.AS)) {
+                    //排除关键字 as
+                    continue;
+                }   else {
                     if (lastNode != null) {
                         if (lastNode.getTableAlias() == null) {
                             lastNode.setTableAlias(tableText.get(i));

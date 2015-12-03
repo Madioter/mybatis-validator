@@ -21,27 +21,29 @@ public class ClassUtil {
      * @Description: 根据一个接口返回该接口的所有类
      * @param c 接口
      * @return List<Class>    实现接口的所有类
-     * @throws ClassNotFoundException 异常
-     * @throws IOException 异常
      */
     @SuppressWarnings("unchecked")
-    public static List<Class> getAllClassByInterface(Class c) throws IOException, ClassNotFoundException {
-        List returnClassList = new ArrayList<Class>();
-        //判断是不是接口,不是接口不作处理
-        if (c.isInterface()) {
-            String packageName = c.getPackage().getName();  //获得当前包名
-            List<Class> allClass = getClasses(packageName);//获得当前包以及子包下的所有类
+    public static List<Class> getAllClassByInterface(Class c) {
+        try {
+            List returnClassList = new ArrayList<Class>();
+            //判断是不是接口,不是接口不作处理
+            if (c.isInterface()) {
+                String packageName = c.getPackage().getName();  //获得当前包名
+                List<Class> allClass = getClasses(packageName);//获得当前包以及子包下的所有类
 
-            //判断是否是一个接口
-            for (int i = 0; i < allClass.size(); i++) {
-                if (c.isAssignableFrom(allClass.get(i))) {
-                    if (!c.equals(allClass.get(i))) {
-                        returnClassList.add(allClass.get(i));
+                //判断是否是一个接口
+                for (int i = 0; i < allClass.size(); i++) {
+                    if (c.isAssignableFrom(allClass.get(i))) {
+                        if (!c.equals(allClass.get(i))) {
+                            returnClassList.add(allClass.get(i));
+                        }
                     }
                 }
             }
+            return returnClassList;
+        } catch (Exception e) {
+            return new ArrayList<Class>();
         }
-        return returnClassList;
     }
 
     /**

@@ -3,6 +3,7 @@ package com.madioter.validator.mybatis.config.statement;
 import com.madioter.validator.mybatis.config.statement.update.BaseUpdateStatementParser;
 import com.madioter.validator.mybatis.config.statement.update.BatchUpdateStatementParser;
 import com.madioter.validator.mybatis.config.statement.update.UpdateStatementParser;
+import com.madioter.validator.mybatis.config.tagnode.ParameterMappingValidator;
 import com.madioter.validator.mybatis.config.tagnode.UpdateIfSetNode;
 import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.database.ConnectionManager;
@@ -14,13 +15,14 @@ import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMapping;
 
 /**
  * <Description> <br>
  *
  * @author wangyi8<br>
  * @version 1.0<br>
- * @taskId <br>
+ * @taskId  <br>
  * @CreateDate 2015年11月20日 <br>
  */
 public class UpdateMappedStatementItem extends MappedStatementItem {
@@ -59,6 +61,11 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      * set中if节点对象列表
      */
     private List<UpdateIfSetNode> setNodeList;
+
+    /**
+     * 参数定义
+     */
+    private List<ParameterMapping> parameterMappings;
 
     /**
      * where条件字符串
@@ -136,6 +143,20 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
                 }
             }
         }
+
+        //验证属性是否存在
+        if (parameterMappings != null) {
+            for (int i = 0; i < parameterMappings.size(); i++) {
+                ParameterMappingValidator validator = new ParameterMappingValidator(parameterMappings.get(i));
+                try {
+                    boolean flag = validator.validate();
+                } catch (MapperException e) {
+                    e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                            + SymbolConstant.SYMBOL_COLON + e.getDescription());
+                    e.printException();
+                }
+            }
+        }
     }
 
     /**
@@ -200,5 +221,13 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      */
     public void setWhereCondition(String whereCondition) {
         this.whereCondition = whereCondition;
+    }
+
+    /**
+     * Sets parameter mappings.
+     * @param parameterMappings the parameter mappings
+     */
+    public void setParameterMappings(List<ParameterMapping> parameterMappings) {
+        this.parameterMappings = parameterMappings;
     }
 }

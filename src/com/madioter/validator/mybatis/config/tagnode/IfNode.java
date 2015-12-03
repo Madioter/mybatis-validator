@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.config.tagnode;
 
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
@@ -17,11 +18,6 @@ import java.util.List;
  * @CreateDate 2015年11月20日 <br>
  */
 public abstract class IfNode {
-
-    /**
-     * contents
-     */
-    private static final String CONTENTS = "contents";
 
     /**
      * if条件
@@ -46,12 +42,12 @@ public abstract class IfNode {
      */
     public IfNode(Object sqlNode) throws ConfigException {
         this.ifTest = ((String) ReflectHelper.getPropertyValue(sqlNode, "test")).trim();
-        Object contentNode = (Object) ReflectHelper.getPropertyValue(sqlNode, CONTENTS);
-        this.contents = (ArrayList<Object>) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        Object contentNode = (Object) ReflectHelper.getPropertyValue(sqlNode, MyBatisTagConstant.CONTENTS);
+        this.contents = (ArrayList<Object>) ReflectHelper.getPropertyValue(contentNode, MyBatisTagConstant.CONTENTS);
         for (int i = 0; i < contents.size(); i++) {
             String nodeText = "";
-            if (contents.get(i).getClass().getName().endsWith("TextSqlNode")) {
-                nodeText = (String) ReflectHelper.getPropertyValue(contents.get(i), "text");
+            if (contents.get(i).getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE)) {
+                nodeText = (String) ReflectHelper.getPropertyValue(contents.get(i), MyBatisTagConstant.TEXT);
             } else if (contents.get(i).getClass().getName().endsWith("ForEachSqlNode")) {
                 nodeText = new ForEachNode(contents.get(i)).toString();
             }

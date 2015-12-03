@@ -2,7 +2,9 @@ package com.madioter.validator.mybatis.config.statement.update;
 
 import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
 import com.madioter.validator.mybatis.config.tagnode.UpdateIfSetNode;
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.NotSupportException;
@@ -22,24 +24,9 @@ import org.apache.ibatis.mapping.SqlSource;
 public class BatchUpdateStatementParser implements UpdateStatementParser {
 
     /**
-     * UPDATE
-     */
-    private static final String UPDATE = "update";
-
-    /**
-     * Contents
-     */
-    private static final String CONTENTS = "contents";
-
-    /**
      * 异常提示信息：文件名和ID
      */
     private static final String MAPPER_FILE_ID = "文件：%s，ID：%s";
-
-    /**
-     * text
-     */
-    private static final String TEXT = "text";
 
 
     /**
@@ -53,18 +40,18 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
         this.statementItem = updateMappedStatementItem;
         SqlSource sqlSource = mappedStatement.getSqlSource();
         Object rootSqlNode = ReflectHelper.getPropertyValue(sqlSource, "rootSqlNode");
-        List<Object> nodes = (List) ReflectHelper.getPropertyValue(rootSqlNode, CONTENTS);
+        List<Object> nodes = (List) ReflectHelper.getPropertyValue(rootSqlNode, MyBatisTagConstant.CONTENTS);
         if (!nodes.isEmpty()) {
             for (Object node : nodes) {
-                if (node.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
-                    String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
-                    if (text.toLowerCase().contains(UPDATE)) {
+                if (node.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableName() == null) {
+                    String text = (String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.TEXT);
+                    if (text.toLowerCase().contains(SqlConstant.UPDATE)) {
                         statementItem.setTableName(getTableName(text));
                     }
                 } else if (node.getClass().getName().endsWith("ForEachSqlNode")) {
                     parseEachNode(node);
-                } else if (node.getClass().getName().endsWith("TextSqlNode")) {
-                    String text = (String) ReflectHelper.getPropertyValue(node, TEXT);
+                } else if (node.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE)) {
+                    String text = (String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.TEXT);
                     if (!text.trim().equals("")) {
                         statementItem.setWhereCondition(text.trim());
                     }
@@ -84,19 +71,19 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
      * @throws ConfigException 配置异常
      */
     private void parseEachNode(Object node) throws ConfigException {
-        Object mixedSqlNode = ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<Object> contents = (List) ReflectHelper.getPropertyValue(mixedSqlNode, CONTENTS);
+        Object mixedSqlNode = ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(mixedSqlNode, MyBatisTagConstant.CONTENTS);
         if (!contents.isEmpty()) {
             for (Object innerNode : contents) {
-                if (innerNode.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() == null) {
-                    String text = (String) ReflectHelper.getPropertyValue(innerNode, TEXT);
-                    if (text.toLowerCase().contains(UPDATE)) {
+                if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableName() == null) {
+                    String text = (String) ReflectHelper.getPropertyValue(innerNode, MyBatisTagConstant.TEXT);
+                    if (text.toLowerCase().contains(SqlConstant.UPDATE)) {
                         statementItem.setTableName(getTableName(text));
                     }
-                } else if (innerNode.getClass().getName().endsWith("SetSqlNode")) {
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.SET_SQL_NODE)) {
                     createSetNodeList(innerNode);
-                } else if (innerNode.getClass().getName().endsWith("TextSqlNode") && statementItem.getTableName() != null) {
-                    String text = (String) ReflectHelper.getPropertyValue(innerNode, TEXT);
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableName() != null) {
+                    String text = (String) ReflectHelper.getPropertyValue(innerNode, MyBatisTagConstant.TEXT);
                     if (!text.trim().equals("")) {
                         statementItem.setWhereCondition(text.trim());
                     }
@@ -112,7 +99,7 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
      * @return String
      */
     private String getTableName(String text) {
-        String tableName = text.toLowerCase().replace(UPDATE, "").trim();
+        String tableName = text.toLowerCase().replace(SqlConstant.UPDATE, "").trim();
         String[] items = StringUtil.splitWithBlank(tableName);
         return items[0];
     }
@@ -126,10 +113,10 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
     private void createSetNodeList(Object node) throws ConfigException {
         statementItem.setSetSqlNode(node);
         List<UpdateIfSetNode> updateIfSetNodeList = new ArrayList<UpdateIfSetNode>();
-        Object contentNode = ReflectHelper.getPropertyValue(node, CONTENTS);
-        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, CONTENTS);
+        Object contentNode = ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(contentNode, MyBatisTagConstant.CONTENTS);
         for (Object sqlNode : contents) {
-            if (sqlNode.getClass().getName().endsWith("IfSqlNode")) {
+            if (sqlNode.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
                 updateIfSetNodeList.add(new UpdateIfSetNode(sqlNode));
             }
         }

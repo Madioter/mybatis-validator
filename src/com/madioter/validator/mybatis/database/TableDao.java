@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.database;
 
+import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,6 +46,13 @@ public class TableDao {
     public boolean checkExist(String tableName) {
         PreparedStatement pstmt = null;
         ResultSet resultSet = null;
+
+        //去除带有schema的表名
+        if (tableName.contains(SymbolConstant.SYMBOL_POINT) && tableSchema != null &&
+                tableName.substring(0, tableName.indexOf(SymbolConstant.SYMBOL_POINT)).equals(tableSchema)) {
+            tableName = tableName.substring(tableName.indexOf(SymbolConstant.SYMBOL_POINT) + 1);
+        }
+
         try {
             Connection con = connectionHolder.getConnection();
             StringBuilder sql = new StringBuilder("SELECT count(1) FROM TABLES WHERE TABLE_NAME = ?\n");
