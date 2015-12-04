@@ -1,10 +1,10 @@
 <!--配置文件说明-->
 
 <bean id="validator" class="com.madioter.validator.mybatis.Validator" init-method="validator">
-    <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-    <property name="driverClass" value="${master.jdbc.driverClassName}" />
-    <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/information_schema" />
-    <property name="user" value="root" />
-    <property name="password" value="root" />
-    <property name="tableSchema" value="myscheme"/>
+    <property name="sqlSessionFactory" ref="cfmSqlSessionFactory"/>
+    <property name="driverClass" value="com.mysql.jdbc.Driver" />
+    <property name="jdbcUrl" value="jdbc:mysql://10.10.30.142:3318/information_schema" />
+    <property name="user" value="cfmtest" />
+    <property name="password" value="tuniu520" />
+    <property name="tableSchema" value="cfm"/>
 </bean>
