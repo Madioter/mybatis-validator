@@ -1,10 +1,10 @@
 package com.madioter.validator.mybatis.config.statement;
 
-import com.madioter.validator.mybatis.config.statement.update.BaseUpdateStatementParser;
-import com.madioter.validator.mybatis.config.statement.update.BatchUpdateStatementParser;
-import com.madioter.validator.mybatis.config.statement.update.UpdateStatementParser;
-import com.madioter.validator.mybatis.config.tagnode.ParameterMappingValidator;
-import com.madioter.validator.mybatis.config.tagnode.UpdateIfSetNode;
+import com.madioter.validator.mybatis.parser.statementparser.update.BaseUpdateStatementParser;
+import com.madioter.validator.mybatis.parser.statementparser.update.BatchUpdateStatementParser;
+import com.madioter.validator.mybatis.parser.statementparser.update.UpdateStatementParser;
+import com.madioter.validator.mybatis.model.sql.sqltag.ParameterMappingValidator;
+import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.database.TableDao;

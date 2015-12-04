@@ -1,6 +1,5 @@
 package com.madioter.validator.mybatis.util;
 
-import com.madioter.validator.mybatis.config.selectnode.constractor.SelectNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

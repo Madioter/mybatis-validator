@@ -4,12 +4,10 @@ import com.madioter.validator.mybatis.config.ConfigurationManager;
 import com.madioter.validator.mybatis.config.ResultMapResource;
 import com.madioter.validator.mybatis.config.StatementResource;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
-import com.madioter.validator.mybatis.model.ClassModel;
+import com.madioter.validator.mybatis.model.java.ClassModel;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
  * <Description> <br>

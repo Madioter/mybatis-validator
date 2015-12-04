@@ -1,6 +1,6 @@
 package com.madioter.validator.mybatis.config;
 
-import com.madioter.validator.mybatis.model.ClassModel;
+import com.madioter.validator.mybatis.model.java.ClassModel;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
