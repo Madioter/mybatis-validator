@@ -22,6 +22,7 @@ import com.madioter.validator.mybatis.database.TableDao;
 import com.madioter.validator.mybatis.model.java.ClassModel;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.MapperException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,11 +59,6 @@ public class SelectMappedStatementItem extends MappedStatementItem {
     private static final String SQL_EXPRESS_TEXT = "表达式: %s";
 
     /**
-     * 原数据
-     */
-    private MappedStatement mappedStatement;
-
-    /**
      * 返回对象
      */
     private ClassModel classModel;
@@ -88,7 +84,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      * @throws ConfigException 配置异常
      */
     public SelectMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
-        this.mappedStatement = mappedStatement;
+        super.setMappedStatement(mappedStatement);
         this.parameterType = mappedStatement.getParameterMap().getType();
         SelectStatementParser selectStatementParser = null;
         if (parameterType != null && parameterType.equals(List.class)) {
@@ -131,6 +127,15 @@ public class SelectMappedStatementItem extends MappedStatementItem {
                 }
             }
         }
+    }
+
+    @Override
+    public List<TableNode> getTableNodes() {
+        List<TableNode> tableNodes = new ArrayList<TableNode>();
+        for (SelectNode selectNode : selectNodeList) {
+            tableNodes.addAll(selectNode.getTableNodes());
+        }
+        return tableNodes;
     }
 
     /**

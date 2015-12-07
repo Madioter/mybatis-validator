@@ -1,6 +1,7 @@
 package com.madioter.validator.mybatis.model.sql.sqlnode;
 
 import com.madioter.validator.mybatis.model.sql.elementnode.SelectElement;
+import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.util.SelectTextClassification;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
@@ -303,5 +304,19 @@ public class SelectNode {
      */
     public LimitNode getLimitNode() {
         return limitNode;
+    }
+
+    /**
+     * 获取查询语句中的数据表定义
+     * @return 数据表对象列表
+     */
+    public List<TableNode> getTableNodes() {
+        List<TableNode> tableNodes = new ArrayList<TableNode>();
+        for (SelectElement element : fromNode.getSelectElementList()) {
+            if (element instanceof TableNode) {
+                tableNodes.add((TableNode) element);
+            }
+        }
+        return tableNodes;
     }
 }

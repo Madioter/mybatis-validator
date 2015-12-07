@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.config.statement;
 
+import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.parser.statementparser.update.BaseUpdateStatementParser;
 import com.madioter.validator.mybatis.parser.statementparser.update.BatchUpdateStatementParser;
 import com.madioter.validator.mybatis.parser.statementparser.update.UpdateStatementParser;
@@ -12,6 +13,7 @@ import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -38,14 +40,9 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
     private static final String TABLE_NAME = " 表名：%s";
 
     /**
-     * 原数据
-     */
-    private MappedStatement mappedStatement;
-
-    /**
      * insert的表名
      */
-    private String tableName;
+    private TableNode tableNode;
 
     /**
      * 保存对象类型
@@ -78,7 +75,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      * @throws ConfigException 配置异常
      */
     public UpdateMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
-        this.mappedStatement = mappedStatement;
+        super.setMappedStatement(mappedStatement);
         this.parameterType = mappedStatement.getParameterMap().getType();
         UpdateStatementParser updateStatementParser = null;
         if (parameterType != null && parameterType.equals(List.class)) {
@@ -159,20 +156,11 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
         }
     }
 
-    /**
-     * Gets table name.
-     * @return table name
-     */
-    public String getTableName() {
-        return tableName;
-    }
-
-    /**
-     * Sets table name.
-     * @param tableName the table name
-     */
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
+    @Override
+    public List<TableNode> getTableNodes() {
+        List<TableNode> tableNodes = new ArrayList<TableNode>();
+        tableNodes.add(tableNode);
+        return tableNodes;
     }
 
     /**

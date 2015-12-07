@@ -176,4 +176,13 @@ public class StringUtil {
             return express.toLowerCase();
         }
     }
+
+    /**
+     * 判断字符串是否有值
+     * @param str 字符串
+     * @return
+     */
+    public static boolean isBlank(String str) {
+        return str == null || str.trim().equals("");
+    }
 }

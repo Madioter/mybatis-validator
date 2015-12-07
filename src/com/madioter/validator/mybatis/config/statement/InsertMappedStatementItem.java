@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.config.statement;
 
+import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.parser.statementparser.insert.BaseInsertStatementParser;
 import com.madioter.validator.mybatis.parser.statementparser.insert.BatchInsertStatementParser;
 import com.madioter.validator.mybatis.parser.statementparser.insert.InsertStatementParser;
@@ -15,6 +16,7 @@ import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -49,14 +51,9 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     private static final String IF_TEST_TEXT = "COLUMN条件：%s，VALUES条件：%s";
 
     /**
-     * 原数据
-     */
-    private MappedStatement mappedStatement;
-
-    /**
      * insert的表名
      */
-    private String tableName;
+    private TableNode tableNode;
 
     /**
      * 保存对象类型
@@ -89,7 +86,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      * @throws ConfigException 配置异常
      */
     public InsertMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
-        this.mappedStatement = mappedStatement;
+        super.setMappedStatement(mappedStatement);
         this.parameterType = mappedStatement.getParameterMap().getType();
         InsertStatementParser insertStatementParser;
         if (parameterType != null && !parameterType.equals(List.class)) {
@@ -165,6 +162,13 @@ public class InsertMappedStatementItem extends MappedStatementItem {
         }
     }
 
+    @Override
+    public List<TableNode> getTableNodes() {
+        List<TableNode> tableNodes = new ArrayList<TableNode>();
+        tableNodes.add(tableNode);
+        return tableNodes;
+    }
+
     /**
      * 检查TrimSqlNode节点属性编写是否正确
      *
@@ -233,22 +237,6 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     }
 
     /**
-     * Gets table name.
-     * @return table name
-     */
-    public String getTableName() {
-        return tableName;
-    }
-
-    /**
-     * Sets table name.
-     * @param tableName the table name
-     */
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    /**
      * Sets value sql node.
      * @param valueSqlNode the value sql node
      */
@@ -262,5 +250,39 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      */
     public void setColumnSqlNode(Object columnSqlNode) {
         this.columnSqlNode = columnSqlNode;
+    }
+
+
+    /**
+     * Gets column sql node.
+     * @return the column sql node
+     */
+    public Object getColumnSqlNode() {
+        return columnSqlNode;
+    }
+
+    /**
+     * Gets value sql node.
+     * @return the value sql node
+     */
+    public Object getValueSqlNode() {
+        return valueSqlNode;
+    }
+
+
+    /**
+     * Gets table node.
+     * @return the table node
+     */
+    public TableNode getTableNode() {
+        return tableNode;
+    }
+
+    /**
+     * Sets table node.
+     * @param tableNode the table node
+     */
+    public void setTableNode(TableNode tableNode) {
+        this.tableNode = tableNode;
     }
 }
