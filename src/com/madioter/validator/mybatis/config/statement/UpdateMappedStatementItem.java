@@ -76,7 +76,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      */
     public UpdateMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
         super.setMappedStatement(mappedStatement);
-        this.parameterType = mappedStatement.getParameterMap().getType();
+        this.parameterType = getMappedStatement().getParameterMap().getType();
         UpdateStatementParser updateStatementParser = null;
         if (parameterType != null && parameterType.equals(List.class)) {
             updateStatementParser = new BatchUpdateStatementParser();
@@ -94,13 +94,13 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
         TableDao tableDao = connectionManager.getTableDao();
         ColumnDao columnDao = connectionManager.getColumnDao();
         boolean exist = false;
-        if (tableName != null) {
-            exist = tableDao.checkExist(tableName);
+        if (tableNode.getTableName() != null) {
+            exist = tableDao.checkExist(tableNode.getTableName());
         }
         if (!exist) {
             new MapperException(ExceptionCommonConstant.TABLE_NOT_EXIST,
-                    String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId()) +
-                            String.format(TABLE_NAME, tableName)).printException();
+                    String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId()) +
+                            String.format(TABLE_NAME, tableNode.getTableName())).printException();
             return;
         }
         if (this.setNodeList != null) {
@@ -110,9 +110,9 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
                 UpdateIfSetNode node = setNodeList.get(i);
                 //验证字段是否存在
                 try {
-                    node.validateColumn(columnDao, tableName);
+                    node.validateColumn(columnDao, tableNode.getTableName());
                 } catch (MapperException e) {
-                    e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                    e.setDescription(String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())
                             + SymbolConstant.SYMBOL_COLON + e.getDescription());
                     e.printException();
                 }
@@ -120,11 +120,11 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
             //判断参数类型
             if (parameterType == null) {
                 new MapperException(ExceptionCommonConstant.NO_PROPERTY_VALIDATE_ERROR,
-                        String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                        String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
                 return;
             } else if (parameterType.equals(Map.class)) {
                 new MapperException(ExceptionCommonConstant.MAP_PROPERTY_VALIDATE_ERROR,
-                        String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                        String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
                 return;
             }
             //验证参数中的属性是否存在
@@ -134,7 +134,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
                 try {
                     node.validateProperty(parameterType);
                 } catch (MapperException e) {
-                    e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                    e.setDescription(String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())
                             + SymbolConstant.SYMBOL_COLON + e.getDescription());
                     e.printException();
                 }
@@ -148,7 +148,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
                 try {
                     boolean flag = validator.validate();
                 } catch (MapperException e) {
-                    e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                    e.setDescription(String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())
                             + SymbolConstant.SYMBOL_COLON + e.getDescription());
                     e.printException();
                 }
@@ -161,6 +161,11 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
         List<TableNode> tableNodes = new ArrayList<TableNode>();
         tableNodes.add(tableNode);
         return tableNodes;
+    }
+
+    @Override
+    public void addTableNode(TableNode tableNode) {
+        this.tableNode = tableNode;
     }
 
     /**
@@ -217,5 +222,13 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      */
     public void setParameterMappings(List<ParameterMapping> parameterMappings) {
         this.parameterMappings = parameterMappings;
+    }
+
+    /**
+     * Gets parameter mappings.
+     * @return the parameter mappings
+     */
+    public List<ParameterMapping> getParameterMappings() {
+        return parameterMappings;
     }
 }

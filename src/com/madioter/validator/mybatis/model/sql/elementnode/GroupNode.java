@@ -52,4 +52,9 @@ public class GroupNode implements SelectElement {
     public void setHavingConditions(String havingConditions) {
         this.havingConditions = havingConditions;
     }
+
+    @Override
+    public void rebuild() {
+        return;
+    }
 }

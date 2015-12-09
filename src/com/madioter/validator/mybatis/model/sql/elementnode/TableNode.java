@@ -95,4 +95,9 @@ public class TableNode implements SelectElement {
     public boolean isCanCheck() {
         return canCheck;
     }
+
+    @Override
+    public void rebuild() {
+        return;
+    }
 }

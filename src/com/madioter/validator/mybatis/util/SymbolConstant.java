@@ -65,5 +65,10 @@ public class SymbolConstant {
      */
     public static final String SYMBOL_AT = "@";
 
+    /**
+     * \\
+     */
+    public static final String SYMBOL_SLASH = "\\";
+
 
 }

@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.parser.statementparser.update;
 
+import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.parser.sqlparser.SqlSourceParser;
 import com.madioter.validator.mybatis.model.mybatis.SqlSourceVo;
 import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
@@ -36,7 +37,9 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
         StringBuilder whereText = new StringBuilder();
         for (int i = 0; i < fragment.size(); i++) {
             if (fragment.get(i).equals(SqlConstant.UPDATE) && i < fragment.size() - 1) {
-                statementItem.setTableName(fragment.get(i + 1));
+                TableNode tableNode = new TableNode();
+                tableNode.setTableName(fragment.get(i + 1));
+                statementItem.addTableNode(tableNode);
             } else if (fragment.get(i).equals("where")) {
                 whereFlag = true;
             }

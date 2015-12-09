@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.parser.statementparser.insert;
 
+import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.parser.sqlparser.SqlSourceParser;
 import com.madioter.validator.mybatis.model.mybatis.SqlSourceVo;
 import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
@@ -40,7 +41,9 @@ public class BatchInsertStatementParser implements InsertStatementParser {
         List<String> fragment = StringUtil.arrayToList(StringUtil.splitWithBlank(sql));
         for (int i = 0; i < fragment.size(); i++) {
             if (fragment.get(i).equals(SqlConstant.INSERT) && i < fragment.size() - 2) {
-                statementItem.setTableName(fragment.get(i + 2));
+                TableNode tableNode = new TableNode();
+                tableNode.setTableName(fragment.get(i + 2));
+                statementItem.addTableNode(tableNode);
             }
         }
 

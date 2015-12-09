@@ -4,6 +4,7 @@ import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem
 import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.util.ArrayUtil;
 import com.madioter.validator.mybatis.util.Config;
+import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.SqlUtil;
@@ -196,8 +197,8 @@ public class ConditionNode implements SelectElement {
             Iterator<TableNode> tableNodeIterator = aliasTable.values().iterator();
             curTableNode = tableNodeIterator.next();
             curColumnName = strArr[0];
-        } else if (aliasTable.containsKey(SelectMappedStatementItem.CURRENT_TABLE)) {
-            curTableNode = aliasTable.get(SelectMappedStatementItem.CURRENT_TABLE);
+        } else if (aliasTable.containsKey(MessageConstant.CURRENT_TABLE)) {
+            curTableNode = aliasTable.get(MessageConstant.CURRENT_TABLE);
             curColumnName = strArr[0];
         }
         if (curTableNode == null) {

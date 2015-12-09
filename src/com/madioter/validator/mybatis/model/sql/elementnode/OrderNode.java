@@ -59,7 +59,7 @@ public class OrderNode implements SelectElement {
      */
     public void validate(Map<String, TableNode> aliasTable, ColumnDao columnDao, String errMsg) {
         String column = orderColumn;
-        if (StringUtil.containBracket(orderColumn)){
+        if (StringUtil.containBracket(orderColumn)) {
             List<String> curColumnNames = StringUtil.extractBracket(orderColumn);
             if (!curColumnNames.isEmpty()) {
                 column = curColumnNames.get(0);
@@ -88,6 +88,16 @@ public class OrderNode implements SelectElement {
             }
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return orderColumn + SymbolConstant.SYMBOL_BLANK + orderType;
+    }
+
+    @Override
+    public void rebuild() {
+        return;
     }
 
     /**

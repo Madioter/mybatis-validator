@@ -93,4 +93,9 @@ public class JoinNode implements SelectElement {
     public void setConnectColumnName(String connectColumnName) {
         this.connectColumnName = connectColumnName;
     }
+
+    @Override
+    public void rebuild() {
+        return;
+    }
 }

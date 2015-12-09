@@ -7,6 +7,14 @@ import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.java.ClassModel;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
+import com.madioter.validator.mybatis.validate.IDoValidate;
+import com.madioter.validator.mybatis.validate.impl.CheckInsertIfTagEquals;
+import com.madioter.validator.mybatis.validate.impl.CheckResultMapPropertyExist;
+import com.madioter.validator.mybatis.validate.impl.CheckStatementColumnExist;
+import com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist;
+import com.madioter.validator.mybatis.validate.impl.CheckStatementTableExist;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 /**
@@ -18,6 +26,11 @@ import org.apache.ibatis.session.SqlSessionFactory;
  * @CreateDate 2015年11月11日 <br>
  */
 public class Validator {
+
+    /**
+     * 验证场景
+     */
+    private List<IDoValidate> validatorList = new ArrayList<IDoValidate>();
 
     /**
      * 配置管理器
@@ -54,6 +67,18 @@ public class Validator {
      */
     private String tableSchema;
 
+
+    /**
+     * Instantiates a new Validator.
+     */
+    public Validator() {
+        validatorList.add(new CheckInsertIfTagEquals());
+        validatorList.add(new CheckResultMapPropertyExist());
+        validatorList.add(new CheckStatementColumnExist());
+        validatorList.add(new CheckStatementPropertyExist());
+        validatorList.add(new CheckStatementTableExist());
+    }
+
     /**
      * spring配置文件传入参数
      * @param sqlSessionFactory mybatis配置
@@ -72,6 +97,7 @@ public class Validator {
      * @taskId
      */
     public void validator() {
+
         connectionManager = new ConnectionManager(driverClass, jdbcUrl, user, password, tableSchema);
         resultMapTagValidator();
 
@@ -87,12 +113,15 @@ public class Validator {
      * @throws ConfigException 异常
      */
     private void statementValidator() throws ConfigException {
-        StatementResource statementResource = configurationManager.getStatementResource();
+        for (int i = 0; i < validatorList.size(); i++) {
+            validatorList.get(i).validate(configurationManager, connectionManager);
+        }
+        /*StatementResource statementResource = configurationManager.getStatementResource();
         MappedStatementItem item = statementResource.getNext();
         while (item != null) {
             item.validate(connectionManager);
             item = statementResource.getNext();
-        }
+        }*/
     }
 
     /**

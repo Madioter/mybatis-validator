@@ -127,4 +127,9 @@ public class LimitNode implements SelectElement {
     public String toString() {
         return SqlConstant.LIMIT + SymbolConstant.SYMBOL_BLANK + startParam + SymbolConstant.SYMBOL_COMMA + endParam;
     }
+
+    @Override
+    public void rebuild() {
+        return;
+    }
 }

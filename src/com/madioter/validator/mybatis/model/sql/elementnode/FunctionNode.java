@@ -2,12 +2,15 @@ package com.madioter.validator.mybatis.model.sql.elementnode;
 
 import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.database.ColumnDao;
+import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.SqlUtil;
+import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,11 +24,6 @@ import java.util.Map;
 public class FunctionNode implements SelectElement {
 
     /**
-     * 异常表达式
-     */
-    private static final String SQL_EXPRESS_TEXT = "表达式: %s";
-
-    /**
      * 函数表达式
      */
     private String express;
@@ -34,6 +32,58 @@ public class FunctionNode implements SelectElement {
      * 别称
      */
     private String alias;
+
+    /**
+     * 内部结构
+     */
+    private List<InnerNode> innerNodeList;
+
+    /**
+     * The type Inner node.
+     */
+    public class InnerNode {
+        /**
+         * 字段名
+         */
+        private String columnName;
+
+        /**
+         * 表别称
+         */
+        private String tableAlias;
+
+        /**
+         * Gets column name.
+         * @return the column name
+         */
+        public String getColumnName() {
+            return columnName;
+        }
+
+        /**
+         * Sets column name.
+         * @param columnName the column name
+         */
+        public void setColumnName(String columnName) {
+            this.columnName = columnName;
+        }
+
+        /**
+         * Gets table alias.
+         * @return the table alias
+         */
+        public String getTableAlias() {
+            return tableAlias;
+        }
+
+        /**
+         * Sets table alias.
+         * @param tableAlias the table alias
+         */
+        public void setTableAlias(String tableAlias) {
+            this.tableAlias = tableAlias;
+        }
+    }
 
     /**
      * Gets express.
@@ -68,6 +118,22 @@ public class FunctionNode implements SelectElement {
     }
 
     /**
+     * Gets inner node list.
+     * @return the inner node list
+     */
+    public List<InnerNode> getInnerNodeList() {
+        return innerNodeList;
+    }
+
+    /**
+     * Sets inner node list.
+     * @param innerNodeList the inner node list
+     */
+    public void setInnerNodeList(List<InnerNode> innerNodeList) {
+        this.innerNodeList = innerNodeList;
+    }
+
+    /**
      * 自验证方法
      * @param aliasTable 表定义
      * @param columnDao  数据库字段操作类
@@ -97,19 +163,46 @@ public class FunctionNode implements SelectElement {
                     Iterator<TableNode> tableNodeIterator = aliasTable.values().iterator();
                     curTableNode = tableNodeIterator.next();
                     curColumnName = strArr[0];
-                } else if (aliasTable.containsKey(SelectMappedStatementItem.CURRENT_TABLE)) {
-                    curTableNode = aliasTable.get(SelectMappedStatementItem.CURRENT_TABLE);
+                } else if (aliasTable.containsKey(MessageConstant.CURRENT_TABLE)) {
+                    curTableNode = aliasTable.get(MessageConstant.CURRENT_TABLE);
                     curColumnName = strArr[0];
                 }
                 if (curTableNode == null) {
                     new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
-                            errMsg + String.format(SQL_EXPRESS_TEXT, express)).printException();
+                            errMsg + String.format(MessageConstant.EXPRESS_MSG, express)).printException();
                 } else if (curTableNode.isCanCheck()) {
                     boolean exist = columnDao.checkColumnExist(curColumnName, curTableNode.getTableName());
                     if (!exist) {
                         new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
-                                errMsg + String.format(SQL_EXPRESS_TEXT, express)).printException();
+                                errMsg + String.format(MessageConstant.EXPRESS_MSG, express)).printException();
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void rebuild() {
+        String[] str = this.express.substring(this.express.indexOf(SymbolConstant.SYMBOL_LEFT_BRACKET),
+                this.express.indexOf(SymbolConstant.SYMBOL_RIGHT_BRACKET)).split(SymbolConstant.SYMBOL_COMMA);
+        for (int i = 0; i < str.length; i++) {
+            String columnExp = null;
+            if (str[i].contains(SqlConstant.DISTINCT + SymbolConstant.SYMBOL_BLANK)) {
+                columnExp = str[i].replace(SqlConstant.DISTINCT + SymbolConstant.SYMBOL_BLANK, "");
+            } else {
+                columnExp = str[i];
+            }
+            if (SqlUtil.checkIsColumn(columnExp)) {
+                InnerNode node = new InnerNode();
+                String[] strArr = columnExp.split(SymbolConstant.SYMBOL_POINT);
+                if (strArr.length > 1) {
+                    node.setColumnName(strArr[1]);
+                    node.setTableAlias(strArr[0]);
+                } else if (!StringUtil.isBlank(columnExp)) {
+                    node.setColumnName(columnExp);
+                }
+                if (!StringUtil.isBlank(node.getColumnName())) {
+                    innerNodeList.add(node);
                 }
             }
         }

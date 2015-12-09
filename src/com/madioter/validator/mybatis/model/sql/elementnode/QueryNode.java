@@ -2,6 +2,7 @@ package com.madioter.validator.mybatis.model.sql.elementnode;
 
 import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.database.ColumnDao;
+import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.SqlUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
@@ -38,6 +39,11 @@ public class QueryNode implements SelectElement {
      * 字段别称
      */
     private String columnAlias;
+
+    /**
+     * 表别称
+     */
+    private String tableAlias;
 
     /**
      * Gets column name.
@@ -88,6 +94,17 @@ public class QueryNode implements SelectElement {
     }
 
     /**
+     * 结构重构
+     */
+    public void rebuild() {
+        String[] strArr = columnName.split(SymbolConstant.SYMBOL_SLASH + SymbolConstant.SYMBOL_POINT);
+        if (strArr.length > 1) {
+            this.tableAlias = strArr[0];
+            this.columnName = strArr[1];
+        }
+    }
+
+    /**
      * 自验证方法
      * @param aliasTable 表定义
      * @param columnDao  数据库字段操作类
@@ -105,8 +122,8 @@ public class QueryNode implements SelectElement {
                 Iterator<TableNode> tableNodeIterator = aliasTable.values().iterator();
                 curTableNode = tableNodeIterator.next();
                 curColumnName = strArr[0];
-            } else if (aliasTable.containsKey(SelectMappedStatementItem.CURRENT_TABLE)) {
-                curTableNode = aliasTable.get(SelectMappedStatementItem.CURRENT_TABLE);
+            } else if (aliasTable.containsKey(MessageConstant.CURRENT_TABLE)) {
+                curTableNode = aliasTable.get(MessageConstant.CURRENT_TABLE);
                 curColumnName = strArr[0];
             }
             if (curTableNode == null) {
@@ -120,5 +137,21 @@ public class QueryNode implements SelectElement {
                 }
             }
         }
+    }
+
+    /**
+     * Gets table alias.
+     * @return the table alias
+     */
+    public String getTableAlias() {
+        return tableAlias;
+    }
+
+    /**
+     * Sets table alias.
+     * @param tableAlias the table alias
+     */
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
     }
 }

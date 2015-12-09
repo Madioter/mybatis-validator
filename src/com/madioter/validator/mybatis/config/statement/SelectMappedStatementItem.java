@@ -20,6 +20,7 @@ import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.database.TableDao;
 import com.madioter.validator.mybatis.model.java.ClassModel;
+import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.ArrayList;
@@ -37,26 +38,6 @@ import org.apache.ibatis.mapping.MappedStatement;
  * @CreateDate 2015年11月20日 <br>
  */
 public class SelectMappedStatementItem extends MappedStatementItem {
-
-    /**
-     * 当前表
-     */
-    public static final String CURRENT_TABLE = "@currentTable";
-
-    /**
-     * 异常提示信息：文件名和ID
-     */
-    private static final String MAPPER_FILE_ID = "文件：%s，ID：%s";
-
-    /**
-     * if标签的test判断条件不一致
-     */
-    private static final String IF_TEST_TEXT = "COLUMN条件：%s，VALUES条件：%s";
-
-    /**
-     * 异常表达式
-     */
-    private static final String SQL_EXPRESS_TEXT = "表达式: %s";
 
     /**
      * 返回对象
@@ -85,7 +66,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      */
     public SelectMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
         super.setMappedStatement(mappedStatement);
-        this.parameterType = mappedStatement.getParameterMap().getType();
+        this.parameterType = getMappedStatement().getParameterMap().getType();
         SelectStatementParser selectStatementParser = null;
         if (parameterType != null && parameterType.equals(List.class)) {
             selectStatementParser = new BaseSelectStatementParser();
@@ -122,7 +103,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
                 try {
                     selectIfNode.validate(parameterType);
                 } catch (MapperException e) {
-                    e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId()) + e.getDescription());
+                    e.setDescription(String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId()) + e.getDescription());
                     e.printException();
                 }
             }
@@ -138,12 +119,17 @@ public class SelectMappedStatementItem extends MappedStatementItem {
         return tableNodes;
     }
 
+    @Override
+    public void addTableNode(TableNode tableNode) {
+        return;
+    }
+
     /**
      * 验证limit节点
      * @param selectNode select查询单句
      */
     private void checkLimitNode(SelectNode selectNode) {
-        String errMsg = String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId());
+        String errMsg = String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId());
         LimitNode limitNode = selectNode.getLimitNode();
         limitNode.validate(parameterType, errMsg);
     }
@@ -155,7 +141,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      * @param connectionManager 数据库连接
      */
     private void checkGroupByNode(SelectNode selectNode, Map<String, TableNode> aliasTable, ConnectionManager connectionManager) {
-        String errMsg = String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId());
+        String errMsg = String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId());
         GroupByNode groupByNode = selectNode.getGroupByNode();
         if (groupByNode.getSelectElementList() != null) {
             for (SelectElement element : groupByNode.getSelectElementList()) {
@@ -173,7 +159,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      * @param connectionManager 数据库连接
      */
     private void checkOrderByNode(SelectNode selectNode, Map<String, TableNode> aliasTable, ConnectionManager connectionManager) {
-        String errMsg = String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId());
+        String errMsg = String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId());
         OrderByNode orderByNode = selectNode.getOrderByNode();
         if (orderByNode.getSelectElementList() != null) {
             for (SelectElement element : orderByNode.getSelectElementList()) {
@@ -191,7 +177,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      * @param connectionManager 数据库连接
      */
     private void checkWhereNode(SelectNode selectNode, Map<String, TableNode> aliasTable, ConnectionManager connectionManager) {
-        String errMsg = String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId());
+        String errMsg = String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId());
         WhereNode whereNode = selectNode.getWhereNode();
         if (whereNode.getSelectElementList() != null) {
             for (SelectElement element : whereNode.getSelectElementList()) {
@@ -209,7 +195,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      * @param connectionManager 数据库连接
      */
     private void checkColumnNode(SelectNode selectNode, Map<String, TableNode> aliasTable, ConnectionManager connectionManager) {
-        String errMsg = String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId());
+        String errMsg = String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId());
         ColumnNode columnNode = selectNode.getColumnNode();
         if (columnNode.getSelectElementList() != null) {
             for (SelectElement element : columnNode.getSelectElementList()) {
@@ -229,7 +215,7 @@ public class SelectMappedStatementItem extends MappedStatementItem {
      * @param connectionManager 数据库连接
      */
     private void checkFromNode(SelectNode selectNode, Map<String, TableNode> aliasTable, ConnectionManager connectionManager) {
-        String errMsg = String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId());
+        String errMsg = String.format(MessageConstant.MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId());
         TableDao tableDao = connectionManager.getTableDao();
         ColumnDao columnDao = connectionManager.getColumnDao();
         FromNode fromNode = selectNode.getFromNode();
@@ -268,9 +254,9 @@ public class SelectMappedStatementItem extends MappedStatementItem {
             }
         }
         if (currentTableNode != null) {
-            aliasTable.put(CURRENT_TABLE, currentTableNode);
+            aliasTable.put(MessageConstant.CURRENT_TABLE, currentTableNode);
         } else {
-            aliasTable.remove(CURRENT_TABLE);
+            aliasTable.remove(MessageConstant.CURRENT_TABLE);
         }
     }
 

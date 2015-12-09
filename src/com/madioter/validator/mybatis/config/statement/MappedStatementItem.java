@@ -81,4 +81,12 @@ public abstract class MappedStatementItem {
     protected void setMappedStatement(MappedStatement mappedStatement) {
         this.mappedStatement = mappedStatement;
     }
+
+    /**
+     * Add table node.
+     * @author wangyi8
+     * @taskId
+     * @param tableNode the table node
+     */
+    public abstract void addTableNode(TableNode tableNode);
 }

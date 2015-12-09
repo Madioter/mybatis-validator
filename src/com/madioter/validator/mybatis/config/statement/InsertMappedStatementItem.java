@@ -87,7 +87,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      */
     public InsertMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
         super.setMappedStatement(mappedStatement);
-        this.parameterType = mappedStatement.getParameterMap().getType();
+        this.parameterType = getMappedStatement().getParameterMap().getType();
         InsertStatementParser insertStatementParser;
         if (parameterType != null && !parameterType.equals(List.class)) {
             insertStatementParser = new BaseInsertStatementParser();
@@ -108,11 +108,11 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     public void validate(ConnectionManager connectionManager) throws ConfigException {
         TableDao tableDao = connectionManager.getTableDao();
         ColumnDao columnDao = connectionManager.getColumnDao();
-        boolean exist = tableDao.checkExist(tableName);
+        boolean exist = tableDao.checkExist(tableNode.getTableName());
         if (!exist) {
             new MapperException(ExceptionCommonConstant.TABLE_NOT_EXIST,
-                    String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId()) +
-                            String.format(TABLE_NAME, tableName)).printException();
+                    String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId()) +
+                            String.format(TABLE_NAME, tableNode.getTableName())).printException();
             return;
         }
         if (this.columnSqlNode != null || this.valueSqlNode != null) {
@@ -121,7 +121,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
 
             if (ifColumnNodeList.size() != ifValueNodeList.size()) {
                 new MapperException(ExceptionCommonConstant.INSERT_COLUMN_VALUE_ERROR,
-                        String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                        String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
             } else {
                 int len = ifColumnNodeList.size();
                 for (int i = 0; i < len; i++) {
@@ -129,13 +129,13 @@ public class InsertMappedStatementItem extends MappedStatementItem {
                     InsertIfValueNode valueNode = ifValueNodeList.get(i);
                     if (!StringUtil.replaceBlank(columnNode.getIfTest()).equals(StringUtil.replaceBlank(valueNode.getIfTest()))) {
                         new MapperException(ExceptionCommonConstant.INSERT_COLUMN_VALUE_SAME_TEST_ERROR,
-                                String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                                String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())
                                         + String.format(IF_TEST_TEXT, columnNode.getIfTest(), valueNode.getIfTest())).printException();
                     }
                 }
                 if (parameterType.equals(Map.class)) {
                     new MapperException(ExceptionCommonConstant.MAP_PROPERTY_VALIDATE_ERROR,
-                            String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                            String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
                     return;
                 }
                 for (int i = 0; i < len; i++) {
@@ -143,9 +143,9 @@ public class InsertMappedStatementItem extends MappedStatementItem {
                     InsertIfValueNode valueNode = ifValueNodeList.get(i);
                     //验证字段是否存在
                     try {
-                        columnNode.validate(columnDao, tableName, parameterType);
+                        columnNode.validate(columnDao, tableNode.getTableName(), parameterType);
                     } catch (MapperException e) {
-                        e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                        e.setDescription(String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())
                                 + SymbolConstant.SYMBOL_COLON + e.getDescription());
                         e.printException();
                     }
@@ -153,7 +153,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
                     try {
                         valueNode.validate(parameterType);
                     } catch (MapperException e) {
-                        e.setDescription(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())
+                        e.setDescription(String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())
                                 + SymbolConstant.SYMBOL_COLON + e.getDescription());
                         e.printException();
                     }
@@ -169,6 +169,11 @@ public class InsertMappedStatementItem extends MappedStatementItem {
         return tableNodes;
     }
 
+    @Override
+    public void addTableNode(TableNode tableNode) {
+        this.tableNode = tableNode;
+    }
+
     /**
      * 检查TrimSqlNode节点属性编写是否正确
      *
@@ -182,14 +187,14 @@ public class InsertMappedStatementItem extends MappedStatementItem {
         String prefix = ((String) ReflectHelper.getPropertyValue(node, "prefix")).trim();
         if (!prefix.equals(SymbolConstant.SYMBOL_LEFT_BRACKET) && !prefix.equals("values (")) {
             new MapperException(ExceptionCommonConstant.INSERT_TRIM_PREFIX_ERROR,
-                    String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                    String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
         }
 
         //判断suffix属性是否设置
         String suffix = (String) ReflectHelper.getPropertyValue(node, "suffix");
         if (!suffix.equals(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
             new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIX_ERROR,
-                    String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                    String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
         }
 
         //判断suffixesToOverride属性是否设置
@@ -198,7 +203,7 @@ public class InsertMappedStatementItem extends MappedStatementItem {
             String suffixesToOverride = (String) suffixesToOverrides.get(0);
             if (!suffixesToOverride.equals(",")) {
                 new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIXES_TO_OVERRIDE_ERROR,
-                        String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+                        String.format(MAPPER_FILE_ID, getMappedStatement().getResource(), getMappedStatement().getId())).printException();
             }
         }
         return true;
@@ -284,5 +289,14 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      */
     public void setTableNode(TableNode tableNode) {
         this.tableNode = tableNode;
+    }
+
+
+    /**
+     * Gets parameter type.
+     * @return the parameter type
+     */
+    public Class getParameterType() {
+        return parameterType;
     }
 }

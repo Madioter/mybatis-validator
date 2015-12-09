@@ -9,4 +9,9 @@ package com.madioter.validator.mybatis.model.sql.elementnode;
  * @CreateDate 2015年11月25日 <br>
  */
 public interface SelectElement {
+
+    /**
+     * 对象结构重构
+     */
+    public void rebuild();
 }

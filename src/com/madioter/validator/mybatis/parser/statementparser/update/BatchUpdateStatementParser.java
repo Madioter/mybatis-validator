@@ -1,6 +1,7 @@
 package com.madioter.validator.mybatis.parser.statementparser.update;
 
 import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
+import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
@@ -43,10 +44,12 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
         List<Object> nodes = (List) ReflectHelper.getPropertyValue(rootSqlNode, MyBatisTagConstant.CONTENTS);
         if (!nodes.isEmpty()) {
             for (Object node : nodes) {
-                if (node.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableName() == null) {
+                if (node.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableNodes().isEmpty()) {
                     String text = (String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.TEXT);
                     if (text.toLowerCase().contains(SqlConstant.UPDATE)) {
-                        statementItem.setTableName(getTableName(text));
+                        TableNode tableNode = new TableNode();
+                        tableNode.setTableName(getTableName(text));
+                        statementItem.addTableNode(tableNode);
                     }
                 } else if (node.getClass().getName().endsWith("ForEachSqlNode")) {
                     parseEachNode(node);
@@ -58,7 +61,7 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
                 }
             }
         }
-        if (statementItem.getTableName() == null || statementItem.getSetNodeList() == null) {
+        if (statementItem.getTableNodes().isEmpty() || statementItem.getSetNodeList() == null) {
             //字段和value值未验证，需要进一步进行字符串拆分
             new NotSupportException(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
         }
@@ -75,14 +78,16 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
         List<Object> contents = (List) ReflectHelper.getPropertyValue(mixedSqlNode, MyBatisTagConstant.CONTENTS);
         if (!contents.isEmpty()) {
             for (Object innerNode : contents) {
-                if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableName() == null) {
+                if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableNodes().isEmpty()) {
                     String text = (String) ReflectHelper.getPropertyValue(innerNode, MyBatisTagConstant.TEXT);
                     if (text.toLowerCase().contains(SqlConstant.UPDATE)) {
-                        statementItem.setTableName(getTableName(text));
+                        TableNode tableNode = new TableNode();
+                        tableNode.setTableName(getTableName(text));
+                        statementItem.addTableNode(tableNode);
                     }
                 } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.SET_SQL_NODE)) {
                     createSetNodeList(innerNode);
-                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableName() != null) {
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableNodes().isEmpty()) {
                     String text = (String) ReflectHelper.getPropertyValue(innerNode, MyBatisTagConstant.TEXT);
                     if (!text.trim().equals("")) {
                         statementItem.setWhereCondition(text.trim());
