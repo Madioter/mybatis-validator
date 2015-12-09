@@ -1,12 +1,14 @@
 package com.madioter.validator.mybatis.model.sql.sqltag;
 
 import com.madioter.validator.mybatis.database.ColumnDao;
+import com.madioter.validator.mybatis.model.sql.elementnode.ConditionNode;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
+import java.util.List;
 
 /**
  * <Description> <br>
@@ -29,6 +31,11 @@ public class UpdateIfSetNode extends IfNode {
     private static final String ERROR_MSG = "表达式为：%s";
 
     /**
+     * 条件表达式，例如：type=#{type}
+     */
+    private ConditionNode node;
+
+    /**
      * 构造方法
      *
      * @param sqlNode if标签
@@ -36,6 +43,11 @@ public class UpdateIfSetNode extends IfNode {
      */
     public UpdateIfSetNode(Object sqlNode) throws ConfigException {
         super(sqlNode);
+        if (getIfContent() != null) {
+            node = new ConditionNode();
+            node.setColumnName(getIfContent().replace(SymbolConstant.SYMBOL_COMMA, ""));
+            node.rebuild();
+        }
     }
 
     /**
@@ -148,22 +160,18 @@ public class UpdateIfSetNode extends IfNode {
             throw new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, String.format(ERROR_MSG, getContents()));
         }
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
-            mapperException = new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
+            mapperException = new MapperException(ExceptionCommonConstant.UPDATE_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
         }
-        String text = StringUtil.replaceBlank(getIfContent().replace(SymbolConstant.SYMBOL_COMMA, ""));
-        String[] strArr = text.split(SymbolConstant.SYMBOL_EQUAL);
-        if (strArr.length < 2) {
-            throw new MapperException(ExceptionCommonConstant.CAN_NOT_EXPLAIN_ERROR, String.format(ERROR_MSG, getIfContent()));
-        }
-        String propertyName = strArr[1].replace(SymbolConstant.SYMBOL_LEFT_BRACE, "").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").trim();
-
-        //验证属性是否存在
-        Boolean result = ReflectHelper.haveGetMethod(propertyName, parameterType);
-        if (!result) {
-            if (mapperException != null) {
-                mapperException.appendMessage(ExceptionCommonConstant.COLUMN_NOT_EXIST);
-            } else {
-                mapperException = new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST, String.format(ERROR_MSG, getIfContent()));
+        List<String> propertyNames = StringUtil.extractBrace(getIfContent());
+        for (int i = 0; i < propertyNames.size(); i++) {
+            //验证属性是否存在
+            Boolean result = ReflectHelper.haveGetMethod(propertyNames.get(i), parameterType);
+            if (!result) {
+                if (mapperException != null) {
+                    mapperException.appendMessage(ExceptionCommonConstant.COLUMN_NOT_EXIST);
+                } else {
+                    mapperException = new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST, String.format(ERROR_MSG, getIfContent()));
+                }
             }
         }
 
@@ -172,5 +180,14 @@ public class UpdateIfSetNode extends IfNode {
         } else {
             return true;
         }
+    }
+
+
+    /**
+     * Gets node.
+     * @return the node
+     */
+    public ConditionNode getNode() {
+        return node;
     }
 }

@@ -14,16 +14,21 @@ import com.madioter.validator.mybatis.model.sql.sqlnode.LimitNode;
 import com.madioter.validator.mybatis.model.sql.sqlnode.SelectNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.ParameterMappingValidator;
+import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.ArrayUtil;
 import com.madioter.validator.mybatis.util.Config;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.SqlUtil;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
+import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.ibatis.mapping.ParameterMapping;
 
 /**
@@ -39,15 +44,18 @@ public class CheckStatementPropertyExist extends AbstractValidator {
     @Override
     public void validate(ConfigurationManager configurationManager, ConnectionManager connectionManager) {
         StatementResource statementResource = configurationManager.getStatementResource();
-        ColumnDao columnDao = connectionManager.getColumnDao();
-        MappedStatementItem item = statementResource.getNext();
-        while (item != null) {
+        Map<String, MappedStatementItem> itemMap = statementResource.getMappedStatementMap();
+        Set<String> itemKeys = itemMap.keySet();
+
+        for (String itemKey : itemKeys) {
+            MappedStatementItem item = itemMap.get(itemKey);
             try {
                 //中间增加一层动态代理类，通过传入Method 动态调用方法，并在其中增加过滤验证
                 Method method = CheckStatementPropertyExist.this.getClass().getMethod("validatePropertyExist",
                         MappedStatementItem.class);
-                getProxy().execute(method, item, columnDao);
-                item = statementResource.getNext();
+                getProxy().execute(this, method, item);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -138,7 +146,14 @@ public class CheckStatementPropertyExist extends AbstractValidator {
         }
     }
 
-
+    /**
+     * Check condition node property exist.
+     * @author wangyi8
+     * @taskId
+     * @param node the node
+     * @param clz the clz
+     * @param errMsg the err msg
+     */
     private void checkConditionNodePropertyExist(ConditionNode node, Class clz, String errMsg) {
         if (StringUtil.containBrace(node.getValue())) {
             if (clz == null || ArrayUtil.contains(Config.IGNORE_PARAMETER_TYPES, clz)) {
@@ -153,7 +168,8 @@ public class CheckStatementPropertyExist extends AbstractValidator {
                     try {
                         ReflectHelper.haveGetMethod(propertyName, clz);
                     } catch (MapperException e) {
-                        e.setDescription(errMsg + String.format(MessageConstant.EXPRESS_MSG, this.toString()) + e.getDescription());
+                        e.setDescription(errMsg + String.format(MessageConstant.EXPRESS_MSG,
+                                node.toString()) + SymbolConstant.SYMBOL_BLANK + e.getDescription());
                         e.printException();
                     }
                 }
@@ -168,16 +184,25 @@ public class CheckStatementPropertyExist extends AbstractValidator {
      * @param item the item
      */
     private void validateUpdatePropertyExist(UpdateMappedStatementItem item) {
-        List<ParameterMapping> parameterMappings = item.getParameterMappings();
-        //验证属性是否存在
-        if (parameterMappings != null) {
-            for (int i = 0; i < parameterMappings.size(); i++) {
-                ParameterMappingValidator validator = new ParameterMappingValidator(parameterMappings.get(i));
-                try {
-                    validator.validate();
-                } catch (MapperException e) {
-                    e.setDescription(item.getInfoMessage() + SymbolConstant.SYMBOL_COLON + e.getDescription());
-                    e.printException();
+        Class clz = item.getParameterType();
+        if (clz == null) {
+            new MapperException(ExceptionCommonConstant.NO_PROPERTY_VALIDATE_ERROR, item.getInfoMessage()).printException();
+            return;
+        }
+        List<UpdateIfSetNode> setNodeList = item.getSetNodeList();
+        if (setNodeList != null) {
+            for (int i = 0; i < setNodeList.size(); i++) {
+                UpdateIfSetNode node = setNodeList.get(i);
+                //验证字段和属性是否存在
+                List<String> propertyNames = StringUtil.extractBrace(node.getIfContent());
+                for (int k = 0; k < propertyNames.size(); k++) {
+                    //验证属性是否存在
+                    try {
+                        ReflectHelper.haveGetMethod(propertyNames.get(k), clz);
+                    } catch (MapperException e) {
+                        new MapperException(ExceptionCommonConstant.GET_METHOD_NOT_EXIST, item.getInfoMessage() + SymbolConstant.SYMBOL_COLON +
+                                String.format(MessageConstant.EXPRESS_MSG, node.getIfContent())).printException();
+                    }
                 }
             }
         }
@@ -192,13 +217,17 @@ public class CheckStatementPropertyExist extends AbstractValidator {
     private void validateInsertPropertyExist(InsertMappedStatementItem item) {
         List<InsertIfValueNode> valueNodeList = item.getIfValueNodeList();
         Class parameterType = item.getParameterType();
-        for (int i = 0; i < valueNodeList.size(); i++) {
-            InsertIfValueNode valueNode = valueNodeList.get(i);
-            try {
-                valueNode.validate(parameterType);
-            } catch (MapperException e) {
-                e.setDescription(item.getInfoMessage() + SymbolConstant.SYMBOL_COLON + e.getDescription());
-                e.printException();
+        if (SqlUtil.isCheckedParameterType(parameterType)) {
+            if (valueNodeList != null) {
+                for (int i = 0; i < valueNodeList.size(); i++) {
+                    InsertIfValueNode valueNode = valueNodeList.get(i);
+                    try {
+                        valueNode.validate(parameterType);
+                    } catch (MapperException e) {
+                        e.setDescription(item.getInfoMessage() + SymbolConstant.SYMBOL_COLON + e.getDescription());
+                        e.printException();
+                    }
+                }
             }
         }
     }

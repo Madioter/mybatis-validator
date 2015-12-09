@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMap;
 import org.apache.ibatis.mapping.ParameterMapping;
 
 /**
@@ -159,13 +160,17 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
     @Override
     public List<TableNode> getTableNodes() {
         List<TableNode> tableNodes = new ArrayList<TableNode>();
-        tableNodes.add(tableNode);
+        if (tableNode != null) {
+            tableNodes.add(tableNode);
+        }
         return tableNodes;
     }
 
     @Override
     public void addTableNode(TableNode tableNode) {
-        this.tableNode = tableNode;
+        if (tableNode != null) {
+            this.tableNode = tableNode;
+        }
     }
 
     /**
@@ -230,5 +235,21 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      */
     public List<ParameterMapping> getParameterMappings() {
         return parameterMappings;
+    }
+
+    /**
+     * Sets parameter type.
+     * @param parameterType the parameter type
+     */
+    public void setParameterType(Class parameterType) {
+        this.parameterType = parameterType;
+    }
+
+    /**
+     * Gets parameter type.
+     * @return the parameter type
+     */
+    public Class getParameterType() {
+        return parameterType;
     }
 }

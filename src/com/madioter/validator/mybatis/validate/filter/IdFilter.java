@@ -26,6 +26,10 @@ public class IdFilter implements CheckFilter {
      */
     private List<String> excludes = new ArrayList<String>();
 
+    public IdFilter() {
+        //includes.add("wkfBatchHandle.queryBatchWorkformDetailInfo");
+    }
+
     @Override
     public boolean doFilter(Object... params) {
         String id = null;
@@ -40,7 +44,7 @@ public class IdFilter implements CheckFilter {
         if (excludes != null && excludes.contains(id)) {
             return false;
         }
-        if (includes != null && !includes.isEmpty() && excludes.contains(id)) {
+        if (includes != null && !includes.isEmpty() && includes.contains(id)) {
             return true;
         } else if (includes == null || includes.isEmpty()) {
             return true;

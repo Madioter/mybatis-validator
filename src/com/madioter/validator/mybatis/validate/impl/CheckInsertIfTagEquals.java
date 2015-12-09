@@ -5,7 +5,6 @@ import com.madioter.validator.mybatis.config.StatementResource;
 import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
-import com.madioter.validator.mybatis.database.TableDao;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.util.MessageConstant;
@@ -19,6 +18,8 @@ import com.madioter.validator.mybatis.validate.CheckFilter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> 检查Insert语句的赋值和结果判断条件一致 <br>
@@ -38,16 +39,17 @@ public class CheckInsertIfTagEquals extends AbstractValidator {
     @Override
     public void validate(ConfigurationManager configurationManager, ConnectionManager connectionManager) {
         StatementResource statementResource = configurationManager.getStatementResource();
-        TableDao tableDao = connectionManager.getTableDao();
-        MappedStatementItem item = statementResource.getNext();
-        while (item != null) {
+        Map<String, MappedStatementItem> itemMap = statementResource.getMappedStatementMap();
+        Set<String> itemKeys = itemMap.keySet();
+
+        for (String itemKey : itemKeys) {
+            MappedStatementItem item = itemMap.get(itemKey);
             if (item instanceof InsertMappedStatementItem) {
                 try {
                     //中间增加一层动态代理类，通过传入Method 动态调用方法，并在其中增加过滤验证
                     Method method = CheckInsertIfTagEquals.this.getClass().getMethod("validateIfTagEquals",
                             InsertMappedStatementItem.class);
-                    getProxy().execute(method, item, tableDao);
-                    item = statementResource.getNext();
+                    getProxy().execute(this, method, item);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

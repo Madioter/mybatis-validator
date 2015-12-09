@@ -4,6 +4,7 @@ import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem
 import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.SqlUtil;
+import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
@@ -137,6 +138,19 @@ public class QueryNode implements SelectElement {
                 }
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (!StringUtil.isBlank(tableAlias)) {
+            builder.append(tableAlias).append(SymbolConstant.SYMBOL_POINT);
+        }
+        builder.append(columnName);
+        if (!StringUtil.isBlank(columnAlias)) {
+            builder.append(SymbolConstant.SYMBOL_BLANK).append(columnAlias);
+        }
+        return builder.toString();
     }
 
     /**

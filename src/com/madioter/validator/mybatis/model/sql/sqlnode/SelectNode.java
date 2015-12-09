@@ -289,12 +289,24 @@ public class SelectNode {
      */
     public List<SelectElement> selectElements() {
         List<SelectElement> selectElementList = new ArrayList<SelectElement>();
-        selectElementList.addAll(columnNode.getSelectElementList());
-        selectElementList.addAll(fromNode.getSelectElementList());
-        selectElementList.addAll(whereNode.getSelectElementList());
-        selectElementList.addAll(orderByNode.getSelectElementList());
-        selectElementList.addAll(groupByNode.getSelectElementList());
-        selectElementList.add(limitNode);
+        if (!columnNode.getSelectElementList().isEmpty()) {
+            selectElementList.addAll(columnNode.getSelectElementList());
+        }
+        if (!fromNode.getSelectElementList().isEmpty()) {
+            selectElementList.addAll(fromNode.getSelectElementList());
+        }
+        if (!whereNode.getSelectElementList().isEmpty()) {
+            selectElementList.addAll(whereNode.getSelectElementList());
+        }
+        if (!orderByNode.getSelectElementList().isEmpty()) {
+            selectElementList.addAll(orderByNode.getSelectElementList());
+        }
+        if (!groupByNode.getSelectElementList().isEmpty()) {
+            selectElementList.addAll(groupByNode.getSelectElementList());
+        }
+        if (limitNode != null) {
+            selectElementList.add(limitNode);
+        }
         return selectElementList;
     }
 

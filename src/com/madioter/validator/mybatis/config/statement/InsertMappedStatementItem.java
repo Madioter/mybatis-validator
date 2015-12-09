@@ -165,13 +165,17 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     @Override
     public List<TableNode> getTableNodes() {
         List<TableNode> tableNodes = new ArrayList<TableNode>();
-        tableNodes.add(tableNode);
+        if (tableNode != null) {
+            tableNodes.add(tableNode);
+        }
         return tableNodes;
     }
 
     @Override
     public void addTableNode(TableNode tableNode) {
-        this.tableNode = tableNode;
+        if (tableNode != null) {
+            this.tableNode = tableNode;
+        }
     }
 
     /**

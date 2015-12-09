@@ -29,6 +29,9 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
     @Override
     public void parser(MappedStatement mappedStatement, UpdateMappedStatementItem upateStatementItem) throws ConfigException {
         this.statementItem = upateStatementItem;
+        if (mappedStatement.getParameterMap() != null) {
+            upateStatementItem.setParameterType(mappedStatement.getParameterMap().getType());
+        }
         SqlSource sqlSource = mappedStatement.getSqlSource();
         SqlSourceVo sqlSourceVo = SqlSourceParser.parser(sqlSource);
         String sql = sqlSourceVo.getSql();

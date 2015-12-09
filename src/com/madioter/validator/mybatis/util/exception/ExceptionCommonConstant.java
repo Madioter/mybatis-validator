@@ -96,6 +96,11 @@ public class ExceptionCommonConstant {
     public static final String INSERT_END_WITH_COMMA = "INSERT语句的赋值标签必须以逗号结尾";
 
     /**
+     * UPDATE语句的赋值标签必须以逗号结尾
+     */
+    public static final String UPDATE_END_WITH_COMMA = "UPDATE语句的赋值标签必须以逗号结尾";
+
+    /**
      * Map类型的参数集缺乏对应的实体类，请自己验证
      */
     public static final String MAP_PROPERTY_VALIDATE_ERROR = "Map类型的参数集缺乏对应的实体类，请自己验证";

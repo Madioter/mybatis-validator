@@ -28,8 +28,6 @@ public class StatementResource {
 
     private Map<String, MappedStatementItem> mappedStatementMap;
 
-    private Iterator<Map.Entry<String, MappedStatementItem>> itemIterator;
-
     public StatementResource(Collection<MappedStatement> mappedStatements) throws ConfigException {
         mappedStatementMap = new HashMap<String, MappedStatementItem>();
         Iterator iterator = mappedStatements.iterator();
@@ -55,14 +53,10 @@ public class StatementResource {
                 }
             }
         }
-        itemIterator = mappedStatementMap.entrySet().iterator();
     }
 
-    public MappedStatementItem getNext() {
-        if (itemIterator.hasNext()) {
-            return itemIterator.next().getValue();
-        }
-        return null;
+    public Map<String, MappedStatementItem> getMappedStatementMap() {
+        return mappedStatementMap;
     }
 }
 

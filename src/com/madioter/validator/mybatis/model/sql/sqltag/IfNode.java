@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.model.sql.sqltag;
 
+import com.madioter.validator.mybatis.model.sql.elementnode.ConditionNode;
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;

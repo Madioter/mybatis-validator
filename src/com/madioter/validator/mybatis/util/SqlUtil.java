@@ -1,5 +1,7 @@
 package com.madioter.validator.mybatis.util;
 
+import java.util.Map;
+
 /**
  * <Description> <br>
  *
@@ -21,5 +23,31 @@ public class SqlUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 验证是否是简单表名
+     * @param express 表名表达式
+     * @return Boolean
+     */
+    public static boolean checkIsSimpleTable(String express) {
+        // TODO 目前只支持 xxx_xxx的表名结构
+        if (express.matches("^\\w+$")) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否是可被验证的参数类型
+     * @param clz 参数类型
+     * @return Boolean
+     */
+    public static boolean isCheckedParameterType(Class clz) {
+        if (clz == null || clz.equals(Map.class)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

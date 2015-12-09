@@ -44,4 +44,9 @@ public class MyBatisTagConstant {
      * text
      */
     public static final String TEXT = "text";
+
+    /**
+     * ForEachSqlNode
+     */
+    public static final String FOR_EACH_SQL_NODE = "ForEachSqlNode";
 }

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> <br>
@@ -46,14 +47,16 @@ public class CheckStatementColumnExist extends AbstractValidator {
     public void validate(ConfigurationManager configurationManager, ConnectionManager connectionManager) {
         StatementResource statementResource = configurationManager.getStatementResource();
         ColumnDao columnDao = connectionManager.getColumnDao();
-        MappedStatementItem item = statementResource.getNext();
-        while (item != null) {
+        Map<String, MappedStatementItem> itemMap = statementResource.getMappedStatementMap();
+        Set<String> itemKeys = itemMap.keySet();
+
+        for (String itemKey : itemKeys) {
+            MappedStatementItem item = itemMap.get(itemKey);
             try {
                 //中间增加一层动态代理类，通过传入Method 动态调用方法，并在其中增加过滤验证
                 Method method = CheckStatementColumnExist.this.getClass().getMethod("validateColumnExist",
                         MappedStatementItem.class, ColumnDao.class);
-                getProxy().execute(method, item, columnDao);
-                item = statementResource.getNext();
+                getProxy().execute(this, method, item, columnDao);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -95,17 +98,19 @@ public class CheckStatementColumnExist extends AbstractValidator {
                 buildAliasTable(selectNode.getTableNodes(), aliasTable, item.getInfoMessage());
                 List<SelectElement> selectElements = selectNode.selectElements();
                 for (SelectElement element : selectElements) {
-                    element.rebuild();
-                    if (element instanceof QueryNode) {
-                        checkQueryNodeColumnExist(aliasTable, (QueryNode) element, columnDao, errMsg);
-                    } else if (element instanceof FunctionNode) {
-                        checkFunctionNodeColumnExist(aliasTable, (FunctionNode) element, columnDao, errMsg);
-                    } else if (element instanceof ConditionNode) {
-                        checkConditionNodeColumnExist(aliasTable, (ConditionNode) element, columnDao, errMsg);
-                    } else if (element instanceof OrderNode) {
-                        checkOrderNodeColumnExist(aliasTable, (OrderNode) element, columnDao, errMsg);
-                    } else if (element instanceof GroupByNode) {
-                        checkGroupNodeColumnExist(aliasTable, (OrderNode) element, columnDao, errMsg);
+                    if (element != null) {
+                        element.rebuild();
+                        if (element instanceof QueryNode) {
+                            checkQueryNodeColumnExist(aliasTable, (QueryNode) element, columnDao, errMsg);
+                        } else if (element instanceof FunctionNode) {
+                            checkFunctionNodeColumnExist(aliasTable, (FunctionNode) element, columnDao, errMsg);
+                        } else if (element instanceof ConditionNode) {
+                            checkConditionNodeColumnExist(aliasTable, (ConditionNode) element, columnDao, errMsg);
+                        } else if (element instanceof OrderNode) {
+                            checkOrderNodeColumnExist(aliasTable, (OrderNode) element, columnDao, errMsg);
+                        } else if (element instanceof GroupByNode) {
+                            checkGroupNodeColumnExist(aliasTable, (OrderNode) element, columnDao, errMsg);
+                        }
                     }
                 }
             }
@@ -183,11 +188,11 @@ public class CheckStatementColumnExist extends AbstractValidator {
         }
         //验证是否符合字段条件，存在类似 1=1 的恒等比较，需要过滤掉
         if (SqlUtil.checkIsColumn(element.getColumnName())) {
-            checkColumnExist(element.getColumnName(), aliasTable, columnDao, errMsg);
+            checkColumnExist(element, element.getColumnName(), aliasTable, columnDao, errMsg);
         }
         // 验证两表关联的比较
         if (SqlUtil.checkIsColumn(element.getValue())) {
-            checkColumnExist(element.getValue(), aliasTable, columnDao, errMsg);
+            checkColumnExist(element, element.getValue(), aliasTable, columnDao, errMsg);
         }
     }
 
@@ -205,11 +210,15 @@ public class CheckStatementColumnExist extends AbstractValidator {
         String columnName = element.getColumnName();
         if (tableNode == null) {
             new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
-                    errMsg + String.format(MessageConstant.EXPRESS_MSG, columnName)).printException();
+                    errMsg + String.format(MessageConstant.EXPRESS_MSG, element.toString())).printException();
             return;
         } else {
-            if (tableNode.isCanCheck()) {
-                validateColumnExist(columnName, tableNode.getTableName(), columnDao, errMsg);
+            if (tableNode.isCanCheck() && SqlUtil.checkIsColumn(columnName)) {
+                boolean exist = columnDao.checkColumnExist(columnName, tableNode.getTableName());
+                if (!exist) {
+                    new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
+                            errMsg + String.format(MessageConstant.EXPRESS_MSG, element.toString())).printException();
+                }
             }
         }
     }
@@ -232,11 +241,15 @@ public class CheckStatementColumnExist extends AbstractValidator {
                 String columnName = node.getColumnName();
                 if (tableNode == null) {
                     new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
-                            errMsg + String.format(MessageConstant.EXPRESS_MSG, columnName)).printException();
+                            errMsg + String.format(MessageConstant.EXPRESS_MSG, element.toString())).printException();
                     continue;
                 } else {
                     if (tableNode.isCanCheck()) {
-                        validateColumnExist(columnName, tableNode.getTableName(), columnDao, errMsg);
+                        boolean exist = columnDao.checkColumnExist(columnName, tableNode.getTableName());
+                        if (!exist) {
+                            new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
+                                    errMsg + String.format(MessageConstant.EXPRESS_MSG, columnName)).printException();
+                        }
                     }
                 }
             }
@@ -254,21 +267,6 @@ public class CheckStatementColumnExist extends AbstractValidator {
             return aliasTable.get(MessageConstant.CURRENT_TABLE);
         } else {
             return aliasTable.get(alias);
-        }
-    }
-
-    /**
-     * 验证字段是否存在
-     * @param columnName 字段名
-     * @param tableName 表名
-     * @param columnDao 字段数据库比较dao
-     * @param errMsg 异常信息
-     */
-    public void validateColumnExist(String columnName, String tableName, ColumnDao columnDao, String errMsg) {
-        boolean exist = columnDao.checkColumnExist(columnName, tableName);
-        if (!exist) {
-            new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
-                    errMsg + String.format(MessageConstant.EXPRESS_MSG, columnName)).printException();
         }
     }
 
@@ -309,7 +307,9 @@ public class CheckStatementColumnExist extends AbstractValidator {
         String tableName = "";
         if (tableNodeList != null && !tableNodeList.isEmpty()) {
             TableNode tableNode = tableNodeList.get(0);
-            tableName = tableNode.getTableName() == null ? "" : tableNode.getTableName();
+            if (tableNode != null) {
+                tableName = tableNode.getTableName() == null ? "" : tableNode.getTableName();
+            }
         }
         List<UpdateIfSetNode> setNodeList = item.getSetNodeList();
         if (StringUtil.isBlank(tableName)) {
@@ -322,25 +322,15 @@ public class CheckStatementColumnExist extends AbstractValidator {
         }
         for (int i = 0; i < setNodeList.size(); i++) {
             UpdateIfSetNode node = setNodeList.get(i);
-            //验证字段是否存在
-            if (node.getIfContent() == null) {
-                new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, item.getInfoMessage() +
-                        String.format(MessageConstant.EXPRESS_MSG, node.getContents()));
+            if (node == null || node.getIfContent() == null) {
                 continue;
             }
-            if (!node.getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
-                new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, item.getInfoMessage() +
-                        String.format(MessageConstant.EXPRESS_MSG, node.getIfContent()));
-                continue;
-            }
-            String columnName = node.getIfContent().replace(SymbolConstant.SYMBOL_COMMA, "").trim();
+            String columnName = node.getNode().getColumnName();
             boolean result = columnDao.checkColumnExist(columnName, tableName);
             if (!result) {
                 new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
-                        item.getInfoMessage() +
-                                String.format(MessageConstant.TABLE_COLUMN_NAME, tableName, columnName)
-                                + String.format(MessageConstant.EXPRESS_MSG, node.getIfContent()));
-                continue;
+                        item.getInfoMessage() + String.format(MessageConstant.TABLE_COLUMN_NAME, tableName, columnName)
+                                + String.format(MessageConstant.EXPRESS_MSG, node.getIfContent())).printException();
             }
         }
     }
@@ -394,13 +384,13 @@ public class CheckStatementColumnExist extends AbstractValidator {
 
     /**
      * 验证表字段是否存在
-     *
+     * @param element 验证对象
      * @param express 需要验证的表达式
      * @param aliasTable 表信息
      * @param columnDao 字段查询dao
      * @param errMsg 异常信息
      */
-    private void checkColumnExist(String express, Map<String, TableNode> aliasTable, ColumnDao columnDao, String errMsg) {
+    private void checkColumnExist(ConditionNode element, String express, Map<String, TableNode> aliasTable, ColumnDao columnDao, String errMsg) {
         String[] strArr = express.split(SymbolConstant.SYMBOL_SLASH + SymbolConstant.SYMBOL_POINT);
         TableNode curTableNode = null;
         String curColumnName = null;
@@ -417,12 +407,14 @@ public class CheckStatementColumnExist extends AbstractValidator {
         }
         if (curTableNode == null) {
             new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
-                    errMsg + String.format(MessageConstant.EXPRESS_MSG, express)).printException();
+                    errMsg + String.format(MessageConstant.EXPRESS_MSG, element.toString())).printException();
         } else if (curTableNode.isCanCheck()) {
-            boolean exist = columnDao.checkColumnExist(curColumnName, curTableNode.getTableName());
-            if (!exist) {
-                new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
-                        errMsg + String.format(MessageConstant.EXPRESS_MSG, express)).printException();
+            if (SqlUtil.checkIsSimpleTable(curTableNode.getTableName())) {
+                boolean exist = columnDao.checkColumnExist(curColumnName, curTableNode.getTableName());
+                if (!exist) {
+                    new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
+                            errMsg + String.format(MessageConstant.EXPRESS_MSG, element.toString())).printException();
+                }
             }
         }
     }

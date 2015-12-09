@@ -8,13 +8,10 @@ import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.java.ClassModel;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.validate.IDoValidate;
-import com.madioter.validator.mybatis.validate.impl.CheckInsertIfTagEquals;
-import com.madioter.validator.mybatis.validate.impl.CheckResultMapPropertyExist;
-import com.madioter.validator.mybatis.validate.impl.CheckStatementColumnExist;
-import com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist;
-import com.madioter.validator.mybatis.validate.impl.CheckStatementTableExist;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 /**
@@ -72,11 +69,7 @@ public class Validator {
      * Instantiates a new Validator.
      */
     public Validator() {
-        validatorList.add(new CheckInsertIfTagEquals());
-        validatorList.add(new CheckResultMapPropertyExist());
-        validatorList.add(new CheckStatementColumnExist());
-        validatorList.add(new CheckStatementPropertyExist());
-        validatorList.add(new CheckStatementTableExist());
+
     }
 
     /**
@@ -117,10 +110,11 @@ public class Validator {
             validatorList.get(i).validate(configurationManager, connectionManager);
         }
         /*StatementResource statementResource = configurationManager.getStatementResource();
-        MappedStatementItem item = statementResource.getNext();
-        while (item != null) {
+        Map<String, MappedStatementItem> itemMap = statementResource.getMappedStatementMap();
+        Set<String> itemKeys = itemMap.keySet();
+        for (String itemKey : itemKeys) {
+            MappedStatementItem item = itemMap.get(itemKey);
             item.validate(connectionManager);
-            item = statementResource.getNext();
         }*/
     }
 
@@ -174,5 +168,21 @@ public class Validator {
      */
     public void setTableSchema(String tableSchema) {
         this.tableSchema = tableSchema;
+    }
+
+    /**
+     * Gets validator list.
+     * @return the validator list
+     */
+    public List<IDoValidate> getValidatorList() {
+        return validatorList;
+    }
+
+    /**
+     * Sets validator list.
+     * @param validatorList the validator list
+     */
+    public void setValidatorList(List<IDoValidate> validatorList) {
+        this.validatorList = validatorList;
     }
 }

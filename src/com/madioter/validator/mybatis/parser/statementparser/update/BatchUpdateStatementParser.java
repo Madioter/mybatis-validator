@@ -51,8 +51,10 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
                         tableNode.setTableName(getTableName(text));
                         statementItem.addTableNode(tableNode);
                     }
-                } else if (node.getClass().getName().endsWith("ForEachSqlNode")) {
+                } else if (node.getClass().getName().endsWith(MyBatisTagConstant.FOR_EACH_SQL_NODE)) {
                     parseEachNode(node);
+                } else if (node.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
+                    parseIfNode(node);
                 } else if (node.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE)) {
                     String text = (String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.TEXT);
                     if (!text.trim().equals("")) {
@@ -64,6 +66,34 @@ public class BatchUpdateStatementParser implements UpdateStatementParser {
         if (statementItem.getTableNodes().isEmpty() || statementItem.getSetNodeList() == null) {
             //字段和value值未验证，需要进一步进行字符串拆分
             new NotSupportException(String.format(MAPPER_FILE_ID, mappedStatement.getResource(), mappedStatement.getId())).printException();
+        }
+    }
+
+    private void parseIfNode(Object node) throws ConfigException {
+        Object mixedSqlNode = ReflectHelper.getPropertyValue(node, MyBatisTagConstant.CONTENTS);
+        List<Object> contents = (List) ReflectHelper.getPropertyValue(mixedSqlNode, MyBatisTagConstant.CONTENTS);
+        if (!contents.isEmpty()) {
+            for (Object innerNode : contents) {
+                if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableNodes().isEmpty()) {
+                    String text = (String) ReflectHelper.getPropertyValue(innerNode, MyBatisTagConstant.TEXT);
+                    if (text.toLowerCase().contains(SqlConstant.UPDATE)) {
+                        TableNode tableNode = new TableNode();
+                        tableNode.setTableName(getTableName(text));
+                        statementItem.addTableNode(tableNode);
+                    }
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.SET_SQL_NODE)) {
+                    createSetNodeList(innerNode);
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.FOR_EACH_SQL_NODE)) {
+                    parseEachNode(innerNode);
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
+                    parseIfNode(innerNode);
+                } else if (innerNode.getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE) && statementItem.getTableNodes().isEmpty()) {
+                    String text = (String) ReflectHelper.getPropertyValue(innerNode, MyBatisTagConstant.TEXT);
+                    if (!text.trim().equals("")) {
+                        statementItem.setWhereCondition(text.trim());
+                    }
+                }
+            }
         }
     }
 

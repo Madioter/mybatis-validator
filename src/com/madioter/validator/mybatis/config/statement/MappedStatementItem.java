@@ -6,6 +6,7 @@ import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMap;
 
 /**
  * <Description> <br>
