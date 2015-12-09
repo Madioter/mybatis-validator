@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.config;
 
+import com.madioter.validator.mybatis.config.statement.DeleteMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
@@ -38,10 +39,6 @@ public class StatementResource {
                 if (ArrayUtil.contains(Config.IGNORE_STATEMENT_MAPPER_ID, statement.getId())) {
                     continue;
                 }
-                //单条记录测试代码
-                /*if (!statement.getId().equals("com.tuniu.mauritius.confirmation.support.train.vendor.persistence.TrainCustomerVendorInfoMapper.queryCustomerVendors")) {
-                    continue;
-                }*/
                 if (!mappedStatementMap.containsKey(statement.getId())) {
                     if (statement.getSqlCommandType() == SqlCommandType.INSERT) {
                         mappedStatementMap.put(statement.getId(), new InsertMappedStatementItem(statement));
@@ -49,6 +46,8 @@ public class StatementResource {
                         mappedStatementMap.put(statement.getId(), new UpdateMappedStatementItem(statement));
                     } else if (statement.getSqlCommandType() == SqlCommandType.SELECT) {
                         mappedStatementMap.put(statement.getId(), new SelectMappedStatementItem(statement));
+                    } else if (statement.getSqlCommandType() == SqlCommandType.DELETE) {
+                        mappedStatementMap.put(statement.getId(), new DeleteMappedStatementItem(statement));
                     }
                 }
             }

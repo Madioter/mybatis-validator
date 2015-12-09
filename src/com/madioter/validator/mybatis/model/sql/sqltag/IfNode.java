@@ -1,6 +1,6 @@
 package com.madioter.validator.mybatis.model.sql.sqltag;
 
-import com.madioter.validator.mybatis.model.sql.elementnode.ConditionNode;
+import com.madioter.validator.mybatis.model.sql.sqltag.component.ForEachSqlComponent;
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
@@ -50,7 +50,7 @@ public abstract class IfNode {
             if (contents.get(i).getClass().getName().endsWith(MyBatisTagConstant.TEXT_SQL_NODE)) {
                 nodeText = (String) ReflectHelper.getPropertyValue(contents.get(i), MyBatisTagConstant.TEXT);
             } else if (contents.get(i).getClass().getName().endsWith("ForEachSqlNode")) {
-                nodeText = new ForEachNode(contents.get(i)).toString();
+                nodeText = new ForEachSqlComponent(contents.get(i)).toString();
             }
             if (nodeText.trim() != null && !nodeText.trim().equals("")) {
                 this.ifContent = this.ifContent + SymbolConstant.SYMBOL_BLANK + nodeText.trim();

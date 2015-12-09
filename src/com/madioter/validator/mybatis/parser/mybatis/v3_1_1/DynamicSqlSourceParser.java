@@ -2,7 +2,7 @@ package com.madioter.validator.mybatis.parser.mybatis.v3_1_1;
 
 import com.madioter.validator.mybatis.parser.mybatis.ISqlSourceType;
 import com.madioter.validator.mybatis.model.mybatis.SqlSourceVo;
-import com.madioter.validator.mybatis.model.sql.sqltag.ForEachNode;
+import com.madioter.validator.mybatis.model.sql.sqltag.component.ForEachSqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.SelectIfNode;
@@ -56,7 +56,7 @@ public class DynamicSqlSourceParser implements ISqlSourceType {
                 String text = (String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.TEXT);
                 fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(text)));
             } else if (node.getClass().getName().endsWith("ForEachSqlNode")) {
-                fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(new ForEachNode(node).toString())));
+                fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(new ForEachSqlComponent(node).toString())));
             } else if (node.getClass().getName().endsWith(MyBatisTagConstant.MIXED_SQL_NODE)) {
                 convertMixedNode(node, fragments);
             } else if (node.getClass().getName().endsWith(MyBatisTagConstant.IF_SQL_NODE)) {
