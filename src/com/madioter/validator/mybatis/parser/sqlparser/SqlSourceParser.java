@@ -24,17 +24,13 @@ public class SqlSourceParser {
      * @throws ConfigException 异常
      */
     public static SqlSourceVo parser(SqlSource sqlSource) throws ConfigException {
-        try {
-            List<Class> classList = ISqlSourceType.SUB_CLASSES;
-            for (int i = 0; i < classList.size(); i++) {
-                ISqlSourceType sqlSourceType = (ISqlSourceType) classList.get(i).newInstance();
-                if (sqlSourceType.matches(sqlSource)) {
-                    return sqlSourceType.parser(sqlSource);
-                }
+        List<ISqlSourceType> sqlSourceTypeList = ISqlSourceType.SUB_CLASSES;
+        for (int i = 0; i < sqlSourceTypeList.size(); i++) {
+            ISqlSourceType sqlSourceType = sqlSourceTypeList.get(i);
+            if (sqlSourceType.matches(sqlSource)) {
+                return sqlSourceType.parser(sqlSource);
             }
-            throw new ConfigException(ExceptionCommonConstant.CLASS_FOUNT_EXCEPTION);
-        } catch (Exception e) {
-            throw new ConfigException(ExceptionCommonConstant.CLASS_FOUNT_EXCEPTION, e);
         }
+        throw new ConfigException(ExceptionCommonConstant.CLASS_FOUNT_EXCEPTION);
     }
 }

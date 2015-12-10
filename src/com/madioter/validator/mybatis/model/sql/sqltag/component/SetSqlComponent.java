@@ -8,6 +8,13 @@ package com.madioter.validator.mybatis.model.sql.sqltag.component;
  * @taskId <br>
  * @CreateDate 2015年12月09日 <br>
  */
-public class SetSqlComponent implements ISqlComponent {
+public class SetSqlComponent extends TrimSqlComponent {
 
+    /**
+     * 构造方法
+     * @param setSqlNode SetSqlNode
+     */
+    public SetSqlComponent(Object setSqlNode) {
+        super(setSqlNode);
+    }
 }

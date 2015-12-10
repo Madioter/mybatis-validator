@@ -4,6 +4,8 @@ import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.SelectIfNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
+import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.SqlSource;
@@ -67,6 +69,11 @@ public class SqlSourceVo {
      * valueSqlNode
      */
     private Object valueSqlNode;
+
+    /**
+     * 解析后节点
+     */
+    private List<ISqlComponent> componentList;
 
     /**
      * Sets sql.
@@ -226,5 +233,26 @@ public class SqlSourceVo {
      */
     public void setSetSqlNode(Object setSqlNode) {
         this.setSqlNode = setSqlNode;
+    }
+
+    /**
+     * Add sql component.
+     * @author wangyi8
+     * @taskId
+     * @param component the component
+     */
+    public void addSqlComponent(ISqlComponent component) {
+        if (this.componentList == null) {
+            componentList = new ArrayList<ISqlComponent>();
+        }
+        componentList.add(component);
+    }
+
+    /**
+     * Gets component list.
+     * @return the component list
+     */
+    public List<ISqlComponent> getComponentList() {
+        return componentList;
     }
 }

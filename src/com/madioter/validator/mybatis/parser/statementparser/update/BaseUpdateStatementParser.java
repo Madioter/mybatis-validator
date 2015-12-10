@@ -53,6 +53,7 @@ public class BaseUpdateStatementParser implements UpdateStatementParser {
         statementItem.setSetNodeList(sqlSourceVo.getSetNodeList());
         statementItem.setSetSqlNode(sqlSourceVo.getSetSqlNode());
         statementItem.setWhereCondition(whereText.toString());
+        statementItem.setSqlComponentList(sqlSourceVo.getComponentList());
     }
 
     /**

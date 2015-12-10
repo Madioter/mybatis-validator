@@ -50,7 +50,8 @@ public class BaseSelectStatementParser implements SelectStatementParser {
         SelectSqlParser selectSqlParser = new SelectSqlParser(sqlSourceVo.getSql());
         selectStatementItem.setSelectNodeList(selectSqlParser.getSelectNodeList());
 
-        selectStatementItem.setIfConditions(sqlSourceVo.getSelectIfNodeList());
+        selectStatementItem.setSqlComponentList(sqlSourceVo.getComponentList());
+        //selectStatementItem.setIfConditions(sqlSourceVo.getSelectIfNodeList());
     }
 
 

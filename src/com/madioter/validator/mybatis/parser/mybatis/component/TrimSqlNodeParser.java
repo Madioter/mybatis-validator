@@ -1,5 +1,9 @@
 package com.madioter.validator.mybatis.parser.mybatis.component;
 
+import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
+import com.madioter.validator.mybatis.model.sql.sqltag.component.TrimSqlComponent;
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
+
 /**
  * <Description> <br>
  *
@@ -9,4 +13,17 @@ package com.madioter.validator.mybatis.parser.mybatis.component;
  * @CreateDate 2015年12月09日 <br>
  */
 public class TrimSqlNodeParser implements IComponentNodeParser {
+    @Override
+    public boolean matches(Object object) {
+        if (object.getClass().getName().endsWith(MyBatisTagConstant.TRIM_SQL_NODE)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public ISqlComponent getComponent(Object object) {
+        return new TrimSqlComponent(object);
+    }
 }

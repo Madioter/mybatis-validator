@@ -42,6 +42,7 @@ public class BaseInsertStatementParser implements InsertStatementParser {
                 statementItem.setTableNode(tableNode);
             }
         }
+        statementItem.setSqlComponentList(sqlSourceVo.getComponentList());
         statementItem.setIfColumnNodeList(sqlSourceVo.getIfColumnNodes());
         statementItem.setColumnSqlNode(sqlSourceVo.getColumnSqlNode());
         statementItem.setIfValueNodeList(sqlSourceVo.getIfValueNodes());

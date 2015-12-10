@@ -3,6 +3,8 @@ package com.madioter.validator.mybatis.parser.mybatis;
 import com.madioter.validator.mybatis.model.mybatis.SqlSourceVo;
 import com.madioter.validator.mybatis.util.ClassUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
+import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -19,7 +21,7 @@ public interface ISqlSourceType {
     /**
      * 接口实现类
      */
-    public static List<Class> SUB_CLASSES = ClassUtil.getAllClassByInterface(ISqlSourceType.class);
+    public static List<ISqlSourceType> SUB_CLASSES = ClassUtil.getAllInstanceByInterface(ISqlSourceType.class);
 
     /**
      * 判断类是否匹配

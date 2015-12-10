@@ -2,6 +2,7 @@ package com.madioter.validator.mybatis.config.statement;
 
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
+import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
@@ -23,6 +24,11 @@ public abstract class MappedStatementItem {
      * 原数据
      */
     private MappedStatement mappedStatement;
+
+    /**
+     * sql节点
+     */
+    private List<ISqlComponent> sqlComponentList;
 
     /**
      * 自验证方法
@@ -90,4 +96,20 @@ public abstract class MappedStatementItem {
      * @param tableNode the table node
      */
     public abstract void addTableNode(TableNode tableNode);
+
+    /**
+     * Gets sql component list.
+     * @return the sql component list
+     */
+    public List<ISqlComponent> getSqlComponentList() {
+        return sqlComponentList;
+    }
+
+    /**
+     * Sets sql component list.
+     * @param sqlComponentList the sql component list
+     */
+    public void setSqlComponentList(List<ISqlComponent> sqlComponentList) {
+        this.sqlComponentList = sqlComponentList;
+    }
 }

@@ -1,5 +1,9 @@
 package com.madioter.validator.mybatis.parser.mybatis.component;
 
+import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
+import com.madioter.validator.mybatis.model.sql.sqltag.component.SetSqlComponent;
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
+
 /**
  * <Description> <br>
  *
@@ -8,5 +12,18 @@ package com.madioter.validator.mybatis.parser.mybatis.component;
  * @taskId <br>
  * @CreateDate 2015年12月09日 <br>
  */
-public class SetSqlNodeParser implements IComponentNodeParser{
+public class SetSqlNodeParser implements IComponentNodeParser {
+    @Override
+    public boolean matches(Object object) {
+        if (object.getClass().getName().endsWith(MyBatisTagConstant.SET_SQL_NODE)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public ISqlComponent getComponent(Object object) {
+        return new SetSqlComponent(object);
+    }
 }

@@ -46,7 +46,67 @@ public class MyBatisTagConstant {
     public static final String TEXT = "text";
 
     /**
+     * test
+     */
+    public static final String TEST = "test";
+
+    /**
      * ForEachSqlNode
      */
     public static final String FOR_EACH_SQL_NODE = "ForEachSqlNode";
+
+    /**
+     * prefix
+     */
+    public static final String PREFIX = "prefix";
+
+    /**
+     * suffix
+     */
+    public static final String SUFFIX = "suffix";
+
+    /**
+     * prefixesToOverride
+     */
+    public static final String PREFIXES_TO_OVERRIDE = "prefixesToOverride";
+
+    /**
+     * suffixesToOverride
+     */
+    public static final String SUFFIXES_TO_OVERRIDE = "suffixesToOverride";
+
+    /**
+     * collectionExpression
+     */
+    public static final String COLLECTION_EXPRESSION = "collectionExpression";
+
+    /**
+     * separator
+     */
+    public static final String SEPARATOR = "separator";
+
+    /**
+     * item
+     */
+    public static final String ITEM = "item";
+
+    /**
+     * open
+     */
+    public static final String OPEN = "open";
+
+    /**
+     * close
+     */
+    public static final String CLOSE = "close";
+
+    /**
+     * index
+     */
+    public static final String INDEX = "index";
+
+    /**
+     * "rootSqlNode"
+     */
+    public static final String ROOT_SQL_NODE = "rootSqlNode";
 }

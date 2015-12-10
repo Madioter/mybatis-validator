@@ -1,5 +1,7 @@
 package com.madioter.validator.mybatis.util;
 
+import com.madioter.validator.mybatis.util.exception.ConfigException;
+import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -16,6 +18,24 @@ import java.util.List;
  * @CreateDate 2015年12月01日 <br>
  */
 public class ClassUtil {
+
+    /**
+     * 获取所有接口实现类对象实例
+     * @param c 类
+     * @return List
+     */
+    public static List getAllInstanceByInterface(Class c) {
+        List<Class> clzList = getAllClassByInterface(c);
+        List<Object> instanceList = new ArrayList();
+        for (int i = 0; i < clzList.size(); i++) {
+            try {
+                instanceList.add(clzList.get(i).newInstance());
+            } catch (Exception e) {
+
+            }
+        }
+        return instanceList;
+    }
 
     /**
      * @Description: 根据一个接口返回该接口的所有类

@@ -17,7 +17,7 @@ public interface IComponentNodeParser {
     /**
      * 接口实现类
      */
-    public static List<Class> SUB_CLASSES = ClassUtil.getAllClassByInterface(IComponentNodeParser.class);
+    public static List<IComponentNodeParser> SUB_CLASSES = ClassUtil.getAllInstanceByInterface(IComponentNodeParser.class);
 
     /**
      * 判断类是否匹配
