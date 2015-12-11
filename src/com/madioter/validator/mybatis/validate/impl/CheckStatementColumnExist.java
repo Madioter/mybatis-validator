@@ -149,7 +149,7 @@ public class CheckStatementColumnExist extends AbstractValidator {
             }
         }
         if (SqlUtil.checkIsColumn(column)) {
-            String[] strArr = column.split(SymbolConstant.SYMBOL_SLASH + SymbolConstant.SYMBOL_POINT);
+            String[] strArr = column.split(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_POINT);
             TableNode curTableNode = null;
             String curColumnName = null;
             if (strArr.length > 1) {
@@ -401,7 +401,7 @@ public class CheckStatementColumnExist extends AbstractValidator {
      * @param errMsg 异常信息
      */
     private void checkColumnExist(ConditionNode element, String express, Map<String, TableNode> aliasTable, ColumnDao columnDao, String errMsg) {
-        String[] strArr = express.split(SymbolConstant.SYMBOL_SLASH + SymbolConstant.SYMBOL_POINT);
+        String[] strArr = express.split(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_POINT);
         TableNode curTableNode = null;
         String curColumnName = null;
         if (strArr.length > 1) {

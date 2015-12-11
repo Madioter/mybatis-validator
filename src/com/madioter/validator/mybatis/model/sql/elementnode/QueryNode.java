@@ -97,7 +97,7 @@ public class QueryNode implements SelectElement {
      * 结构重构
      */
     public void rebuild() {
-        String[] strArr = columnName.split(SymbolConstant.SYMBOL_SLASH + SymbolConstant.SYMBOL_POINT);
+        String[] strArr = columnName.split(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_POINT);
         if (strArr.length > 1) {
             this.tableAlias = strArr[0];
             this.columnName = strArr[1];

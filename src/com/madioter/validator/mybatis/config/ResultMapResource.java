@@ -24,11 +24,6 @@ public class ResultMapResource {
     private Map<String, ClassModel> classModelCollection = new HashMap<String, ClassModel>();
 
     /**
-     * 迭代器
-     */
-    private Iterator<Map.Entry<String, ClassModel>> classIterator;
-
-    /**
      * 获取resultMap对象
      * @param resultMaps Collection<ResultMap>
      */
@@ -48,22 +43,6 @@ public class ResultMapResource {
                 }
             }*/
         }
-        Set<Map.Entry<String, ClassModel>> entrySet = classModelCollection.entrySet();
-        classIterator = entrySet.iterator();
-    }
-
-    /**
-     * Get next class model.
-     *
-     * @author wangyi8
-     * @taskId
-     * @return class model
-     */
-    public ClassModel getNext() {
-        if (classIterator.hasNext()) {
-            return classIterator.next().getValue();
-        }
-        return null;
     }
 
     /**
@@ -78,5 +57,11 @@ public class ResultMapResource {
         return classModelCollection.get(id);
     }
 
-
+    /**
+     * Gets class model collection.
+     * @return the class model collection
+     */
+    public Map<String, ClassModel> getClassModelCollection() {
+        return classModelCollection;
+    }
 }

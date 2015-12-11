@@ -75,7 +75,7 @@ public class CheckColumnRepeat extends AbstractValidator {
                         name = queryNode.getColumnName();
                     }
                     if (name.contains(SymbolConstant.SYMBOL_POINT)) {
-                        String[] strArray = name.split(SymbolConstant.SYMBOL_SLASH + SymbolConstant.SYMBOL_POINT);
+                        String[] strArray = name.split(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_POINT);
                         name = strArray[strArray.length - 1];
                     }
                 } else if (selectElement instanceof FunctionNode) {

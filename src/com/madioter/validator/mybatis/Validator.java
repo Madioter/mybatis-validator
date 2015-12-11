@@ -92,8 +92,6 @@ public class Validator {
     public void validator() {
 
         connectionManager = new ConnectionManager(driverClass, jdbcUrl, user, password, tableSchema);
-        resultMapTagValidator();
-
         try {
             statementValidator();
         } catch (Exception e) {
@@ -108,25 +106,6 @@ public class Validator {
     private void statementValidator() throws ConfigException {
         for (int i = 0; i < validatorList.size(); i++) {
             validatorList.get(i).validate(configurationManager, connectionManager);
-        }
-        /*StatementResource statementResource = configurationManager.getStatementResource();
-        Map<String, MappedStatementItem> itemMap = statementResource.getMappedStatementMap();
-        Set<String> itemKeys = itemMap.keySet();
-        for (String itemKey : itemKeys) {
-            MappedStatementItem item = itemMap.get(itemKey);
-            item.validate(connectionManager);
-        }*/
-    }
-
-    /**
-     * resultMap标签验证
-     */
-    private void resultMapTagValidator() {
-        ResultMapResource resultMapResource = configurationManager.getResultMapResource();
-        ClassModel item = resultMapResource.getNext();
-        while (item != null) {
-            item.validate();
-            item = resultMapResource.getNext();
         }
     }
 

@@ -1,6 +1,7 @@
 package com.madioter.validator.mybatis.validate.filter;
 
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
+import com.madioter.validator.mybatis.model.java.ClassModel;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.validate.CheckFilter;
 import java.util.ArrayList;
@@ -26,16 +27,14 @@ public class IdFilter implements CheckFilter {
      */
     private List<String> excludes = new ArrayList<String>();
 
-    public IdFilter() {
-        //includes.add("wkfBatchHandle.batchUpdateWkfBatchHandle");
-    }
-
     @Override
     public boolean doFilter(Object... params) {
         String id = null;
         for (int i = 0; i < params.length; i++) {
             if (params[i] instanceof MappedStatementItem) {
                 id = ((MappedStatementItem) params[i]).getId();
+            } else  if (params[i] instanceof ClassModel) {
+                id = ((ClassModel)params[i]).getId();
             }
         }
         if (StringUtil.isBlank(id)) {
@@ -50,5 +49,21 @@ public class IdFilter implements CheckFilter {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Sets includes.
+     * @param includes the includes
+     */
+    public void setIncludes(List<String> includes) {
+        this.includes = includes;
+    }
+
+    /**
+     * Sets excludes.
+     * @param excludes the excludes
+     */
+    public void setExcludes(List<String> excludes) {
+        this.excludes = excludes;
     }
 }

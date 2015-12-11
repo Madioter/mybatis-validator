@@ -19,6 +19,11 @@ import org.apache.ibatis.mapping.ResultMapping;
 public class ClassModel {
 
     /**
+     * The Id.
+     */
+    private String id;
+
+    /**
      * java类类型
      */
     private Class javaClass;
@@ -34,6 +39,7 @@ public class ClassModel {
      */
     public ClassModel(ResultMap resultMap) {
         this.javaClass = resultMap.getType();
+        this.id = resultMap.getId();
         List<ResultMapping> resultMappingList = resultMap.getResultMappings();
         for (ResultMapping resultMapping : resultMappingList) {
             properties.add(new PropertyModel(resultMapping));
@@ -56,5 +62,13 @@ public class ClassModel {
                 e.printException();
             }
         }
+    }
+
+    /**
+     * Gets id.
+     * @return the id
+     */
+    public String getId() {
+        return id;
     }
 }

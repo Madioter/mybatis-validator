@@ -68,10 +68,22 @@ public class SymbolConstant {
     /**
      * \\
      */
-    public static final String SYMBOL_SLASH = "\\";
+    public static final String SYMBOL_BACK_SLASH = "\\";
+
+    /**
+     * /
+     */
+    public static final String SYMBOL_SLASH = "/";
+
+    /**
+     * *
+     */
+    public static final String SYMBOL_ASTERISK = "*";
 
     /**
      * null
      */
     public static final String SYMBOL_NULL = "null";
+
+
 }

@@ -23,13 +23,6 @@ public class FilterProxy {
     private List<CheckFilter> filters = new ArrayList<CheckFilter>();
 
     /**
-     * 构造方法
-     */
-    public FilterProxy() {
-        filters.add(new IdFilter());
-    }
-
-    /**
      * 执行过滤规则
      * @param validator 验证实例
      * @param method 过滤后调用的方法名
@@ -46,5 +39,13 @@ public class FilterProxy {
             }
         }
         return method.invoke(validator, params);
+    }
+
+    /**
+     * Sets filters.
+     * @param filters the filters
+     */
+    public void setFilters(List<CheckFilter> filters) {
+        this.filters = filters;
     }
 }

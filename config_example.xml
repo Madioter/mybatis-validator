@@ -1,22 +1,87 @@
 <!--配置文件说明-->
+<beans>
+    <!--配置基础信息-->
+    <bean id="validator" class="com.madioter.validator.mybatis.Validator" init-method="validator">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/information_schema"/>
+        <property name="user" value="root"/>
+        <property name="password" value="root"/>
+        <property name="tableSchema" value="local"/>
+        <!--配置验证规则集-->
+        <property name="validatorList">
+            <property name="validatorList">
+                <list>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertIfTagEquals" scope="prototype">
+                        <!--配置验证代理-->
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementColumnExist"
+                          scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckResultMapPropertyExist"
+                          scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist"
+                          scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckDeleteStatementRefuse"
+                          scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementTableExist"
+                          scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateSetTagType" scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckColumnRepeat" scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckRequestMapping" scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                </list>
+            </property>
+        </property>
+    </bean>
 
-<bean id="validator" class="com.madioter.validator.mybatis.Validator" init-method="validator">
-    <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-    <property name="driverClass" value="com.mysql.jdbc.Driver" />
-    <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/information_schema" />
-    <property name="user" value="root" />
-    <property name="password" value="root" />
-    <property name="tableSchema" value="local"/>
-    <property name="validatorList">
-        <list>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertIfTagEquals" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementColumnExist" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckResultMapPropertyExist" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckDeleteStatementRefuse" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementTableExist" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateSetTagType" scope="prototype"></bean>
-            <bean class="com.madioter.validator.mybatis.validate.impl.CheckColumnRepeat" scope="prototype"></bean>
-        </list>
-    </property>
-</bean>
+    <!-- 验证代理 -->
+    <bean id="defaultProxy" class="com.madioter.validator.mybatis.validate.filter.FilterProxy">
+        <!-- 验证过滤器 -->
+        <property name="filters">
+            <list>
+                <!-- ID过滤器 -->
+                <bean class="com.madioter.validator.mybatis.validate.filter.IdFilter" scope="prototype">
+                    <property name="includes">
+                        <list>
+                            <!--<value>namespace.id</value>-->
+                        </list>
+                    </property>
+                    <property name="excludes">
+                        <list>
+                            <!--<value></value>-->
+                        </list>
+                    </property>
+                </bean>
+                <!-- 文件过滤器 -->
+                <bean class="com.madioter.validator.mybatis.validate.filter.FileFilter" scope="prototype">
+                    <property name="includes">
+                        <list>
+                            <!--<value>\project\</value>-->
+                        </list>
+                    </property>
+                    <property name="excludes">
+                        <list>
+                            <!--<value>\project\*</value>-->
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
