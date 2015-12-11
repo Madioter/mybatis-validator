@@ -3,6 +3,7 @@ package com.madioter.validator.mybatis.model.sql.sqlnode;
 import com.madioter.validator.mybatis.model.sql.elementnode.FunctionNode;
 import com.madioter.validator.mybatis.model.sql.elementnode.QueryNode;
 import com.madioter.validator.mybatis.model.sql.elementnode.SelectElement;
+import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,9 @@ public class ColumnNode {
                 for (int k = 0; k < columnTextNode.length; k++) {
                     if (k > 0) {
                         lastNode = null;
+                    }
+                    if (StringUtil.isBlank(columnTextNode[k])) {
+                        continue;
                     }
                     SelectElement currentNode = buildColumnNode(columnTextNode[k], lastNode);
                     if (currentNode != null && lastNode != null && currentNode == lastNode) {

@@ -14,6 +14,7 @@ import com.madioter.validator.mybatis.model.sql.sqlnode.SelectNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.ArrayUtil;
+import com.madioter.validator.mybatis.util.ClassUtil;
 import com.madioter.validator.mybatis.util.Config;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
@@ -182,8 +183,10 @@ public class CheckStatementPropertyExist extends AbstractValidator {
      */
     private void validateUpdatePropertyExist(UpdateMappedStatementItem item) {
         Class clz = item.getParameterType();
-        if (clz == null) {
-            new MapperException(ExceptionCommonConstant.NO_PROPERTY_VALIDATE_ERROR, item.getInfoMessage()).printException();
+        if (ClassUtil.ignorePropertyCheck(clz)) {
+            String clzName = clz == null ? SymbolConstant.SYMBOL_NULL : clz.getName();
+            new MapperException(ExceptionCommonConstant.IGNORE_PARAMETER_TYPES, item.getInfoMessage() +
+                    SymbolConstant.SYMBOL_COLON + String.format(MessageConstant.EXPRESS_MSG, clzName)).printException();
             return;
         }
         List<UpdateIfSetNode> setNodeList = item.getSetNodeList();
@@ -199,6 +202,21 @@ public class CheckStatementPropertyExist extends AbstractValidator {
                     } catch (MapperException e) {
                         new MapperException(ExceptionCommonConstant.GET_METHOD_NOT_EXIST, item.getInfoMessage() + SymbolConstant.SYMBOL_COLON +
                                 String.format(MessageConstant.EXPRESS_MSG, node.getIfContent())).printException();
+                    }
+                }
+            }
+        }
+        List<SelectElement> selectElements = item.getWhereConditions();
+        for (int i = 0; i < selectElements.size(); i++) {
+            if (selectElements.get(i) instanceof ConditionNode) {
+                ConditionNode conditionNode = (ConditionNode) selectElements.get(i);
+                List<String> propertyList = StringUtil.extractBrace(conditionNode.toString());
+                for (String propertyName : propertyList) {
+                    try {
+                        ReflectHelper.haveGetMethod(propertyName, clz);
+                    } catch (MapperException e) {
+                        new MapperException(ExceptionCommonConstant.GET_METHOD_NOT_EXIST, item.getInfoMessage() + SymbolConstant.SYMBOL_COLON +
+                                String.format(MessageConstant.EXPRESS_MSG, conditionNode.toString())).printException();
                     }
                 }
             }

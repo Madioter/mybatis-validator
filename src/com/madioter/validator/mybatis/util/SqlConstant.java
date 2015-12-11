@@ -104,4 +104,9 @@ public class SqlConstant {
      * dual
      */
     public static final String DUAL = "dual";
+
+    /**
+     * delete
+     */
+    public static final String DELETE = "delete";
 }

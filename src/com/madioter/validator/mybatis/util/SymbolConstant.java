@@ -70,5 +70,8 @@ public class SymbolConstant {
      */
     public static final String SYMBOL_SLASH = "\\";
 
-
+    /**
+     * null
+     */
+    public static final String SYMBOL_NULL = "null";
 }

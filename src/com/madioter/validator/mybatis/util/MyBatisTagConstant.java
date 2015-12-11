@@ -36,6 +36,16 @@ public class MyBatisTagConstant {
     public static final String TRIM_SQL_NODE = "TrimSqlNode";
 
     /**
+     * ForEachSqlNode
+     */
+    public static final String FOR_EACH_SQL_NODE = "ForEachSqlNode";
+
+    /**
+     * WhereSqlNode
+     */
+    public static final String WHERE_SQL_NODE = "WhereSqlNode";
+
+    /**
      * contents
      */
     public static final String CONTENTS = "contents";
@@ -49,11 +59,6 @@ public class MyBatisTagConstant {
      * test
      */
     public static final String TEST = "test";
-
-    /**
-     * ForEachSqlNode
-     */
-    public static final String FOR_EACH_SQL_NODE = "ForEachSqlNode";
 
     /**
      * prefix

@@ -75,14 +75,18 @@ public class TrimSqlComponent implements ISqlComponent {
     @Override
     public String toString() {
         String contentText = content.toString();
-        for (int i = 0; i < prefixesToOverride.size(); i++) {
-            if (contentText.startsWith(prefixesToOverride.get(i))) {
-                contentText = contentText.substring(prefixesToOverride.get(i).length());
+        if (prefixesToOverride != null) {
+            for (int i = 0; i < prefixesToOverride.size(); i++) {
+                if (contentText.startsWith(prefixesToOverride.get(i))) {
+                    contentText = contentText.substring(prefixesToOverride.get(i).length());
+                }
             }
         }
-        for (int i = 0; i < suffixesToOverride.size(); i++) {
-            if (contentText.endsWith(suffixesToOverride.get(i))) {
-                contentText = contentText.substring(0, contentText.length() - suffixesToOverride.get(i).length() - 1);
+        if (suffixesToOverride != null) {
+            for (int i = 0; i < suffixesToOverride.size(); i++) {
+                if (contentText.endsWith(suffixesToOverride.get(i))) {
+                    contentText = contentText.substring(0, contentText.length() - suffixesToOverride.get(i).length() - 1);
+                }
             }
         }
         if (prefix != null) {

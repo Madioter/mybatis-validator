@@ -97,12 +97,14 @@ public class InsertMappedStatementItem extends MappedStatementItem {
         }
 
         List<ISqlComponent> sqlComponents = getSqlComponentList();
-        for (ISqlComponent sqlComponent : sqlComponents) {
-            if (sqlComponent instanceof TrimSqlComponent) {
-                if (this.columnSqlNode == null) {
-                    convertIfColumnNodeList((TrimSqlComponent) sqlComponent);
-                } else if (this.valueSqlNode == null) {
-                    convertIfValueNodeList((TrimSqlComponent) sqlComponent);
+        if (sqlComponents != null) {
+            for (ISqlComponent sqlComponent : sqlComponents) {
+                if (sqlComponent instanceof TrimSqlComponent) {
+                    if (this.columnSqlNode == null) {
+                        convertIfColumnNodeList((TrimSqlComponent) sqlComponent);
+                    } else if (this.valueSqlNode == null) {
+                        convertIfValueNodeList((TrimSqlComponent) sqlComponent);
+                    }
                 }
             }
         }

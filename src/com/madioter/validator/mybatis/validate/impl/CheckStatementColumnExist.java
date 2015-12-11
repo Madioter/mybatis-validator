@@ -284,13 +284,14 @@ public class CheckStatementColumnExist extends AbstractValidator {
         }
         for (TableNode tableNode : tableNodes) {
             if (tableNode.getTableAlias() != null && !tableNode.getTableAlias().equals("")) {
+                aliasTable.put(tableNode.getTableAlias(), tableNode);
+            } else {
                 if (tableNodes.size() > 1) {
                     new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
                             errMsg + String.format(MessageConstant.TABLE_NAME, tableNode.getTableName()));
+                } else {
+                    aliasTable.put(tableNode.getTableName().toLowerCase(), tableNode);
                 }
-                aliasTable.put(tableNode.getTableAlias(), tableNode);
-            } else {
-                aliasTable.put(tableNode.getTableName().toLowerCase(), tableNode);
             }
         }
     }

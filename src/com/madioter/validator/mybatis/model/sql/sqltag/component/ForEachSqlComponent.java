@@ -5,7 +5,6 @@ import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
-import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
 
 
@@ -90,11 +89,11 @@ public class ForEachSqlComponent implements ISqlComponent {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         String contentText = content.toString();
-        if (!item.equals(MyBatisTagConstant.ITEM) || !index.equals(MyBatisTagConstant.INDEX)) {
+        if ((item != null && !item.equals(MyBatisTagConstant.ITEM)) || (index != null && !index.equals(MyBatisTagConstant.INDEX))) {
             List<String> vars = StringUtil.extractBrace(contentText);
             for (String var : vars) {
                 var.replace(item + SymbolConstant.SYMBOL_POINT, MyBatisTagConstant.ITEM + SymbolConstant.SYMBOL_POINT);
-                if (var.equals(index)) {
+                if (index != null && var.equals(index)) {
                     var.replace(index, MyBatisTagConstant.INDEX);
                 }
             }

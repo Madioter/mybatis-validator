@@ -17,7 +17,7 @@ public class Config {
     /**
      * 不进行验证的入参类型
      */
-    public static final Class[] IGNORE_PARAMETER_TYPES = new Class[]{Map.class, Integer.class, int.class};
+    public static final Class[] IGNORE_PARAMETER_TYPES = new Class[]{Map.class, Integer.class, int.class, List.class};
 
     /**
      * 忽略的语句

@@ -114,4 +114,24 @@ public class ClassUtil {
         }
         return classes;
     }
+
+
+    /**
+     * 是否忽略类属性检查
+     * @author wangyi8
+     * @taskId
+     * @param clz the clz
+     * @return the boolean 忽略返回是，否则返回否
+     */
+    public static boolean ignorePropertyCheck(Class clz) {
+        if (clz == null) {
+            return true;
+        }
+        for (int i = 0; i < Config.IGNORE_PARAMETER_TYPES.length; i++) {
+            if (clz.equals(Config.IGNORE_PARAMETER_TYPES[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

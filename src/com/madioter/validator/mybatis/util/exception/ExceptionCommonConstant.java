@@ -1,5 +1,7 @@
 package com.madioter.validator.mybatis.util.exception;
 
+import org.apache.ibatis.mapping.MappedStatement;
+
 /**
  * <Description> <br>
  *
@@ -111,6 +113,11 @@ public class ExceptionCommonConstant {
     public static final String NO_PROPERTY_VALIDATE_ERROR = "缺乏入参类型parameterType，请补充";
 
     /**
+     * 已忽略对该种入参类型进行属性检查
+     */
+    public static final String IGNORE_PARAMETER_TYPES = "已忽略对该种入参类型进行属性检查";
+
+    /**
      * 表达式无法解析
      */
     public static final String CAN_NOT_EXPLAIN_ERROR = "表达式无法解析";
@@ -129,4 +136,14 @@ public class ExceptionCommonConstant {
      * 无法找到相应的解析类
      */
     public static final String CLASS_FOUNT_EXCEPTION = "无法找到相应的解析类";
+
+    /**
+     * 查询的字段名重复
+     */
+    public static final String COLUMN_NAME_REPEAT = "查询的字段名重复";
+
+    /**
+     * 项目不支持数据的物理删除
+     */
+    public static final String REFUSE_DELETE_STATEMENT = "项目不支持数据的物理删除";
 }

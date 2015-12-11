@@ -27,7 +27,7 @@ public class IdFilter implements CheckFilter {
     private List<String> excludes = new ArrayList<String>();
 
     public IdFilter() {
-        //includes.add("wkfBatchHandle.queryBatchWorkformDetailInfo");
+        //includes.add("wkfBatchHandle.batchUpdateWkfBatchHandle");
     }
 
     @Override

@@ -129,7 +129,17 @@ public class ConditionNode implements SelectElement {
 
     @Override
     public String toString() {
-        return this.columnName + SymbolConstant.SYMBOL_BLANK + this.conditionType + SymbolConstant.SYMBOL_BLANK + this.value;
+        StringBuilder builder = new StringBuilder();
+        if (this.columnName != null) {
+            builder.append(this.columnName + SymbolConstant.SYMBOL_BLANK);
+        }
+        if (this.conditionType != null) {
+            builder.append(this.conditionType + SymbolConstant.SYMBOL_BLANK);
+        }
+        if (this.conditionType != null) {
+            builder.append(this.value + SymbolConstant.SYMBOL_BLANK);
+        }
+        return builder.toString().trim();
     }
 
     /**

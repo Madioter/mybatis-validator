@@ -11,6 +11,7 @@ import com.madioter.validator.mybatis.model.sql.sqltag.component.MixedSqlCompone
 import com.madioter.validator.mybatis.model.sql.sqltag.component.SetSqlComponent;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
+import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,17 +75,18 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
                 tableNode.setTableName(fragment.get(i + 1));
             } else if (fragment.get(i).equals(SqlConstant.WHERE)) {
                 whereFlag = true;
-            }
-            if (whereFlag) {
-                whereText.append(fragment.get(i));
+            } else if (whereFlag) {
+                whereText.append(fragment.get(i)).append(SymbolConstant.SYMBOL_BLANK);
             }
         }
         this.whereConditions = new WhereNode(
                 StringUtil.arrayToList(StringUtil.splitWithBlank(whereText.toString()))).getSelectElementList();
         List<ISqlComponent> sqlComponents = getSqlComponentList();
-        for (ISqlComponent sqlComponent : sqlComponents) {
-            if (sqlComponent instanceof SetSqlComponent) {
-                convertSetNodeList((SetSqlComponent) sqlComponent);
+        if (sqlComponents != null) {
+            for (ISqlComponent sqlComponent : sqlComponents) {
+                if (sqlComponent instanceof SetSqlComponent) {
+                    convertSetNodeList((SetSqlComponent) sqlComponent);
+                }
             }
         }
     }
