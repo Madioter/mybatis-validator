@@ -1,13 +1,15 @@
 package com.madioter.validator.mybatis.config.statement;
 
 import com.madioter.validator.mybatis.database.ConnectionManager;
+import com.madioter.validator.mybatis.model.mybatis.SqlSourceVo;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
+import com.madioter.validator.mybatis.parser.sqlparser.SqlSourceParser;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMap;
+import org.apache.ibatis.mapping.SqlSource;
 
 /**
  * <Description> <br>
@@ -31,14 +33,22 @@ public abstract class MappedStatementItem {
     private List<ISqlComponent> sqlComponentList;
 
     /**
-     * 自验证方法
-     *
-     * @author wangyi8
-     * @taskId
-     * @param connectionManager 数据库连接管理器
-     * @throws ConfigException 配置异常
+     * sql语句
      */
-    public abstract void validate(ConnectionManager connectionManager) throws ConfigException;
+    private String sql;
+
+    /**
+     * Instantiates a new Mapped statement item.
+     *
+     * @param mappedStatement the mapped statement
+     * @throws ConfigException 异常
+     */
+    public MappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
+        this.mappedStatement = mappedStatement;
+        SqlSource sqlSource = mappedStatement.getSqlSource();
+        SqlSourceVo sqlSourceVo = SqlSourceParser.parser(sqlSource);
+        initParameter(sqlSourceVo);
+    }
 
     /**
      * 获取表节点
@@ -82,22 +92,6 @@ public abstract class MappedStatementItem {
     }
 
     /**
-     * Sets mapped statement.
-     * @param mappedStatement the mapped statement
-     */
-    protected void setMappedStatement(MappedStatement mappedStatement) {
-        this.mappedStatement = mappedStatement;
-    }
-
-    /**
-     * Add table node.
-     * @author wangyi8
-     * @taskId
-     * @param tableNode the table node
-     */
-    public abstract void addTableNode(TableNode tableNode);
-
-    /**
      * Gets sql component list.
      * @return the sql component list
      */
@@ -106,10 +100,29 @@ public abstract class MappedStatementItem {
     }
 
     /**
-     * Sets sql component list.
-     * @param sqlComponentList the sql component list
+     * Gets sql.
+     * @return the sql
      */
-    public void setSqlComponentList(List<ISqlComponent> sqlComponentList) {
-        this.sqlComponentList = sqlComponentList;
+    public String getSql() {
+        return sql;
+    }
+
+    /**
+     * Sets sql.
+     * @param sql the sql
+     */
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    /**
+     * Init parameter.
+     * @author wangyi8
+     * @taskId
+     * @param sqlSourceVo the sql source vo
+     */
+    public void initParameter(SqlSourceVo sqlSourceVo) {
+        this.sql = sqlSourceVo.getSql();
+        this.sqlComponentList = sqlSourceVo.getComponentList();
     }
 }

@@ -1,18 +1,16 @@
 package com.madioter.validator.mybatis.config;
 
-import com.madioter.validator.mybatis.config.statement.DeleteMappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.DeleteMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.SelectMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.UpdateMappedStatementItem;
 import com.madioter.validator.mybatis.util.ArrayUtil;
 import com.madioter.validator.mybatis.util.Config;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -27,8 +25,17 @@ import org.apache.ibatis.mapping.SqlCommandType;
  */
 public class StatementResource {
 
+    /**
+     * mappedStatement的sql 配置信息
+     */
     private Map<String, MappedStatementItem> mappedStatementMap;
 
+    /**
+     * Instantiates a new Statement resource.
+     *
+     * @param mappedStatements the mapped statements
+     * @throws ConfigException the config exception
+     */
     public StatementResource(Collection<MappedStatement> mappedStatements) throws ConfigException {
         mappedStatementMap = new HashMap<String, MappedStatementItem>();
         Iterator iterator = mappedStatements.iterator();
@@ -54,6 +61,10 @@ public class StatementResource {
         }
     }
 
+    /**
+     * Gets mapped statement map.
+     * @return the mapped statement map
+     */
     public Map<String, MappedStatementItem> getMappedStatementMap() {
         return mappedStatementMap;
     }

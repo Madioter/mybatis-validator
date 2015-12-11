@@ -54,4 +54,12 @@ public class IfSqlComponent implements ISqlComponent {
     public String toString() {
         return content.toString();
     }
+
+    /**
+     * Gets if sql node.
+     * @return the if sql node
+     */
+    public Object getIfSqlNode() {
+        return ifSqlNode;
+    }
 }

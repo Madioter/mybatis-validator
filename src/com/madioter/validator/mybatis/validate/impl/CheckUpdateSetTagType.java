@@ -2,9 +2,8 @@ package com.madioter.validator.mybatis.validate.impl;
 
 import com.madioter.validator.mybatis.config.ConfigurationManager;
 import com.madioter.validator.mybatis.config.StatementResource;
-import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.UpdateMappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.MessageConstant;
@@ -22,7 +21,7 @@ import java.util.Set;
  * @author wangyi8<br>
  * @version 1.0<br>
  * @taskId <br>
- * @CreateDate 2015Äê12ÔÂ09ÈÕ <br>
+ * @CreateDate 2015å¹´12æœˆ09æ—¥ <br>
  */
 public class CheckUpdateSetTagType extends AbstractValidator {
 
@@ -36,7 +35,6 @@ public class CheckUpdateSetTagType extends AbstractValidator {
             MappedStatementItem item = itemMap.get(itemKey);
             if (item instanceof UpdateMappedStatementItem) {
                 try {
-                    //ÖĞ¼äÔö¼ÓÒ»²ã¶¯Ì¬´úÀíÀà£¬Í¨¹ı´«ÈëMethod ¶¯Ì¬µ÷ÓÃ·½·¨£¬²¢ÔÚÆäÖĞÔö¼Ó¹ıÂËÑéÖ¤
                     Method method = CheckUpdateSetTagType.this.getClass().getMethod("validateIfTagType",
                             UpdateMappedStatementItem.class);
                     getProxy().execute(this, method, item);
@@ -48,7 +46,7 @@ public class CheckUpdateSetTagType extends AbstractValidator {
     }
 
     /**
-     * ÑéÖ¤IF±êÇ©µÄ½á¹¹ÊÇ·ñÕıÈ·.
+     * éªŒè¯å±æ€§æ˜¯å¦å­˜åœ¨
      * @author wangyi8
      * @taskId
      * @param item the item

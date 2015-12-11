@@ -1,6 +1,5 @@
 package com.madioter.validator.mybatis.model.sql.elementnode;
 
-import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
 import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.SqlConstant;

@@ -2,12 +2,13 @@ package com.madioter.validator.mybatis.validate.impl;
 
 import com.madioter.validator.mybatis.config.ConfigurationManager;
 import com.madioter.validator.mybatis.config.StatementResource;
-import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.util.MessageConstant;
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
@@ -101,13 +102,16 @@ public class CheckInsertIfTagEquals extends AbstractValidator {
      */
     private boolean checkTrimNodeProperty(Object node, String errMsg) throws ConfigException {
         //判断prefix属性是否设置
-        String prefix = ((String) ReflectHelper.getPropertyValue(node, "prefix")).trim();
+        if (node == null) {
+            return false;
+        }
+        String prefix = ((String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.PREFIX)).trim();
         if (!prefix.equals(SymbolConstant.SYMBOL_LEFT_BRACKET) && !prefix.equals("values (")) {
             new MapperException(ExceptionCommonConstant.INSERT_TRIM_PREFIX_ERROR, errMsg).printException();
         }
 
         //判断suffix属性是否设置
-        String suffix = (String) ReflectHelper.getPropertyValue(node, "suffix");
+        String suffix = ((String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.SUFFIX)).trim();
         if (!suffix.equals(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
             new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIX_ERROR, errMsg).printException();
         }

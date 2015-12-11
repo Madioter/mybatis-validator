@@ -22,6 +22,9 @@ public class FilterProxy {
      */
     private List<CheckFilter> filters = new ArrayList<CheckFilter>();
 
+    /**
+     * 构造方法
+     */
     public FilterProxy() {
         filters.add(new IdFilter());
     }

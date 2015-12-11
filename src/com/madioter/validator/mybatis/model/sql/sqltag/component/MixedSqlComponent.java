@@ -3,6 +3,7 @@ package com.madioter.validator.mybatis.model.sql.sqltag.component;
 import com.madioter.validator.mybatis.parser.mybatis.component.IComponentNodeParser;
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,10 @@ public class MixedSqlComponent implements ISqlComponent {
                 if (sqlNode != null) {
                     for (IComponentNodeParser componentNodeParser : IComponentNodeParser.SUB_CLASSES) {
                         if (componentNodeParser.matches(sqlNode)) {
-                            contents.add(componentNodeParser.getComponent(sqlNode));
+                            ISqlComponent sqlComponent = componentNodeParser.getComponent(sqlNode);
+                            if (!StringUtil.isBlank(sqlComponent.toString())) {
+                                contents.add(sqlComponent);
+                            }
                             break;
                         }
                     }
@@ -58,5 +62,13 @@ public class MixedSqlComponent implements ISqlComponent {
             builder.append(sqlComponent.toString()).append(SymbolConstant.SYMBOL_BLANK);
         }
         return builder.toString().trim();
+    }
+
+    /**
+     * Gets contents.
+     * @return the contents
+     */
+    public List<ISqlComponent> getContents() {
+        return contents;
     }
 }

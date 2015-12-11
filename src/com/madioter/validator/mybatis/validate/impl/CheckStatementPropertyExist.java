@@ -2,18 +2,16 @@ package com.madioter.validator.mybatis.validate.impl;
 
 import com.madioter.validator.mybatis.config.ConfigurationManager;
 import com.madioter.validator.mybatis.config.StatementResource;
-import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
-import com.madioter.validator.mybatis.database.ColumnDao;
+import com.madioter.validator.mybatis.config.statement.impl.InsertMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.SelectMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.UpdateMappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.sql.elementnode.ConditionNode;
 import com.madioter.validator.mybatis.model.sql.elementnode.SelectElement;
 import com.madioter.validator.mybatis.model.sql.sqlnode.LimitNode;
 import com.madioter.validator.mybatis.model.sql.sqlnode.SelectNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
-import com.madioter.validator.mybatis.model.sql.sqltag.ParameterMappingValidator;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.util.ArrayUtil;
 import com.madioter.validator.mybatis.util.Config;
@@ -29,7 +27,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.ibatis.mapping.ParameterMapping;
 
 /**
  * <Description> <br>

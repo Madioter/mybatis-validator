@@ -2,10 +2,10 @@ package com.madioter.validator.mybatis.validate.impl;
 
 import com.madioter.validator.mybatis.config.ConfigurationManager;
 import com.madioter.validator.mybatis.config.StatementResource;
-import com.madioter.validator.mybatis.config.statement.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.SelectMappedStatementItem;
-import com.madioter.validator.mybatis.config.statement.UpdateMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.InsertMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.SelectMappedStatementItem;
+import com.madioter.validator.mybatis.config.statement.impl.UpdateMappedStatementItem;
 import com.madioter.validator.mybatis.database.ColumnDao;
 import com.madioter.validator.mybatis.database.ConnectionManager;
 import com.madioter.validator.mybatis.model.sql.elementnode.ConditionNode;
@@ -305,9 +305,11 @@ public class CheckStatementColumnExist extends AbstractValidator {
     public void validateUpdateColumnExist(UpdateMappedStatementItem item, ColumnDao columnDao) {
         List<TableNode> tableNodeList = item.getTableNodes();
         String tableName = "";
+        Map<String, TableNode> aliasTable = new HashMap<String, TableNode>();
         if (tableNodeList != null && !tableNodeList.isEmpty()) {
             TableNode tableNode = tableNodeList.get(0);
             if (tableNode != null) {
+                aliasTable.put(MessageConstant.CURRENT_TABLE, tableNode);
                 tableName = tableNode.getTableName() == null ? "" : tableNode.getTableName();
             }
         }
@@ -331,6 +333,13 @@ public class CheckStatementColumnExist extends AbstractValidator {
                 new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
                         item.getInfoMessage() + String.format(MessageConstant.TABLE_COLUMN_NAME, tableName, columnName)
                                 + String.format(MessageConstant.EXPRESS_MSG, node.getIfContent())).printException();
+            }
+        }
+
+        List<SelectElement> selectElements = item.getWhereConditions();
+        for (SelectElement element : selectElements) {
+            if (element instanceof ConditionNode) {
+                checkConditionNodeColumnExist(aliasTable, (ConditionNode) element, columnDao, item.getInfoMessage());
             }
         }
     }

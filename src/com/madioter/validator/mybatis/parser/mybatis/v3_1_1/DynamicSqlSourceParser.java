@@ -57,8 +57,10 @@ public class DynamicSqlSourceParser implements ISqlSourceType {
             for (IComponentNodeParser componentNodeParser : IComponentNodeParser.SUB_CLASSES) {
                 if (componentNodeParser.matches(node)) {
                     ISqlComponent component = componentNodeParser.getComponent(node);
-                    fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(component.toString())));
-                    sqlSourceVo.addSqlComponent(component);
+                    if (!StringUtil.isBlank(component.toString())) {
+                        fragments.addAll(StringUtil.arrayToList(StringUtil.splitWithBlank(component.toString())));
+                        sqlSourceVo.addSqlComponent(component);
+                    }
                     break;
                 }
             }

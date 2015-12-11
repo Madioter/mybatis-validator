@@ -81,8 +81,8 @@ public class TrimSqlComponent implements ISqlComponent {
             }
         }
         for (int i = 0; i < suffixesToOverride.size(); i++) {
-            if (contentText.endsWith(prefixesToOverride.get(i))) {
-                contentText = contentText.substring(0, contentText.length() - prefixesToOverride.get(i).length() - 1);
+            if (contentText.endsWith(suffixesToOverride.get(i))) {
+                contentText = contentText.substring(0, contentText.length() - suffixesToOverride.get(i).length() - 1);
             }
         }
         if (prefix != null) {
@@ -92,5 +92,21 @@ public class TrimSqlComponent implements ISqlComponent {
             contentText = contentText + SymbolConstant.SYMBOL_BLANK + suffix;
         }
         return contentText.trim();
+    }
+
+    /**
+     * Gets trim sql node.
+     * @return the trim sql node
+     */
+    public Object getTrimSqlNode() {
+        return trimSqlNode;
+    }
+
+    /**
+     * Gets content.
+     * @return the content
+     */
+    public ISqlComponent getContent() {
+        return content;
     }
 }

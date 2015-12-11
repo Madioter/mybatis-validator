@@ -1,10 +1,7 @@
-package com.madioter.validator.mybatis.config.statement;
+package com.madioter.validator.mybatis.config.statement.impl;
 
-import com.madioter.validator.mybatis.database.ConnectionManager;
+import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
-import com.madioter.validator.mybatis.parser.statementparser.insert.BaseInsertStatementParser;
-import com.madioter.validator.mybatis.parser.statementparser.insert.BatchInsertStatementParser;
-import com.madioter.validator.mybatis.parser.statementparser.insert.InsertStatementParser;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import java.util.List;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -25,13 +22,8 @@ public class DeleteMappedStatementItem extends MappedStatementItem {
      * @throws ConfigException 配置异常
      */
     public DeleteMappedStatementItem(MappedStatement mappedStatement) throws ConfigException {
-        super.setMappedStatement(mappedStatement);
+        super(mappedStatement);
         //TODO 待补充
-    }
-
-    @Override
-    public void validate(ConnectionManager connectionManager) throws ConfigException {
-
     }
 
     @Override
@@ -39,8 +31,4 @@ public class DeleteMappedStatementItem extends MappedStatementItem {
         return null;
     }
 
-    @Override
-    public void addTableNode(TableNode tableNode) {
-
-    }
 }
