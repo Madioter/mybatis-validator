@@ -146,4 +146,19 @@ public class ExceptionCommonConstant {
      * 项目不支持数据的物理删除
      */
     public static final String REFUSE_DELETE_STATEMENT = "项目不支持数据的物理删除";
+
+    /**
+     * 解析异常，UPDATE语句不含有UPDATE关键字
+     */
+    public static final String NO_UPDATE_TAG_ERROR = "解析异常，UPDATE语句不含有UPDATE关键字";
+
+    /**
+     * 解析异常，INSERT语句不含有INSERT关键字
+     */
+    public static final String NO_INSERT_TAG_ERROR = "解析异常，INSERT语句不含有INSERT关键字";
+
+    /**
+     * 解析异常，DELETE语句不含有DELETE关键字
+     */
+    public static final String NO_DELETE_TAG_ERROR = "解析异常，DELETE语句不含有DELETE关键字";
 }

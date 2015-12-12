@@ -45,7 +45,11 @@ public class UpdateIfSetNode extends IfNode {
         super(sqlNode);
         if (getIfContent() != null) {
             node = new ConditionNode();
-            node.setColumnName(getIfContent().replace(SymbolConstant.SYMBOL_COMMA, ""));
+            String express = getIfContent().trim();
+            if (express.endsWith(SymbolConstant.SYMBOL_COMMA)) {
+                express = express.substring(0, express.length() - 1);
+            }
+            node.setColumnName(express);
             node.rebuild();
         }
     }

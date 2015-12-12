@@ -11,6 +11,8 @@ import com.madioter.validator.mybatis.model.sql.sqltag.component.TrimSqlComponen
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
+import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
+import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -87,12 +89,16 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      */
     private void rebuild() throws ConfigException {
         List<String> fragment = StringUtil.arrayToList(StringUtil.splitWithBlank(getSql()));
-        for (int i = 0; i < fragment.size(); i++) {
-            if (fragment.get(i).equals(SqlConstant.INSERT) && i < fragment.size() - 2) {
-                //insert into
-                String tableName = fragment.get(i + 2);
-                tableNode = new TableNode();
-                tableNode.setTableName(tableName);
+        if (!fragment.contains(SqlConstant.INSERT)) {
+            new MapperException(ExceptionCommonConstant.NO_INSERT_TAG_ERROR, this.getInfoMessage()).printException();
+        } else {
+            for (int i = 0; i < fragment.size(); i++) {
+                if (fragment.get(i).equals(SqlConstant.INSERT) && i < fragment.size() - 2) {
+                    //insert into
+                    String tableName = fragment.get(i + 2);
+                    tableNode = new TableNode();
+                    tableNode.setTableName(tableName);
+                }
             }
         }
 

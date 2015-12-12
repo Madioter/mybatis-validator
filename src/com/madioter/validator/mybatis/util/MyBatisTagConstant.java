@@ -114,4 +114,9 @@ public class MyBatisTagConstant {
      * "rootSqlNode"
      */
     public static final String ROOT_SQL_NODE = "rootSqlNode";
+
+    /**
+     * jdbcType
+     */
+    public static final String JDBC_TYPE = "jdbcType";
 }

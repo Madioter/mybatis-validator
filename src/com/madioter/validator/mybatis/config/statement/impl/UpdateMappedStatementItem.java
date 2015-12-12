@@ -13,6 +13,8 @@ import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
+import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
+import com.madioter.validator.mybatis.util.exception.MapperException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -69,18 +71,22 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
         List<String> fragment = StringUtil.arrayToList(StringUtil.splitWithBlank(getSql()));
         boolean whereFlag = false;
         StringBuilder whereText = new StringBuilder();
-        for (int i = 0; i < fragment.size(); i++) {
-            if (fragment.get(i).equals(SqlConstant.UPDATE) && i < fragment.size() - 1) {
-                tableNode = new TableNode();
-                tableNode.setTableName(fragment.get(i + 1));
-            } else if (fragment.get(i).equals(SqlConstant.WHERE)) {
-                whereFlag = true;
-            } else if (whereFlag) {
-                whereText.append(fragment.get(i)).append(SymbolConstant.SYMBOL_BLANK);
+        if (!fragment.contains(SqlConstant.UPDATE)) {
+            new MapperException(ExceptionCommonConstant.NO_UPDATE_TAG_ERROR, this.getInfoMessage()).printException();
+        } else {
+            for (int i = 0; i < fragment.size(); i++) {
+                if (fragment.get(i).equals(SqlConstant.UPDATE) && i < fragment.size() - 1) {
+                    tableNode = new TableNode();
+                    tableNode.setTableName(fragment.get(i + 1));
+                } else if (fragment.get(i).equals(SqlConstant.WHERE)) {
+                    whereFlag = true;
+                } else if (whereFlag) {
+                    whereText.append(fragment.get(i)).append(SymbolConstant.SYMBOL_BLANK);
+                }
             }
+            this.whereConditions = new WhereNode(
+                    StringUtil.arrayToList(StringUtil.splitWithBlank(whereText.toString()))).getSelectElementList();
         }
-        this.whereConditions = new WhereNode(
-                StringUtil.arrayToList(StringUtil.splitWithBlank(whereText.toString()))).getSelectElementList();
         List<ISqlComponent> sqlComponents = getSqlComponentList();
         if (sqlComponents != null) {
             for (ISqlComponent sqlComponent : sqlComponents) {

@@ -8,9 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <Description> <br>
@@ -63,7 +61,7 @@ public class ColumnDao {
             return false;
         } else {
             for (Column item : table.getColumnList()) {
-                if (item.getColumnName().equals(column)) {
+                if (item.getColumnName().toLowerCase().equals(column.toLowerCase())) {
                     return true;
                 }
             }

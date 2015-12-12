@@ -107,15 +107,11 @@ public class ConditionNode implements SelectElement {
                     removeBlank.add(str[i].trim());
                 }
             }
-            if (removeBlank.size() == 2) {
+            if (removeBlank.size() >= 2) {
                 this.columnName = removeBlank.get(0).trim();
-                this.value = removeBlank.get(1).trim();
-                //两个字符串存在包含关系，先替换较大的字符串
-                if (removeBlank.get(0).contains(removeBlank.get(1))) {
-                    this.conditionType = express.replace(removeBlank.get(0), "").replace(removeBlank.get(1), "").trim();
-                } else {
-                    this.conditionType = express.replace(removeBlank.get(1), "").replace(removeBlank.get(0), "").trim();
-                }
+                express = express.substring(this.columnName.length());
+                this.conditionType = express.substring(0, express.indexOf(removeBlank.get(1).trim())).trim();
+                this.value = express.substring(express.indexOf(removeBlank.get(1).trim())).trim();
             }
         }
 
