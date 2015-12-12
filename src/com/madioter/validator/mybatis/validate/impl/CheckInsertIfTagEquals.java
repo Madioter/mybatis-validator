@@ -105,24 +105,34 @@ public class CheckInsertIfTagEquals extends AbstractValidator {
         if (node == null) {
             return false;
         }
-        String prefix = ((String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.PREFIX)).trim();
-        if (!prefix.equals(SymbolConstant.SYMBOL_LEFT_BRACKET) && !prefix.equals("values (")) {
-            new MapperException(ExceptionCommonConstant.INSERT_TRIM_PREFIX_ERROR, errMsg).printException();
-        }
-
-        //判断suffix属性是否设置
-        String suffix = ((String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.SUFFIX)).trim();
-        if (!suffix.equals(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
-            new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIX_ERROR, errMsg).printException();
-        }
-
-        //判断suffixesToOverride属性是否设置
-        List suffixesToOverrides = (List) ReflectHelper.getPropertyValue(node, "suffixesToOverride");
-        if (suffixesToOverrides != null && !suffixesToOverrides.isEmpty()) {
-            String suffixesToOverride = (String) suffixesToOverrides.get(0);
-            if (!suffixesToOverride.equals(",")) {
-                new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIXES_TO_OVERRIDE_ERROR, errMsg).printException();
+        try {
+            String prefix = ((String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.PREFIX));
+            if (prefix != null) {
+                prefix = prefix.trim();
+                if (!prefix.equals(SymbolConstant.SYMBOL_LEFT_BRACKET) && !prefix.equals("values (")) {
+                    new MapperException(ExceptionCommonConstant.INSERT_TRIM_PREFIX_ERROR, errMsg).printException();
+                }
             }
+
+            //判断suffix属性是否设置
+            String suffix = ((String) ReflectHelper.getPropertyValue(node, MyBatisTagConstant.SUFFIX));
+            if (suffix != null) {
+                suffix = suffix.trim();
+                if (!suffix.equals(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
+                    new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIX_ERROR, errMsg).printException();
+                }
+            }
+
+            //判断suffixesToOverride属性是否设置
+            List suffixesToOverrides = (List) ReflectHelper.getPropertyValue(node, "suffixesToOverride");
+            if (suffixesToOverrides != null && !suffixesToOverrides.isEmpty()) {
+                String suffixesToOverride = (String) suffixesToOverrides.get(0);
+                if (!suffixesToOverride.equals(",")) {
+                    new MapperException(ExceptionCommonConstant.INSERT_TRIM_SUFFIXES_TO_OVERRIDE_ERROR, errMsg).printException();
+                }
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
         return true;
     }

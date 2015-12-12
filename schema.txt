@@ -38,4 +38,4 @@
         	#{item.basicUnitChildCost})
 	     </foreach>
 	</insert>
-	basic_unit_adult_cost字段设置了不可为空，并且无默认值，但这个语句存在空值风险。
+	basic_unit_adult_cost字段设置了不可为空，有默认值，但这个语句会造成空值风险。（还需要进一步排除属性存在默认值的情况）
