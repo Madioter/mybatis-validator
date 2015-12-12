@@ -1,5 +1,6 @@
 package com.madioter.validator.mybatis.database;
 
+import com.madioter.validator.mybatis.model.database.Table;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,11 +29,18 @@ public class TableDao {
     private String tableSchema;
 
     /**
+     * connectionManager
+     */
+    private ConnectionManager connectionManager;
+
+    /**
      * 构造方法
+     * @param connectionManager connectionManager
      * @param connectionHolder connectionHolder
      * @param tableSchema tableSchema
      */
-    public TableDao(ConnectionHolder connectionHolder, String tableSchema) {
+    public TableDao(ConnectionManager connectionManager, ConnectionHolder connectionHolder, String tableSchema) {
+        this.connectionManager = connectionManager;
         this.connectionHolder = connectionHolder;
         this.tableSchema = tableSchema;
     }
@@ -44,6 +52,22 @@ public class TableDao {
      * @return boolean
      */
     public boolean checkExist(String tableName) {
+        DataBaseCache dataBaseCache = connectionManager.getDataBaseCache();
+        Table table = new Table(tableName, tableSchema);
+        if (dataBaseCache.getTable(table) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 验证表是否存在
+     *
+     * @param tableName 表名
+     * @return boolean
+     */
+    public boolean checkExistInner(String tableName) {
         PreparedStatement pstmt = null;
         ResultSet resultSet = null;
 

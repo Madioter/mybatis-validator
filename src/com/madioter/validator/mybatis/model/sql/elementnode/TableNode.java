@@ -31,11 +31,6 @@ public class TableNode implements SelectElement {
     private String tableAlias;
 
     /**
-     * 是否可以被验证
-     */
-    private boolean canCheck = true;
-
-    /**
      * Gets table name.
      * @return table name
      */
@@ -70,7 +65,8 @@ public class TableNode implements SelectElement {
     /**
      * 表验证
      *
-     * @author wangyi8 * @taskId *
+     * @author wangyi8
+     * @taskId
      * @param tableDao 表操作DAO
      * @param errMsg 异常信息
      */
@@ -82,9 +78,6 @@ public class TableNode implements SelectElement {
                 new MapperException(ExceptionCommonConstant.TABLE_NOT_EXIST,
                         errMsg + String.format(TABLE_NAME, this.getTableName())).printException();
             }
-        } else {
-            //设置为不可被验证
-            canCheck = false;
         }
     }
 
@@ -93,7 +86,10 @@ public class TableNode implements SelectElement {
      * @return boolean
      */
     public boolean isCanCheck() {
-        return canCheck;
+        if (tableName.contains(SymbolConstant.SYMBOL_LEFT_BRACKET) || tableName.contains(SymbolConstant.SYMBOL_AT)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

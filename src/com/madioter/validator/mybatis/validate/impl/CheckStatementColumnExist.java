@@ -208,6 +208,7 @@ public class CheckStatementColumnExist extends AbstractValidator {
     public void checkQueryNodeColumnExist(Map<String, TableNode> aliasTable, QueryNode element, ColumnDao columnDao, String errMsg) {
         TableNode tableNode = getTableNameByAlias(aliasTable, element.getTableAlias());
         String columnName = element.getColumnName();
+        tableNode.rebuild();
         if (tableNode == null) {
             new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
                     errMsg + String.format(MessageConstant.EXPRESS_MSG, element.toString())).printException();
