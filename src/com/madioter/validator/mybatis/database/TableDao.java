@@ -61,6 +61,18 @@ public class TableDao {
         }
     }
 
+
+    /**
+     * 通过表名获取表配置
+     * @param tableName the table name
+     * @return the table
+     */
+    public Table getTable(String tableName) {
+        DataBaseCache dataBaseCache = connectionManager.getDataBaseCache();
+        Table table = new Table(tableName, tableSchema);
+        return dataBaseCache.getTable(table);
+    }
+
     /**
      * 验证表是否存在
      *

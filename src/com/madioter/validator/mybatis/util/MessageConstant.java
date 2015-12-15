@@ -21,6 +21,11 @@ public class MessageConstant {
     public static final String TABLE_NAME = " 表名：%s; ";
 
     /**
+     * 字段名
+     */
+    public static final String COLUMN_NAME = " 字段名：%s; ";
+
+    /**
      * if标签的test判断条件不一致
      */
     public static final String IF_TEST_TEXT = "COLUMN条件：%s，VALUES条件：%s; ";

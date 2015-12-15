@@ -46,6 +46,28 @@ public class ReflectHelper {
         return null;
     }
 
+
+    /**
+     * 获取GET方法返回值类型，用于判断属性类型
+     * @param propertyName the property name
+     * @param clz the clz
+     * @return the return type
+     * @throws MapperException the mapper exception
+     */
+    public static Class getReturnType(String propertyName, Class clz) throws MapperException {
+        Method method = null;
+        try {
+            method = clz.getMethod(StringUtil.getMethodName(propertyName));
+        } catch (NoSuchMethodException e) {
+            throw new MapperException(ExceptionCommonConstant.GET_METHOD_NOT_EXIST,
+                    String.format(CLASS_PROPERTY_EXIST, clz.getName(), propertyName));
+        }
+        if (method != null) {
+            return method.getReturnType();
+        }
+        return null;
+    }
+
     /**
      * 判断类是否有属性的get方法，不检查返回值类型
      *

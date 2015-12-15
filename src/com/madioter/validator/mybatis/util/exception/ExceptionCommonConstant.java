@@ -161,4 +161,19 @@ public class ExceptionCommonConstant {
      * 解析异常，DELETE语句不含有DELETE关键字
      */
     public static final String NO_DELETE_TAG_ERROR = "解析异常，DELETE语句不含有DELETE关键字";
+
+    /**
+     * INSERT语句存在未赋值的必填字段
+     */
+    public static final String INSERT_NULL_COLUMN_MISS = "INSERT语句存在未赋值的必填字段";
+
+    /**
+     * INSERT语句存在必填字段赋空值的可能性
+     */
+    public static final String INSERT_NULL_COLUMN_PROBABLY = "INSERT语句存在必填字段赋空值的可能性";
+
+    /**
+     * INSERT语句字段找不到对应的赋值
+     */
+    public static final String INSERT_COLUMN_MISS_VALUE = "INSERT语句字段找不到对应的赋值";
 }

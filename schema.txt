@@ -39,3 +39,13 @@
 	     </foreach>
 	</insert>
 	basic_unit_adult_cost字段设置了不可为空，有默认值，但这个语句会造成空值风险。（还需要进一步排除属性存在默认值的情况）
+
+0.7计划
+判断并解决IF标签互斥问题，例如：
+<if test="value1 == null">
+	defaultValue，
+</if>
+<if test="value1 != null">
+	#{value1}，
+</if>
+解析的sql语句不应该出现多个值

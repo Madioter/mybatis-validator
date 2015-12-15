@@ -1,5 +1,7 @@
 package com.madioter.validator.mybatis.model.sql.sqltag.component;
 
+import java.util.List;
+
 /**
  * <Description> <br>
  *
@@ -10,4 +12,9 @@ package com.madioter.validator.mybatis.model.sql.sqltag.component;
  */
 public interface ISqlComponent {
 
+    /**
+     * Gets sub components.
+     * @return the sub components
+     */
+    public List<ISqlComponent> getSubComponents();
 }

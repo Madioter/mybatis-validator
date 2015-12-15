@@ -109,4 +109,9 @@ public class SqlConstant {
      * delete
      */
     public static final String DELETE = "delete";
+
+    /**
+     * values
+     */
+    public static final String VALUES = "values";
 }

@@ -53,11 +53,14 @@ public class ColumnNode {
                         continue;
                     } else {
                         lastNode = currentNode;
-                        selectElementList.add(currentNode);
+                        if (currentNode != null) {
+                            selectElementList.add(currentNode);
+                        }
                     }
                 }
             }
         }
+
     }
 
     /**

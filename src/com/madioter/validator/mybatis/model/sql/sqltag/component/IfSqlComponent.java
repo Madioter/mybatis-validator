@@ -3,7 +3,8 @@ package com.madioter.validator.mybatis.model.sql.sqltag.component;
 import com.madioter.validator.mybatis.parser.mybatis.component.IComponentNodeParser;
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
-import org.apache.ibatis.builder.xml.dynamic.IfSqlNode;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <Description> <br>
@@ -61,5 +62,20 @@ public class IfSqlComponent implements ISqlComponent {
      */
     public Object getIfSqlNode() {
         return ifSqlNode;
+    }
+
+    /**
+     * Gets test.
+     * @return the test
+     */
+    public String getTest() {
+        return test;
+    }
+
+    @Override
+    public List<ISqlComponent> getSubComponents() {
+        List<ISqlComponent> sqlComponentList = new ArrayList<ISqlComponent>();
+        sqlComponentList.add(content);
+        return sqlComponentList;
     }
 }

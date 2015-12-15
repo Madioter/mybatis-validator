@@ -5,6 +5,7 @@ import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -32,7 +33,7 @@ public class ForEachSqlComponent implements ISqlComponent {
     /**
      * content
      */
-    private Object content;
+    private ISqlComponent content;
 
     /**
      * open
@@ -106,5 +107,12 @@ public class ForEachSqlComponent implements ISqlComponent {
             builder.append(SymbolConstant.SYMBOL_BLANK).append(close);
         }
         return builder.toString();
+    }
+
+    @Override
+    public List<ISqlComponent> getSubComponents() {
+        List<ISqlComponent> sqlComponentList = new ArrayList<ISqlComponent>();
+        sqlComponentList.add(content);
+        return sqlComponentList;
     }
 }

@@ -1,6 +1,7 @@
 package com.madioter.validator.mybatis.model.sql.sqltag.component;
 
 import com.madioter.validator.mybatis.parser.mybatis.component.IComponentNodeParser;
+import com.madioter.validator.mybatis.util.ConditionUtil;
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.StringUtil;
@@ -59,7 +60,15 @@ public class MixedSqlComponent implements ISqlComponent {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (ISqlComponent sqlComponent : contents) {
-            builder.append(sqlComponent.toString()).append(SymbolConstant.SYMBOL_BLANK);
+            if (sqlComponent instanceof IfSqlComponent) {
+                String test = ((IfSqlComponent) sqlComponent).getTest();
+                //TODO 把为空赋默认值的情况暂时排除掉，未来做条件互斥验证
+                if (!ConditionUtil.containNullCheck(test)) {
+                    builder.append(sqlComponent.toString()).append(SymbolConstant.SYMBOL_BLANK);
+                }
+            } else {
+                builder.append(sqlComponent.toString()).append(SymbolConstant.SYMBOL_BLANK);
+            }
         }
         return builder.toString().trim();
     }
@@ -70,5 +79,12 @@ public class MixedSqlComponent implements ISqlComponent {
      */
     public List<ISqlComponent> getContents() {
         return contents;
+    }
+
+    @Override
+    public List<ISqlComponent> getSubComponents() {
+        List<ISqlComponent> sqlComponentList = new ArrayList<ISqlComponent>();
+        sqlComponentList.addAll(contents);
+        return sqlComponentList;
     }
 }

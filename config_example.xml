@@ -20,10 +20,6 @@
                           scope="prototype">
                         <property name="proxy" ref="defaultProxy"/>
                     </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckResultMapPropertyExist"
-                          scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
                     <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist"
                           scope="prototype">
                         <property name="proxy" ref="defaultProxy"/>

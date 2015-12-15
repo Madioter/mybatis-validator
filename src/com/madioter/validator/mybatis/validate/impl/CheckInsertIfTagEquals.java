@@ -5,6 +5,8 @@ import com.madioter.validator.mybatis.config.StatementResource;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.config.statement.impl.InsertMappedStatementItem;
 import com.madioter.validator.mybatis.database.ConnectionManager;
+import com.madioter.validator.mybatis.model.sql.sqlnode.ColumnNode;
+import com.madioter.validator.mybatis.model.sql.sqlnode.InsertNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.util.MessageConstant;
@@ -31,11 +33,6 @@ import java.util.Set;
  * @CreateDate 2015年12月04日 <br>
  */
 public class CheckInsertIfTagEquals extends AbstractValidator {
-
-    /**
-     * checkFilterList
-     */
-    private List<CheckFilter> checkFilterList = new ArrayList<CheckFilter>();
 
     @Override
     public void validate(ConfigurationManager configurationManager, ConnectionManager connectionManager) {
@@ -88,6 +85,29 @@ public class CheckInsertIfTagEquals extends AbstractValidator {
                                 errMsg + String.format(MessageConstant.IF_TEST_TEXT, columnNode.getIfTest(), valueNode.getIfTest())).printException();
                     }
                 }
+            }
+        } else {
+            //检查column和value是否数目相等
+            InsertNode insertNode = item.getInsertNode();
+            int columnNum = 0;
+            if (insertNode != null && insertNode.getColumnNode() != null
+                    && insertNode.getColumnNode().getSelectElementList() != null) {
+                columnNum = insertNode.getColumnNode().getSelectElementList().size();
+            }
+            int valueColumn = 0;
+            if (insertNode != null && insertNode.getValueNode() != null
+                    && insertNode.getValueNode().getSelectElementList() != null) {
+                valueColumn = insertNode.getValueNode().getSelectElementList().size();
+            } else if (insertNode != null && insertNode.getSqlNodeList() != null) {
+                ColumnNode columnNode = insertNode.getSqlNodeList()
+                        .get(insertNode.getSqlNodeList().size() - 1).getColumnNode();
+                if (columnNode != null) {
+                    valueColumn = columnNode.getSelectElementList().size();
+                }
+            }
+            if (columnNum != valueColumn) {
+                new MapperException(ExceptionCommonConstant.INSERT_COLUMN_VALUE_ERROR,
+                        errMsg).printException();
             }
         }
     }

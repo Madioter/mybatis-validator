@@ -4,6 +4,7 @@ import com.madioter.validator.mybatis.parser.mybatis.component.IComponentNodePar
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.SymbolConstant;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.builder.xml.dynamic.TrimSqlNode;
 
@@ -85,7 +86,7 @@ public class TrimSqlComponent implements ISqlComponent {
         if (suffixesToOverride != null) {
             for (int i = 0; i < suffixesToOverride.size(); i++) {
                 if (contentText.endsWith(suffixesToOverride.get(i))) {
-                    contentText = contentText.substring(0, contentText.length() - suffixesToOverride.get(i).length() - 1);
+                    contentText = contentText.substring(0, contentText.length() - suffixesToOverride.get(i).length());
                 }
             }
         }
@@ -112,5 +113,12 @@ public class TrimSqlComponent implements ISqlComponent {
      */
     public ISqlComponent getContent() {
         return content;
+    }
+
+    @Override
+    public List<ISqlComponent> getSubComponents() {
+        List<ISqlComponent> sqlComponentList = new ArrayList<ISqlComponent>();
+        sqlComponentList.add(content);
+        return sqlComponentList;
     }
 }

@@ -134,4 +134,18 @@ public class ClassUtil {
         }
         return false;
     }
+
+    /**
+     * 判断类是否为基础数据类型
+     * @param clz clz
+     * @return boolean
+     */
+    public static boolean basicType(Class clz) {
+        //TODO 有待完善
+        if (clz.getPackage() == null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

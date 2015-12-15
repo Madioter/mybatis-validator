@@ -2,12 +2,14 @@ package com.madioter.validator.mybatis.config.statement.impl;
 
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
+import com.madioter.validator.mybatis.model.sql.sqlnode.InsertNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfValueNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.IfSqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.MixedSqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.TrimSqlComponent;
+import com.madioter.validator.mybatis.parser.sqlparser.InsertSqlParser;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
@@ -62,6 +64,11 @@ public class InsertMappedStatementItem extends MappedStatementItem {
     private Object valueSqlNode;
 
     /**
+     * insert语句结构
+     */
+    private InsertNode insertNode;
+
+    /**
      * 构造方法
      * @param mappedStatement 原数据
      * @throws ConfigException 配置异常
@@ -114,6 +121,9 @@ public class InsertMappedStatementItem extends MappedStatementItem {
                 }
             }
         }
+
+        InsertSqlParser insertSqlParser = new InsertSqlParser(getSql());
+        insertNode = insertSqlParser.getInsertNode();
     }
 
     /**
@@ -244,5 +254,13 @@ public class InsertMappedStatementItem extends MappedStatementItem {
      */
     public Class getParameterType() {
         return parameterType;
+    }
+
+    /**
+     * Gets insert node.
+     * @return the insert node
+     */
+    public InsertNode getInsertNode() {
+        return insertNode;
     }
 }

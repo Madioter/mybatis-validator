@@ -2,6 +2,7 @@ package com.madioter.validator.mybatis.model.sql.sqltag.component;
 
 import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import java.util.List;
 
 /**
  * <Description> <br>
@@ -42,5 +43,10 @@ public class TextSqlComponent implements ISqlComponent {
             return "";
         }
         return text.trim();
+    }
+
+    @Override
+    public List<ISqlComponent> getSubComponents() {
+        return null;
     }
 }
