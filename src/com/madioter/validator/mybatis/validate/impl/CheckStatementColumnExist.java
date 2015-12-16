@@ -14,7 +14,9 @@ import com.madioter.validator.mybatis.model.sql.elementnode.OrderNode;
 import com.madioter.validator.mybatis.model.sql.elementnode.QueryNode;
 import com.madioter.validator.mybatis.model.sql.elementnode.SelectElement;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
+import com.madioter.validator.mybatis.model.sql.sqlnode.ColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqlnode.GroupByNode;
+import com.madioter.validator.mybatis.model.sql.sqlnode.InsertNode;
 import com.madioter.validator.mybatis.model.sql.sqlnode.SelectNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.InsertIfColumnNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
@@ -288,7 +290,7 @@ public class CheckStatementColumnExist extends AbstractValidator {
             } else {
                 if (tableNodes.size() > 1) {
                     new MapperException(ExceptionCommonConstant.TABLE_ALIAS_IS_NULL,
-                            errMsg + String.format(MessageConstant.TABLE_NAME, tableNode.getTableName()));
+                            errMsg + String.format(MessageConstant.TABLE_NAME, tableNode.getTableName())).printException();
                 } else {
                     aliasTable.put(tableNode.getTableName().toLowerCase(), tableNode);
                 }
@@ -366,18 +368,32 @@ public class CheckStatementColumnExist extends AbstractValidator {
             return;
         }
         if (ifColumnNodes == null || ifColumnNodes.isEmpty()) {
-            return;
+            InsertNode insertNode = item.getInsertNode();
+            ColumnNode columnNode = insertNode.getColumnNode();
+            for (SelectElement selectElement : columnNode.getSelectElementList()) {
+                if (selectElement instanceof QueryNode) {
+                    String columnName = ((QueryNode) selectElement).getColumnName();
+                    boolean result = columnDao.checkColumnExist(columnName, tableName);
+                    if (!result) {
+                        new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
+                                item.getInfoMessage() +
+                                        String.format(MessageConstant.TABLE_COLUMN_NAME, tableName, columnName)
+                                        + String.format(MessageConstant.COLUMN_NAME, columnName)).printException();
+                        continue;
+                    }
+                }
+            }
         }
         for (int i = 0; i < ifColumnNodes.size(); i++) {
             InsertIfColumnNode columnNode = ifColumnNodes.get(i);
             if (columnNode.getIfContent() == null) {
                 new MapperException(ExceptionCommonConstant.IF_TAG_EXPLAIN_ERROR, item.getInfoMessage() +
-                        String.format(MessageConstant.EXPRESS_MSG, columnNode.getContents()));
+                        String.format(MessageConstant.EXPRESS_MSG, columnNode.getContents())).printException();
                 continue;
             }
             if (!columnNode.getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
                 new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, item.getInfoMessage() +
-                        String.format(MessageConstant.EXPRESS_MSG, columnNode.getIfContent()));
+                        String.format(MessageConstant.EXPRESS_MSG, columnNode.getIfContent())).printException();
                 continue;
             }
             String columnName = columnNode.getIfContent().replace(SymbolConstant.SYMBOL_COMMA, "").trim();
@@ -386,7 +402,7 @@ public class CheckStatementColumnExist extends AbstractValidator {
                 new MapperException(ExceptionCommonConstant.COLUMN_NOT_EXIST,
                         item.getInfoMessage() +
                                 String.format(MessageConstant.TABLE_COLUMN_NAME, tableName, columnName)
-                                + String.format(MessageConstant.EXPRESS_MSG, columnNode.getIfContent()));
+                                + String.format(MessageConstant.EXPRESS_MSG, columnNode.getIfContent())).printException();
                 continue;
             }
         }

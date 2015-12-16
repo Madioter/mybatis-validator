@@ -88,12 +88,14 @@ public class CheckInsertNullValue extends AbstractValidator {
         TableNode tableNode = item.getTableNode();
         Table table = tableDao.getTable(tableNode.getTableName());
         InsertNode insertNode = item.getInsertNode();
+        //获取当前表不允许为空的字段
         List<Column> nullAbleColumns = new ArrayList<Column>();
         for (Column column : table.getColumnList()) {
             if (column.getIsNullAble() == IsNullAble.NO) {
                 nullAbleColumns.add(column);
             }
         }
+        //获取insert的字段及赋值定义
         List<QueryNode> columnList = new ArrayList<QueryNode>();
         List<SelectElement> valueList = new ArrayList<SelectElement>();
         List<SelectElement> columnNodeList = insertNode.getColumnNode().getSelectElementList();
@@ -101,8 +103,9 @@ public class CheckInsertNullValue extends AbstractValidator {
         for (int i = 0; i < columnNodeList.size(); i++) {
             if (columnNodeList.get(i) instanceof QueryNode) {
                 columnList.add((QueryNode) columnNodeList.get(i));
-                if (valueNodeList.size() >= i) {
-                    valueList.add((SelectElement) valueNodeList.get(i));
+                //如果赋值数小于字段数，这里默认给空
+                if (valueNodeList.size() > i) {
+                    valueList.add(valueNodeList.get(i));
                 } else {
                     valueList.add(null);
                 }
@@ -111,71 +114,91 @@ public class CheckInsertNullValue extends AbstractValidator {
         loop:
         for (int i = 0; i < nullAbleColumns.size(); i++) {
             for (int k = 0; k < columnList.size(); k++) {
-                //字段不允许为空，并且字段存在赋值，判断column由于空值判断，以及value赋值有无空值处理
+                //字段不允许为空，并且字段存在赋值，判断column有无空值判断，以及value赋值有无空值处理
                 if (columnList.get(k).getColumnName().equals(nullAbleColumns.get(i).getColumnName())) {
+                    //如果赋值不存在，抛出异常
                     if (valueList.get(k) == null) {
                         new MapperException(ExceptionCommonConstant.INSERT_COLUMN_MISS_VALUE, item.getInfoMessage()
                                 + String.format(MessageConstant.COLUMN_NAME, nullAbleColumns.get(i).getColumnName())).printException();
                         continue loop;
                     }
                     String valueName = "";
+                    //获取赋值表达式
                     if (valueList.get(k) instanceof ValueNode) {
+                        //如果是#{value}赋值方式，获取ValueNode对象的值
                         valueName = ((ValueNode) valueList.get(k)).getValue();
                     } else if (valueList.get(k) instanceof FunctionNode) {
+                        //如果是constant(#{value})类似的函数表达式，获取函数表达式
                         valueName = ((FunctionNode) valueList.get(k)).getExpress();
                     }
-                    //认定为默认值
+                    // 如果不含有#{} 结构，认定为默认值，例如 0，now() 等
                     if (!StringUtil.containBrace(valueName)) {
                         continue loop;
                     }
-                    //判断参数属性是否存在，如果存在判断是否为非对象类型，例如int不会为空值
+                    // 判断参数属性是否存在，如果存在判断是否为非对象类型，例如int不会为空值
                     Class clz = item.getParameterType();
+                    // 如果参数为int，Map，List等类型，跳过判断
                     if (!ClassUtil.ignorePropertyCheck(clz)) {
                         List<String> propertyName = StringUtil.extractBrace(valueName);
                         try {
                             Class returnType = ReflectHelper.getReturnType(propertyName.get(0), clz);
+                            // 判断属性是否为基础数据类型
                             if (ClassUtil.basicType(returnType)) {
                                 continue loop;
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (MapperException e) {
+                            //获取get方法失败
+                            e.setDescription(item.getInfoMessage() + SymbolConstant.SYMBOL_BLANK + e.getDescription());
+                            e.printException();
                         }
                     }
 
                     //进行判断IF条件是否存在
-                    checkIfTest(columnList.get(k).getColumnName(), valueName, item);
+                    checkIfTest(nullAbleColumns.get(i), columnList.get(k).getColumnName(), valueName, item);
                     continue loop;
                 }
             }
-            //字段不存在赋值，判断是否存在默认值
-            String defaultValue = nullAbleColumns.get(i).getColumnDefault();
-            String extra = nullAbleColumns.get(i).getExtra();
-            if (StringUtil.isBlank(defaultValue) && StringUtil.isBlank(extra)) {
-                new MapperException(ExceptionCommonConstant.INSERT_NULL_COLUMN_MISS, item.getInfoMessage()
-                        + String.format(MessageConstant.COLUMN_NAME, nullAbleColumns.get(i).getColumnName())).printException();
-            }
+            //  循环结束，字段不存在赋值，判断是否存在默认值或自动生成方式，不存在时抛出异常
+            checkColumnHaveDefaultValue(nullAbleColumns.get(i), item.getInfoMessage());
         }
+    }
 
-
+    /**
+     * 判断是否存在列默认值
+     * @param column 列定义
+     * @param message 当前分支信息
+     */
+    private void checkColumnHaveDefaultValue(Column column, String message) {
+        String defaultValue = column.getColumnDefault();
+        String extra = column.getExtra();
+        if (StringUtil.isBlank(defaultValue) && StringUtil.isBlank(extra)) {
+            new MapperException(ExceptionCommonConstant.INSERT_NULL_COLUMN_MISS, message
+                    + String.format(MessageConstant.COLUMN_NAME, column.getColumnName())).printException();
+        }
     }
 
     /**
      * 判断字段是否存在if标签，并且是否进行了非空判断
+     * @param column 类定义
      * @param columnName 字段名
      * @param valueName 对应的value赋值
      * @param item InsertMappedStatementItem
      */
-    private void checkIfTest(String columnName, String valueName, InsertMappedStatementItem item) {
+    private void checkIfTest(Column column, String columnName, String valueName, InsertMappedStatementItem item) {
+        // 如果是标准的insert表达式，存在Trim的column和value，判断是否存在非空判断
         if (!item.getIfColumnNodeList().isEmpty() && !item.getIfValueNodeList().isEmpty()) {
             List<InsertIfColumnNode> ifColumnNodeList = item.getIfColumnNodeList();
             for (int i = 0; i < ifColumnNodeList.size(); i++) {
-                //获取if标签信息
+                // 获取if标签信息
                 String ifContent = ifColumnNodeList.get(i).getIfContent();
                 String test = ifColumnNodeList.get(i).getIfTest();
+
+                //去除末尾的逗号
                 if (ifContent.endsWith(SymbolConstant.SYMBOL_COMMA)) {
                     ifContent = ifContent.substring(0, ifContent.length() - 1);
                 }
 
+                //当字段匹配是进行判断
                 if (ifContent.equals(columnName)) {
                     if (!ConditionUtil.containNotNullCheck(test)) {
                         //TODO 不严谨，value赋值存在判空赋默认值的情况：例如
@@ -201,30 +224,33 @@ public class CheckInsertNullValue extends AbstractValidator {
                          */
                         new MapperException(ExceptionCommonConstant.INSERT_NULL_COLUMN_MISS, item.getInfoMessage()
                                 + String.format(MessageConstant.COLUMN_NAME, columnName)).printException();
+                    } else {
+                        //如果存在空值验证，意味着空值时，不进行插入，判断是否存在默认值
+                        checkColumnHaveDefaultValue(column, item.getInfoMessage());
                     }
                 }
             }
-        } else {
-            //TODO batch的情况
-            if (!StringUtil.containBrace(valueName)) {
-                //认定为固定值，不做判断
-            } else {
-                List<String> valueExpresses = StringUtil.extractBrace(valueName);
-                List<ISqlComponent> sqlComponents = item.getSqlComponentList();
+        } else if (item.getInsertNode().getValueNode() != null) {
+            // batch的情况 没有Trim标签，只存在foreach标签，先获取固定值
+            List<String> valueExpresses = StringUtil.extractBrace(valueName);
+            List<ISqlComponent> sqlComponents = item.getSqlComponentList();
 
-                // 递归判断空值
-                boolean flag = checkExpressExist(sqlComponents, valueExpresses.get(0));
-                if (!flag) {
-                    new MapperException(ExceptionCommonConstant.INSERT_NULL_COLUMN_PROBABLY, item.getInfoMessage()
-                            + String.format(MessageConstant.COLUMN_NAME, columnName)).printException();
-                }
+            // 递归判断是否存在if标签做空值判断并赋默认值，不存在抛出异常
+            boolean flag = checkExpressExist(sqlComponents, valueExpresses.get(0));
+            if (!flag) {
+                new MapperException(ExceptionCommonConstant.INSERT_NULL_COLUMN_PROBABLY, item.getInfoMessage()
+                        + String.format(MessageConstant.COLUMN_NAME, columnName)).printException();
             }
+
+        } else if (item.getInsertNode().getSqlNodeList() != null) {
+            // insert into table （columns） select columns from table 的情况
+
         }
 
     }
 
     /**
-     * 检查所有的节点是否存在判空赋默认值的节点
+     * 递归检查所有的节点是否存在判空赋默认值的节点
      * @param sqlComponents 当前语句的节点信息
      * @param express 表达式
      * @return boolean
@@ -233,7 +259,7 @@ public class CheckInsertNullValue extends AbstractValidator {
         for (int i = 0; i < sqlComponents.size(); i++) {
             if (sqlComponents.get(i) instanceof IfSqlComponent) {
                 String test = StringUtil.replaceBlank(((IfSqlComponent) sqlComponents.get(i)).getTest());
-                if (test.equals("null==" + express) || test.equals(express + "==null")) {
+                if (test.contains("null==" + express) || test.contains(express + "==null")) {
                     return true;
                 }
             } else {

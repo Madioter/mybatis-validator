@@ -62,7 +62,7 @@ public class MixedSqlComponent implements ISqlComponent {
         for (ISqlComponent sqlComponent : contents) {
             if (sqlComponent instanceof IfSqlComponent) {
                 String test = ((IfSqlComponent) sqlComponent).getTest();
-                //TODO 把为空赋默认值的情况暂时排除掉，未来做条件互斥验证
+                //把为空 赋默认值的情况排除掉
                 if (!ConditionUtil.containNullCheck(test)) {
                     builder.append(sqlComponent.toString()).append(SymbolConstant.SYMBOL_BLANK);
                 }
