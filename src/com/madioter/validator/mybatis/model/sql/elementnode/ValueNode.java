@@ -1,5 +1,7 @@
 package com.madioter.validator.mybatis.model.sql.elementnode;
 
+import com.madioter.validator.mybatis.util.SymbolConstant;
+
 /**
  * <Description> Insert语句的values中的表达式 <br>
  *

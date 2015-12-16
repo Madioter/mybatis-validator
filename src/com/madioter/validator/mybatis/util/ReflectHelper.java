@@ -55,6 +55,9 @@ public class ReflectHelper {
      * @throws MapperException the mapper exception
      */
     public static Class getReturnType(String propertyName, Class clz) throws MapperException {
+        if (propertyName.contains(SqlHelperConstant.JDBC_TYPE_TAG)) {
+            propertyName = propertyName.substring(0, propertyName.indexOf(SqlHelperConstant.JDBC_TYPE_TAG));
+        }
         Method method = null;
         try {
             method = clz.getMethod(StringUtil.getMethodName(propertyName));
@@ -77,6 +80,9 @@ public class ReflectHelper {
      * @throws MapperException get方法不存在
      */
     public static boolean haveGetMethod(String propertyName, Class clz) throws MapperException {
+        if (propertyName.contains(SqlHelperConstant.JDBC_TYPE_TAG)) {
+            propertyName = propertyName.substring(0, propertyName.indexOf(SqlHelperConstant.JDBC_TYPE_TAG));
+        }
         Method method = null;
         try {
             method = clz.getMethod(StringUtil.getMethodName(propertyName));
@@ -101,6 +107,9 @@ public class ReflectHelper {
      * @throws MapperException get方法不存在
      */
     public static boolean haveGetMethod(String propertyName, Class returnType, Class clz) throws MapperException {
+        if (propertyName.contains(SqlHelperConstant.JDBC_TYPE_TAG)) {
+            propertyName = propertyName.substring(0, propertyName.indexOf(SqlHelperConstant.JDBC_TYPE_TAG));
+        }
         MapperException mapperException = null;
         Method method = null;
         try {
@@ -134,6 +143,9 @@ public class ReflectHelper {
      * @throws MapperException set方法不存在
      */
     public static boolean haveSetMethod(String propertyName, Class paramType, Class clz) throws MapperException {
+        if (propertyName.contains(SqlHelperConstant.JDBC_TYPE_TAG)) {
+            propertyName = propertyName.substring(0, propertyName.indexOf(SqlHelperConstant.JDBC_TYPE_TAG));
+        }
         Method method = null;
         try {
             method = clz.getMethod(StringUtil.setMethodName(propertyName), paramType);

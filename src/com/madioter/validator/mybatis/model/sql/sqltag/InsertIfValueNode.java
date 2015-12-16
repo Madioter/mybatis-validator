@@ -1,10 +1,13 @@
 package com.madioter.validator.mybatis.model.sql.sqltag;
 
+import com.madioter.validator.mybatis.util.SqlHelperConstant;
+import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ConfigException;
 import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
 import com.madioter.validator.mybatis.util.exception.MapperException;
+import java.util.List;
 
 /**
  * <Description> insert的值定义节点 <br>
@@ -46,7 +49,15 @@ public class InsertIfValueNode extends IfNode {
         if (!getIfContent().trim().endsWith(SymbolConstant.SYMBOL_COMMA)) {
             mapperException = new MapperException(ExceptionCommonConstant.INSERT_END_WITH_COMMA, String.format(ERROR_MSG, getIfContent()));
         }
-        String propertyName = getIfContent().replace(SymbolConstant.SYMBOL_LEFT_BRACE, "").replace(SymbolConstant.SYMBOL_RIGHT_BRACE, "").replace(",", "").trim();
+        if (!StringUtil.containBrace(getIfContent())) {
+            //不包含赋值标记，表示赋值为固定值，不做验证
+            return true;
+        }
+        List<String> propertyNames = StringUtil.extractBrace(getIfContent());
+        String propertyName = propertyNames.get(0);
+        if (propertyName.contains(SqlHelperConstant.JDBC_TYPE_TAG)) {
+            propertyName = propertyName.substring(0, propertyName.indexOf(SqlHelperConstant.JDBC_TYPE_TAG));
+        }
 
         boolean result = ReflectHelper.haveGetMethod(propertyName, parameterType);
         if (!result) {

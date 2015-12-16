@@ -1,6 +1,8 @@
 package com.madioter.validator.mybatis.parser.sqlparser;
 
 import com.madioter.validator.mybatis.model.sql.sqlnode.SelectNode;
+import com.madioter.validator.mybatis.util.SqlConstant;
+import com.madioter.validator.mybatis.util.SqlHelperConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class SelectSqlParser {
                3、一直将所有的括号结构都拆分完全后，进行select...from 结构的匹配，如果存在select...from结构，认为是一条select语句，否则只是语句的一个片段
                4、将语句中的@frg#No@变量替换回来，生成单条sql语句，并编入sql语句列表selectNodeList
         */
-        String[] strArr = sql.split("\\(");
+        String[] strArr = sql.split(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_LEFT_BRACKET);
         int length = strArr.length;
         String lastTemp = "";
         for (int i = length - 1; i > 0; i--) {
@@ -50,10 +52,12 @@ public class SelectSqlParser {
             }
             String temp = lastTemp.substring(0, lastTemp.indexOf(SymbolConstant.SYMBOL_RIGHT_BRACKET));
             if (temp.equals("")) {
-                lastTemp = lastTemp.replaceFirst("\\)", "@frg#blank@");
+                lastTemp = lastTemp.replaceFirst(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_RIGHT_BRACKET,
+                        SqlHelperConstant.FRAGMENT_BLANK_TAG);
             } else {
                 fragments.add(temp);
-                lastTemp = "@frg#" + (fragments.size() - 1) + SymbolConstant.SYMBOL_AT + lastTemp.substring(temp.length() + 1);
+                lastTemp = SqlHelperConstant.FRAGMENT_TAG + (fragments.size() - 1) +
+                        SymbolConstant.SYMBOL_AT + lastTemp.substring(temp.length() + 1);
                 //lastTemp = lastTemp.replaceFirst(temp + "\\)", "@frg#" + (fragments.size() - 1) + SymbolConstant.SYMBOL_AT);
             }
         }
@@ -63,18 +67,20 @@ public class SelectSqlParser {
             String temp = fragments.get(i);
             String[] blankArr = StringUtil.splitWithBlank(temp);
             List<String> blankList = StringUtil.arrayToList(blankArr);
-            if (blankList.contains("select") && blankList.contains("from")) {
+            if (blankList.contains(SqlConstant.SELECT) && blankList.contains(SqlConstant.FROM)) {
                 //把相应的变量进行替换
                 for (int k = i; k >= 0; k--) {
-                    if (temp.contains("@frg#" + k + SymbolConstant.SYMBOL_AT)) {
-                        temp = temp.replace("@frg#" + k + SymbolConstant.SYMBOL_AT, SymbolConstant.SYMBOL_LEFT_BRACKET + fragments.get(k) + SymbolConstant.SYMBOL_RIGHT_BRACKET);
+                    if (temp.contains(SqlHelperConstant.FRAGMENT_TAG + k + SymbolConstant.SYMBOL_AT)) {
+                        temp = temp.replace(SqlHelperConstant.FRAGMENT_TAG + k + SymbolConstant.SYMBOL_AT,
+                                SymbolConstant.SYMBOL_LEFT_BRACKET + fragments.get(k) + SymbolConstant.SYMBOL_RIGHT_BRACKET);
                     }
                 }
-                temp = temp.replace("@frg#blank@", "()");
+                temp = temp.replace(SqlHelperConstant.FRAGMENT_BLANK_TAG,
+                        SymbolConstant.SYMBOL_LEFT_BRACKET + SymbolConstant.SYMBOL_RIGHT_BRACKET);
                 //解析单句的sql语句结构
                 selectNodeList.add(new SelectNode(temp));
                 fragments.remove(i);
-                fragments.add(i, "@select#" + (selectNodeList.size() - 1) + SymbolConstant.SYMBOL_AT);
+                fragments.add(i, SqlHelperConstant.SELECT_TAG + (selectNodeList.size() - 1) + SymbolConstant.SYMBOL_AT);
             }
         }
     }

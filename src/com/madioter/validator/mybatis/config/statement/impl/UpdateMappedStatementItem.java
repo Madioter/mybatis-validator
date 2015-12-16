@@ -3,12 +3,14 @@ package com.madioter.validator.mybatis.config.statement.impl;
 import com.madioter.validator.mybatis.config.statement.MappedStatementItem;
 import com.madioter.validator.mybatis.model.sql.elementnode.SelectElement;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
+import com.madioter.validator.mybatis.model.sql.sqlnode.UpdateNode;
 import com.madioter.validator.mybatis.model.sql.sqlnode.WhereNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.IfSqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.MixedSqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.SetSqlComponent;
+import com.madioter.validator.mybatis.parser.sqlparser.UpdateSqlParser;
 import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
@@ -48,6 +50,11 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      * where条件字符串
      */
     private List<SelectElement> whereConditions;
+
+    /**
+     * 对Update语句的解析
+     */
+    private UpdateNode updateNode;
 
     /**
      * 构造方法
@@ -95,6 +102,7 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
                 }
             }
         }
+        updateNode = new UpdateSqlParser(this.getSql()).getUpdateNode();
     }
 
     /**
@@ -155,5 +163,21 @@ public class UpdateMappedStatementItem extends MappedStatementItem {
      */
     public List<SelectElement> getWhereConditions() {
         return whereConditions;
+    }
+
+    /**
+     * Gets update node.
+     * @return the update node
+     */
+    public UpdateNode getUpdateNode() {
+        return updateNode;
+    }
+
+    /**
+     * Sets update node.
+     * @param updateNode the update node
+     */
+    public void setUpdateNode(UpdateNode updateNode) {
+        this.updateNode = updateNode;
     }
 }

@@ -25,11 +25,6 @@ public class InsertSqlParser {
      */
     private InsertNode insertNode = new InsertNode();
 
-    /**
-     * sql片段
-     */
-    private List<String> fragments = new ArrayList<String>();
-
 
     /**
      * select语句解析类

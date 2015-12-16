@@ -176,4 +176,14 @@ public class ExceptionCommonConstant {
      * INSERT语句字段找不到对应的赋值
      */
     public static final String INSERT_COLUMN_MISS_VALUE = "INSERT语句字段找不到对应的赋值";
+
+    /**
+     * UPDATE语句存在必填字段赋空值的可能性
+     */
+    public static final String UPDATE_NULL_COLUMN_PROBABLY = "UPDATE语句存在必填字段赋空值的可能性";
+
+    /**
+     * 表定义缺失
+     */
+    public static final String TABLE_NAME_MISS = "表定义缺失";
 }

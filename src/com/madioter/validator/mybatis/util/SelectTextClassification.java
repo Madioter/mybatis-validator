@@ -13,6 +13,6 @@ public enum SelectTextClassification {
     /**
      *  未知，查询字段，表，条件，其他
      */
-    NULL,COLUMN,FROM,WHERE,OTHER,LIMIT;
+    NULL,COLUMN,FROM,WHERE,OTHER,LIMIT,ORDER,GROUP;
 
 }

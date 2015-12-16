@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
  */
 public class StringUtil {
 
+
     /**
      * 首字母大写
      * @param str 字符串
@@ -108,7 +109,7 @@ public class StringUtil {
     public static List<String> extractBracket(String express) {
         List<String> result = new ArrayList<String>();
         List<String> fragments = new ArrayList<String>();
-        String[] strArr = express.split("\\(");
+        String[] strArr = express.split(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_LEFT_BRACKET);
         int length = strArr.length;
         String lastTemp = "";
         for (int i = length - 1; i > 0; i--) {
@@ -120,10 +121,11 @@ public class StringUtil {
             if (lastTemp.contains(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
                 String temp = lastTemp.substring(0, lastTemp.indexOf(SymbolConstant.SYMBOL_RIGHT_BRACKET));
                 if (temp.equals("")) {
-                    lastTemp = lastTemp.replaceFirst("\\)", "@frg#blank@");
+                    lastTemp = lastTemp.replaceFirst(SymbolConstant.SYMBOL_BACK_SLASH + SymbolConstant.SYMBOL_RIGHT_BRACKET,
+                            SqlHelperConstant.FRAGMENT_BLANK_TAG);
                 } else {
                     fragments.add(temp);
-                    lastTemp = "@frg#" + (fragments.size() - 1) + SymbolConstant.SYMBOL_AT + lastTemp.substring(temp.length() + 1);
+                    lastTemp = SqlHelperConstant.FRAGMENT_TAG + (fragments.size() - 1) + SymbolConstant.SYMBOL_AT + lastTemp.substring(temp.length() + 1);
                 }
             }
         }
@@ -132,11 +134,13 @@ public class StringUtil {
             String temp = fragments.get(i);
             //把相应的变量进行替换
             for (int k = i; k >= 0; k--) {
-                if (temp.contains("@frg#" + k + SymbolConstant.SYMBOL_AT)) {
-                    temp = temp.replace("@frg#" + k + SymbolConstant.SYMBOL_AT, SymbolConstant.SYMBOL_LEFT_BRACKET + fragments.get(k) + SymbolConstant.SYMBOL_RIGHT_BRACKET);
+                if (temp.contains(SqlHelperConstant.FRAGMENT_TAG + k + SymbolConstant.SYMBOL_AT)) {
+                    temp = temp.replace(SqlHelperConstant.FRAGMENT_TAG + k + SymbolConstant.SYMBOL_AT,
+                            SymbolConstant.SYMBOL_LEFT_BRACKET + fragments.get(k) + SymbolConstant.SYMBOL_RIGHT_BRACKET);
                 }
             }
-            temp = temp.replace("@frg#blank@", "()");
+            temp = temp.replace(SqlHelperConstant.FRAGMENT_BLANK_TAG,
+                    SymbolConstant.SYMBOL_LEFT_BRACKET + SymbolConstant.SYMBOL_RIGHT_BRACKET);
             result.add(temp);
         }
         return result;
@@ -175,6 +179,24 @@ public class StringUtil {
         } else {
             return express.toLowerCase();
         }
+    }
+
+
+    /**
+     * 获取字符串中 匹配正则的字符串列表
+     * @author wangyi8
+     * @taskId
+     * @param str the str 字符串
+     * @param regex the regex 正则
+     * @return the list 字符串列表
+     */
+    public static List<String> matchesRegex(String str, String regex) {
+        List<String> result = new ArrayList<String>();
+        Matcher matcher = Pattern.compile(regex).matcher(str);
+        while (matcher.find()) {
+            result.add(matcher.group());
+        }
+        return result;
     }
 
     /**

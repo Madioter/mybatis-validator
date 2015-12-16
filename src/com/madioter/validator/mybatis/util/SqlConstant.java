@@ -114,4 +114,16 @@ public class SqlConstant {
      * values
      */
     public static final String VALUES = "values";
+
+    /**
+     * set
+     */
+    public static final String SET = "set";
+
+    /**
+     * AUTO_INCREMENT
+     */
+    public static final String AUTO_INCREMENT = "auto_increment";
+
+
 }

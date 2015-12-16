@@ -22,6 +22,8 @@ import com.madioter.validator.mybatis.util.ClassUtil;
 import com.madioter.validator.mybatis.util.ConditionUtil;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.SqlConstant;
+import com.madioter.validator.mybatis.util.SqlHelperConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import com.madioter.validator.mybatis.util.exception.ExceptionCommonConstant;
@@ -86,12 +88,17 @@ public class CheckInsertNullValue extends AbstractValidator {
     public void validateNullValue(InsertMappedStatementItem item, TableDao tableDao) {
         //insert语句对应的表是否存在必填无默认值字段，并且这些字段在赋值语句中是否存在
         TableNode tableNode = item.getTableNode();
+        if (tableNode == null || StringUtil.isBlank(tableNode.getTableName())) {
+            new MapperException(ExceptionCommonConstant.TABLE_NAME_MISS, item.getInfoMessage()).printException();
+            return;
+        }
         Table table = tableDao.getTable(tableNode.getTableName());
         InsertNode insertNode = item.getInsertNode();
         //获取当前表不允许为空的字段
         List<Column> nullAbleColumns = new ArrayList<Column>();
         for (Column column : table.getColumnList()) {
-            if (column.getIsNullAble() == IsNullAble.NO) {
+            // 不允许为空并且非自增长的字段进行判断
+            if (column.getIsNullAble() == IsNullAble.NO && !column.getExtra().equals(SqlConstant.AUTO_INCREMENT)) {
                 nullAbleColumns.add(column);
             }
         }
@@ -139,9 +146,13 @@ public class CheckInsertNullValue extends AbstractValidator {
                     Class clz = item.getParameterType();
                     // 如果参数为int，Map，List等类型，跳过判断
                     if (!ClassUtil.ignorePropertyCheck(clz)) {
-                        List<String> propertyName = StringUtil.extractBrace(valueName);
+                        List<String> propertyNames = StringUtil.extractBrace(valueName);
+                        String propertyName = propertyNames.get(0);
+                        if (propertyName.contains(SqlHelperConstant.JDBC_TYPE_TAG)) {
+                            propertyName = propertyName.substring(0, propertyName.indexOf(SqlHelperConstant.JDBC_TYPE_TAG));
+                        }
                         try {
-                            Class returnType = ReflectHelper.getReturnType(propertyName.get(0), clz);
+                            Class returnType = ReflectHelper.getReturnType(propertyName, clz);
                             // 判断属性是否为基础数据类型
                             if (ClassUtil.basicType(returnType)) {
                                 continue loop;
@@ -171,7 +182,7 @@ public class CheckInsertNullValue extends AbstractValidator {
     private void checkColumnHaveDefaultValue(Column column, String message) {
         String defaultValue = column.getColumnDefault();
         String extra = column.getExtra();
-        if (StringUtil.isBlank(defaultValue) && StringUtil.isBlank(extra)) {
+        if (defaultValue == null && StringUtil.isBlank(extra)) {
             new MapperException(ExceptionCommonConstant.INSERT_NULL_COLUMN_MISS, message
                     + String.format(MessageConstant.COLUMN_NAME, column.getColumnName())).printException();
         }
@@ -256,6 +267,9 @@ public class CheckInsertNullValue extends AbstractValidator {
      * @return boolean
      */
     private boolean checkExpressExist(List<ISqlComponent> sqlComponents, String express) {
+        if (sqlComponents == null) {
+            return false;
+        }
         for (int i = 0; i < sqlComponents.size(); i++) {
             if (sqlComponents.get(i) instanceof IfSqlComponent) {
                 String test = StringUtil.replaceBlank(((IfSqlComponent) sqlComponents.get(i)).getTest());
