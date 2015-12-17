@@ -257,7 +257,6 @@ public class CheckInsertNullValue extends AbstractValidator {
             // insert into table （columns） select columns from table 的情况
 
         }
-
     }
 
     /**
@@ -271,20 +270,22 @@ public class CheckInsertNullValue extends AbstractValidator {
             return false;
         }
         for (int i = 0; i < sqlComponents.size(); i++) {
+            //判断是否为条件判断
             if (sqlComponents.get(i) instanceof IfSqlComponent) {
                 String test = StringUtil.replaceBlank(((IfSqlComponent) sqlComponents.get(i)).getTest());
+                //判断是否存在非空条件判断 TODO 这里暂时只是查看是否存在，未来需要明确存在的位置是否正确
                 if (test.contains("null==" + express) || test.contains(express + "==null")) {
                     return true;
                 }
-            } else {
-                List<ISqlComponent> sqlComponentList = sqlComponents.get(i).getSubComponents();
-                if (sqlComponentList != null) {
-                    boolean flag = checkExpressExist(sqlComponentList, express);
-                    if (flag) {
-                        return flag;
-                    }
-                }
+            }
 
+            //处理包括IF标签在内的标签嵌套其他标签的情况
+            List<ISqlComponent> sqlComponentList = sqlComponents.get(i).getSubComponents();
+            if (sqlComponentList != null) {
+                boolean flag = checkExpressExist(sqlComponentList, express);
+                if (flag) {
+                    return flag;
+                }
             }
         }
         return false;

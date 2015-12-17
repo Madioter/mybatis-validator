@@ -12,11 +12,13 @@ import com.madioter.validator.mybatis.model.database.Table;
 import com.madioter.validator.mybatis.model.sql.elementnode.FieldNode;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.model.sql.sqlnode.UpdateNode;
+import com.madioter.validator.mybatis.model.sql.sqltag.UpdateIfSetNode;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.ISqlComponent;
 import com.madioter.validator.mybatis.model.sql.sqltag.component.IfSqlComponent;
 import com.madioter.validator.mybatis.util.ClassUtil;
 import com.madioter.validator.mybatis.util.MessageConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.SqlHelperConstant;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
@@ -111,7 +113,12 @@ public class CheckUpdateNullValue extends AbstractValidator {
                             continue loop;
                         }
                         //进行判断IF条件是否存在
-                        checkIfTest(column, propertyName, item);
+                        if (item.getSetNodeList() != null && !item.getSetNodeList().isEmpty() && !checkSetIfTest(item.getSetNodeList(), propertyName)) {
+                            new MapperException(ExceptionCommonConstant.UPDATE_NULL_COLUMN_PROBABLY, item.getInfoMessage()
+                                    + String.format(MessageConstant.COLUMN_NAME, column.getColumnName())).printException();
+                        } else if (item.getSetNodeList() == null || item.getSetNodeList().isEmpty()) {
+                            checkIfTest(column, propertyName, item);
+                        }
                         continue loop;
                     } else if (fieldNode.getExpress().contains(SELECT_TAG)) {
                         // TODO 以sql语句进行的赋值，待处理
@@ -124,6 +131,23 @@ public class CheckUpdateNullValue extends AbstractValidator {
             }
         }
     }
+
+    /**
+     * 判断是否存在set的标签
+     * @param setNodeList set节点
+     * @param express 表达式
+     * @return boolean
+     */
+    private boolean checkSetIfTest(List<UpdateIfSetNode> setNodeList, String express) {
+        for (int i = 0; i < setNodeList.size(); i++) {
+            String test = StringUtil.replaceBlank(setNodeList.get(i).getIfTest());
+            if (test.contains("null!=" + express) || test.contains(express + "!=null")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * 验证是否为基础类型
@@ -157,7 +181,8 @@ public class CheckUpdateNullValue extends AbstractValidator {
      */
     private void checkIfTest(Column column, String propertyName, UpdateMappedStatementItem item) {
         List<ISqlComponent> sqlComponents = item.getSqlComponentList();
-        boolean flag = checkExpressExist(sqlComponents, propertyName);
+        //迭代验证是否存在IF非空的条件判断
+        boolean flag = checkExpressExist(sqlComponents, propertyName, false);
         if (!flag) {
             new MapperException(ExceptionCommonConstant.UPDATE_NULL_COLUMN_PROBABLY, item.getInfoMessage()
                     + String.format(MessageConstant.COLUMN_NAME, column.getColumnName())).printException();
@@ -168,27 +193,47 @@ public class CheckUpdateNullValue extends AbstractValidator {
      * 递归检查所有的节点是否存在判空赋默认值的节点
      * @param sqlComponents 当前语句的节点信息
      * @param express 表达式
+     * @param start 找到含有set的标签作为判断开始
      * @return boolean
      */
-    private boolean checkExpressExist(List<ISqlComponent> sqlComponents, String express) {
+    private boolean checkExpressExist(List<ISqlComponent> sqlComponents, String express, boolean start) {
         if (sqlComponents == null) {
             return false;
         }
         for (int i = 0; i < sqlComponents.size(); i++) {
-            if (sqlComponents.get(i) instanceof IfSqlComponent) {
-                String test = StringUtil.replaceBlank(((IfSqlComponent) sqlComponents.get(i)).getTest());
-                if (test.contains("null!=" + express) || test.contains(express + "!=null")) {
-                    return true;
+            //判断当前节点是否含有 update关键字和set关键，并且是否开始，如果含有未开始，则向下级循环
+            if (!start && sqlComponents.get(i).toString().contains(SqlConstant.UPDATE)
+                    && sqlComponents.get(i).toString().contains(SqlConstant.SET)) {
+                List<ISqlComponent> sqlComponentList = sqlComponents.get(i).getSubComponents();
+                boolean flag = checkExpressExist(sqlComponentList, express, start);
+                if (flag) {
+                    return flag;
                 }
-            } else {
+            } else if (!start && (!sqlComponents.get(i).toString().contains(SqlConstant.SET) ||
+                    !sqlComponents.get(i).toString().contains(SqlConstant.UPDATE))) {
+                //如果当前节点已经不完全含有UPDATE和SET标签，认为已经到达需要的节点层次，设置为开始，并循环当前节点
+                boolean flag = checkExpressExist(sqlComponents, express, true);
+                if (flag) {
+                    return flag;
+                }
+            } else if (start) {
+                //已经达到需要的层级，并且含有SET关键字，查找是否存在条件的非空判断  TODO 这里只限制到了UPDATE SET 范围内，可能需要进一步验证
+                if (sqlComponents.get(i) instanceof IfSqlComponent) {
+                    String test = StringUtil.replaceBlank(((IfSqlComponent) sqlComponents.get(i)).getTest());
+                    //判断SET关键字下是否存在非空条件判断
+                    if (test.contains("null!=" + express) || test.contains(express + "!=null")) {
+                        return true;
+                    }
+                }
+
+                //处理包括IF标签在内的标签嵌套其他标签的情况
                 List<ISqlComponent> sqlComponentList = sqlComponents.get(i).getSubComponents();
                 if (sqlComponentList != null) {
-                    boolean flag = checkExpressExist(sqlComponentList, express);
+                    boolean flag = checkExpressExist(sqlComponentList, express, true);
                     if (flag) {
                         return flag;
                     }
                 }
-
             }
         }
         return false;

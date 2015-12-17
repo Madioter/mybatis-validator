@@ -80,6 +80,7 @@ public class UpdateSqlParser {
         for (; i < strArr.size(); i++) {
             String str = strArr.get(i);
             if (str.equals(SqlConstant.SET)) {
+                i = i + 1;
                 break;
             }
         }
