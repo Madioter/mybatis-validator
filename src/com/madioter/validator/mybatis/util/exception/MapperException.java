@@ -15,7 +15,7 @@ public class MapperException extends Exception {
     /**
      * 异常信息
      */
-    private String message;
+    private String message = "";
 
     /**
      * 异常
@@ -25,7 +25,7 @@ public class MapperException extends Exception {
     /**
      * 描述信息
      */
-    private String description;
+    private String description = "";
 
     /**
      * 异常构造方法
@@ -94,7 +94,7 @@ public class MapperException extends Exception {
      * @param mapperException mapperException
      */
     public void mergeException(MapperException mapperException){
-        if (mapperException != null) {
+        if (mapperException == null) {
             return;
         }
         this.message = this.message + SymbolConstant.SYMBOL_COMMA + mapperException.getMessage();

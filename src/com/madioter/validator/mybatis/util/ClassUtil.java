@@ -10,7 +10,10 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * <Description> <br>
+ * <Description> 类帮助工具： <br>
+ *     含有功能：1、获取接口下的实现类列表
+ *              2、判断忽略的类检查
+ *              3、判断Class是否为基础数据类型
  *
  * @author wangyi8<br>
  * @version 1.0<br>
@@ -100,7 +103,7 @@ public class ClassUtil {
     private static List<Class> findClass(File directory, String packageName)
             throws ClassNotFoundException {
         List<Class> classes = new ArrayList<Class>();
-        if (!directory.exists()) {
+        if (directory == null || !directory.exists()) {
             return classes;
         }
         File[] files = directory.listFiles();
@@ -137,15 +140,20 @@ public class ClassUtil {
 
     /**
      * 判断类是否为基础数据类型
+     *
      * @param clz clz
      * @return boolean
      */
     public static boolean basicType(Class clz) {
-        //TODO 有待完善
-        if (clz.getPackage() == null) {
-            return true;
-        } else {
+        if (clz == null) {
             return false;
         }
+        for (int i = 0; i < Config.JAVA_BASIC_CLASS_TYPE.length; i++) {
+            if (clz.equals(Config.JAVA_BASIC_CLASS_TYPE[i])) {
+                return true;
+            }
+        }
+        return false;
     }
+
 }

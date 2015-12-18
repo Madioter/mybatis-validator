@@ -24,4 +24,10 @@ public class Config {
      */
     public static final String[] IGNORE_STATEMENT_MAPPER_ID = new String[]{
     };
+
+    /**
+     * JAVA的八种基本数据类型
+     */
+    public static final Class[] JAVA_BASIC_CLASS_TYPE = new Class[]{int.class,char.class,long.class,
+            double.class,float.class,byte.class,short.class,boolean.class};
 }
