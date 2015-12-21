@@ -18,7 +18,9 @@ import com.madioter.validator.mybatis.util.ArrayUtil;
 import com.madioter.validator.mybatis.util.ClassUtil;
 import com.madioter.validator.mybatis.util.Config;
 import com.madioter.validator.mybatis.util.MessageConstant;
+import com.madioter.validator.mybatis.util.MyBatisTagConstant;
 import com.madioter.validator.mybatis.util.ReflectHelper;
+import com.madioter.validator.mybatis.util.SqlConstant;
 import com.madioter.validator.mybatis.util.SqlUtil;
 import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
@@ -29,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import sun.awt.event.IgnorePaintEvent;
 
 /**
  * <Description> <br>
@@ -185,9 +188,9 @@ public class CheckStatementPropertyExist extends AbstractValidator {
     private void validateUpdatePropertyExist(UpdateMappedStatementItem item) {
         Class clz = item.getParameterType();
         if (ClassUtil.ignorePropertyCheck(clz)) {
-            String clzName = clz == null ? SymbolConstant.SYMBOL_NULL : clz.getName();
-            new MapperException(ExceptionCommonConstant.IGNORE_PARAMETER_TYPES, item.getInfoMessage() +
-                    SymbolConstant.SYMBOL_COLON + String.format(MessageConstant.EXPRESS_MSG, clzName)).printException();
+            //String clzName = clz == null ? SymbolConstant.SYMBOL_NULL : clz.getName();
+            /*new MapperException(ExceptionCommonConstant.IGNORE_PARAMETER_TYPES, item.getInfoMessage() +
+                    SymbolConstant.SYMBOL_COLON + String.format(MessageConstant.EXPRESS_MSG, clzName)).printException();*/
             return;
         }
         List<UpdateIfSetNode> setNodeList = item.getSetNodeList();
@@ -215,6 +218,9 @@ public class CheckStatementPropertyExist extends AbstractValidator {
                 List<String> propertyList = StringUtil.extractBrace(conditionNode.toString());
                 for (String propertyName : propertyList) {
                     PropertyModel propertyModel = new PropertyModel(propertyName);
+                    if (ignoreProperty(conditionNode, propertyModel)) {
+                        continue;
+                    }
                     try {
                         ReflectHelper.haveGetMethod(propertyModel.getPropertyName(), clz);
                     } catch (MapperException e) {
@@ -224,6 +230,23 @@ public class CheckStatementPropertyExist extends AbstractValidator {
                 }
             }
         }
+    }
+
+    /**
+     * 忽略的属性验证
+     *
+     * @author wangyi8
+     * @taskId
+     * @param conditionNode 条件
+     * @param propertyModel 属性
+     */
+    private boolean ignoreProperty(ConditionNode conditionNode, PropertyModel propertyModel) {
+        conditionNode.rebuild();
+        //in条件查询中，出现单独的#{item}不进行验证
+        if (conditionNode.getConditionType().equals(SqlConstant.IN) && propertyModel.getPropertyName().equals(MyBatisTagConstant.ITEM)) {
+            return true;
+        }
+        return false;
     }
 
     /**

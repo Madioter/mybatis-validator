@@ -3,6 +3,7 @@ package com.madioter.validator.mybatis.model.sql.sqlnode;
 import com.madioter.validator.mybatis.model.sql.elementnode.SelectElement;
 import com.madioter.validator.mybatis.model.sql.elementnode.TableNode;
 import com.madioter.validator.mybatis.util.SqlConstant;
+import com.madioter.validator.mybatis.util.StringUtil;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,8 @@ public class FromNode {
                 if (tableText.get(i).toLowerCase().equals(SqlConstant.JOIN)) {
                     lastNode = null;
                     onBegin = false;
-                } else if (tableText.get(i).contains(SymbolConstant.SYMBOL_COMMA)) {
+                } else if (!StringUtil.containBrace(tableText.get(i)) && tableText.get(i).contains(SymbolConstant.SYMBOL_COMMA)) {
+                    //含有#{id,jdbcType=null}表示参数，不参与 tableA,tableB的逗号分割
                     String[] tableNodes = tableText.get(i).split(SymbolConstant.SYMBOL_COMMA);
                     for (int k = 0; k < tableNodes.length; k++) {
                         if (lastNode != null) {
@@ -71,10 +73,11 @@ public class FromNode {
                     lastNode = null;
                     joinOn.add(SqlConstant.AND);
                     onBegin = true;
-                } else if (tableText.get(i).equals(SqlConstant.AS)) {
-                    //排除关键字 as
+                } else if (tableText.get(i).equals(SqlConstant.AS) || tableText.get(i).equals(SqlConstant.LEFT)
+                        || tableText.get(i).equals(SqlConstant.RIGHT) || tableText.get(i).equals(SqlConstant.INNER)) {
+                    //排除关键字 as, left, right, inner等关键字
                     continue;
-                }   else {
+                } else {
                     if (lastNode != null) {
                         if (lastNode.getTableAlias() == null) {
                             lastNode.setTableAlias(tableText.get(i));

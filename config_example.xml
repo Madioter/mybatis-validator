@@ -41,6 +41,12 @@
                     <bean class="com.madioter.validator.mybatis.validate.impl.CheckRequestMapping" scope="prototype">
                         <property name="proxy" ref="defaultProxy"/>
                     </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertNullValue" scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
+                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateNullValue" scope="prototype">
+                        <property name="proxy" ref="defaultProxy"/>
+                    </bean>
                 </list>
             </property>
         </property>

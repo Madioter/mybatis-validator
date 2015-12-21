@@ -125,5 +125,23 @@ public class SqlConstant {
      */
     public static final String AUTO_INCREMENT = "auto_increment";
 
+    /**
+     * IN
+     */
+    public static final String IN = "in";
 
+    /**
+     * LEFT
+     */
+    public static final String LEFT = "left";
+
+    /**
+     * RIGHT
+     */
+    public static final String RIGHT = "right";
+
+    /**
+     * INNER
+     */
+    public static final String INNER = "inner";
 }

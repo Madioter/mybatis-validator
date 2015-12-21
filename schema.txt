@@ -29,16 +29,16 @@
 0.6计划：
 1、完善Insert和Update语句的空值风险验证，验证非空字段的默认值和空值处理问题，目前存在批量新增实例如下：
     <insert id="batchSave" useGeneratedKeys="true" >
-		INSERT INTO inq_requirement_vendor_date (
-        	basic_unit_adult_cost,
-        	basic_unit_child_cost)
+		INSERT INTO table (
+        	colomn1,colomn2
+        	)
       	VALUES
       	<foreach collection="list" item="item" index="index" separator=",">
-        	(#{item.basicUnitAdultCost},
-        	#{item.basicUnitChildCost})
+        	(#{item.value1},
+        	#{item.value2})
 	     </foreach>
 	</insert>
-	basic_unit_adult_cost字段设置了不可为空，有默认值，但这个语句会造成空值风险。
+	value1字段设置了不可为空，有默认值，但这个语句会造成空值风险。
 方案:
 	（1）、对insert语句进行解析，拆分为table，columns，values 或 select四个部分
 	（2）、获取insert语句中，可能为空的所有字段
@@ -61,3 +61,9 @@
 
 临时解决方案：
 	value1==null或null==value1是否存在，如果存在，则组装语句的时候排除，并认定为字段的默认值来处理，其他的互斥情况暂时未做判断
+
+修改BUG：（已修复）
+1、foreach标签下，出现#{item}属性如何处理，以及#{item.id}会按照parameter入参类型直接找属性，与实际的查询情况不一致，需要调整foreach生成的字符串的解析方式
+2、表名：#{property; 原表达式 left join on table1.id = table2.table1_Id and table2.property = #{property,jdbcType=Integer}，
+	由于之前的table1，table2拆分考虑不周，导致这里对 #{property,jdbcType=Integer} 进行了拆分。
+	修复方案：#{property,jdbcType=Integer}作为完整结构处理。

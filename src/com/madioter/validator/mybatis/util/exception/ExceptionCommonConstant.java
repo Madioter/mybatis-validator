@@ -143,9 +143,9 @@ public class ExceptionCommonConstant {
     public static final String COLUMN_NAME_REPEAT = "查询的字段名重复";
 
     /**
-     * 项目不支持数据的物理删除
+     * 项目不推荐数据的物理删除
      */
-    public static final String REFUSE_DELETE_STATEMENT = "项目不支持数据的物理删除";
+    public static final String REFUSE_DELETE_STATEMENT = "项目不推荐数据的物理删除";
 
     /**
      * 解析异常，UPDATE语句不含有UPDATE关键字
