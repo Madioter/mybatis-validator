@@ -186,4 +186,9 @@ public class ExceptionCommonConstant {
      * 表定义缺失
      */
     public static final String TABLE_NAME_MISS = "表定义缺失";
+
+    /**
+     * insert、update不允许增加子查询
+     */
+    public static final String FORBID_OPERATOR = "INSERT/UPDATE语句不允许增加子查询";
 }

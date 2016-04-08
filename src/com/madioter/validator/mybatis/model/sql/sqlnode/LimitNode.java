@@ -132,4 +132,9 @@ public class LimitNode implements SelectElement {
     public void rebuild() {
         return;
     }
+
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
 }

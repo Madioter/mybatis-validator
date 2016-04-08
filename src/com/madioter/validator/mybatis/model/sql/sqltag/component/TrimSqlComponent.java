@@ -6,7 +6,6 @@ import com.madioter.validator.mybatis.util.ReflectHelper;
 import com.madioter.validator.mybatis.util.SymbolConstant;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.ibatis.builder.xml.dynamic.TrimSqlNode;
 
 /**
  * <Description> <br>

@@ -38,6 +38,27 @@ public class FunctionNode implements SelectElement {
     private List<InnerNode> innerNodeList;
 
     /**
+     * 判断是否完整
+     */
+    private Boolean isComplete = false;
+
+    /**
+     * Gets is complete.
+     * @return the is complete
+     */
+    public Boolean getIsComplete() {
+        return isComplete;
+    }
+
+    /**
+     * Sets is complete.
+     * @param isComplete the is complete
+     */
+    public void setIsComplete(Boolean isComplete) {
+        this.isComplete = isComplete;
+    }
+
+    /**
      * The type Inner node.
      */
     public class InnerNode {
@@ -98,6 +119,9 @@ public class FunctionNode implements SelectElement {
      */
     public void setExpress(String express) {
         this.express = express;
+        if (express.contains(SymbolConstant.SYMBOL_LEFT_BRACKET) && express.contains(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
+            isComplete = true;
+        }
     }
 
     /**
@@ -182,8 +206,14 @@ public class FunctionNode implements SelectElement {
 
     @Override
     public void rebuild() {
-        String[] str = this.express.substring(this.express.indexOf(SymbolConstant.SYMBOL_LEFT_BRACKET),
-                this.express.indexOf(SymbolConstant.SYMBOL_RIGHT_BRACKET)).split(SymbolConstant.SYMBOL_COMMA);
+        String[] str = null;
+        try {
+            str = this.express.substring(this.express.indexOf(SymbolConstant.SYMBOL_LEFT_BRACKET),
+                    this.express.indexOf(SymbolConstant.SYMBOL_RIGHT_BRACKET)).split(SymbolConstant.SYMBOL_COMMA);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(this.getExpress());
+        }
         for (int i = 0; i < str.length; i++) {
             String columnExp = null;
             if (str[i].contains(SqlConstant.DISTINCT + SymbolConstant.SYMBOL_BLANK)) {

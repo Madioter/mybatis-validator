@@ -67,3 +67,12 @@
 2、表名：#{property; 原表达式 left join on table1.id = table2.table1_Id and table2.property = #{property,jdbcType=Integer}，
 	由于之前的table1，table2拆分考虑不周，导致这里对 #{property,jdbcType=Integer} 进行了拆分。
 	修复方案：#{property,jdbcType=Integer}作为完整结构处理。
+
+0.8计划
+增加resultType resultMap等属性的判断：（取消）
+（配置错误时，mybatis启动报错，这里无需额外检查判断）
+
+0.9 计划
+修改函数解析bug：增加isComplete字段来标识节点是否完整 DATE_FORMAT(application_time,'%Y-%m-%d %H:%i:%s') as application_time
+增加验证项：insert和update语句不允许出现子查询，否则会导致mysql的死锁和慢查
+

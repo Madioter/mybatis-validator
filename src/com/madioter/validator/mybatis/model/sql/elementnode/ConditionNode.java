@@ -124,6 +124,11 @@ public class ConditionNode implements SelectElement {
     }
 
     @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (this.columnName != null) {

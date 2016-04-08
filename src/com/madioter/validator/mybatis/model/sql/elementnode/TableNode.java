@@ -96,4 +96,9 @@ public class TableNode implements SelectElement {
     public void rebuild() {
         return;
     }
+
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
 }

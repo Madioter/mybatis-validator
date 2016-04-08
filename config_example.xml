@@ -10,45 +10,43 @@
         <property name="tableSchema" value="local"/>
         <!--配置验证规则集-->
         <property name="validatorList">
-            <property name="validatorList">
-                <list>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertIfTagEquals" scope="prototype">
-                        <!--配置验证代理-->
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementColumnExist"
-                          scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist"
-                          scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckDeleteStatementRefuse"
-                          scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementTableExist"
-                          scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateSetTagType" scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckColumnRepeat" scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckRequestMapping" scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertNullValue" scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                    <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateNullValue" scope="prototype">
-                        <property name="proxy" ref="defaultProxy"/>
-                    </bean>
-                </list>
-            </property>
+            <list>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertIfTagEquals" scope="prototype">
+                    <!--配置验证代理-->
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementColumnExist"
+                      scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementPropertyExist"
+                      scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckDeleteStatementRefuse"
+                      scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckStatementTableExist"
+                      scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateSetTagType" scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckColumnRepeat" scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckRequestMapping" scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckInsertNullValue" scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+                <bean class="com.madioter.validator.mybatis.validate.impl.CheckUpdateNullValue" scope="prototype">
+                    <property name="proxy" ref="defaultProxy"/>
+                </bean>
+            </list>
         </property>
     </bean>
 

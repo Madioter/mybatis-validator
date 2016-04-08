@@ -14,4 +14,10 @@ public interface SelectElement {
      * 对象结构重构
      */
     public void rebuild();
+
+    /**
+     * Gets is complete.
+     * @return the is complete
+     */
+    public Boolean getIsComplete();
 }

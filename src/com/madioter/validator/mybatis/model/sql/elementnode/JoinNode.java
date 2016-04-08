@@ -98,4 +98,9 @@ public class JoinNode implements SelectElement {
     public void rebuild() {
         return;
     }
+
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
 }

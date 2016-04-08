@@ -22,8 +22,12 @@ public class Config {
     /**
      * 忽略的语句
      */
-    public static final String[] IGNORE_STATEMENT_MAPPER_ID = new String[]{
-    };
+    public static final String[] IGNORE_STATEMENT_MAPPER_ID = new String[]{};
+
+    /**
+     * 包含的语句
+     */
+    public static final String[] CONTAINS_STATEMENT_MAPPER_ID = new String[]{"wkfChangeSpace.selectById"};
 
     /**
      * JAVA的八种基本数据类型

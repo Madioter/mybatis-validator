@@ -46,6 +46,9 @@ public class StatementResource {
                 if (ArrayUtil.contains(Config.IGNORE_STATEMENT_MAPPER_ID, statement.getId())) {
                     continue;
                 }
+                /*if (!ArrayUtil.contains(Config.CONTAINS_STATEMENT_MAPPER_ID, statement.getId())) {
+                    continue;
+                }*/
                 if (!mappedStatementMap.containsKey(statement.getId())) {
                     if (statement.getSqlCommandType() == SqlCommandType.INSERT) {
                         mappedStatementMap.put(statement.getId(), new InsertMappedStatementItem(statement));

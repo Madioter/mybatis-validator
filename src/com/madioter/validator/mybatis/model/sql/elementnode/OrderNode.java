@@ -100,6 +100,11 @@ public class OrderNode implements SelectElement {
         return;
     }
 
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
+
     /**
      * The enum Order type.
      */

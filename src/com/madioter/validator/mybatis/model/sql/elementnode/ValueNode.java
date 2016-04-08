@@ -22,6 +22,11 @@ public class ValueNode implements SelectElement {
         return;
     }
 
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
+
     /**
      * Gets value.
      * @return the value

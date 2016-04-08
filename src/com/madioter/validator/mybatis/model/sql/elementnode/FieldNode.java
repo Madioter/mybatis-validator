@@ -95,4 +95,9 @@ public class FieldNode implements SelectElement {
         this.columnName = ex.substring(0, index);
         this.express = ex.substring(index + 1);
     }
+
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
 }

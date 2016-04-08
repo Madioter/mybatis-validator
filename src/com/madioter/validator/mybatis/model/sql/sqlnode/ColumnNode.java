@@ -42,7 +42,7 @@ public class ColumnNode {
                 String[] columnTextNode = text.split(SymbolConstant.SYMBOL_COMMA);
 
                 for (int k = 0; k < columnTextNode.length; k++) {
-                    if (k > 0) {
+                    if (k > 0 && lastNode != null && lastNode.getIsComplete()) {
                         lastNode = null;
                     }
                     if (StringUtil.isBlank(columnTextNode[k])) {
@@ -76,7 +76,7 @@ public class ColumnNode {
                 ((QueryNode) lastNode).setColumnAlias(text);
                 return null;
             } else if (lastNode instanceof FunctionNode) {
-                if (((FunctionNode) lastNode).getExpress().contains(SymbolConstant.SYMBOL_RIGHT_BRACKET)) {
+                if (lastNode.getIsComplete()) {
                     ((FunctionNode) lastNode).setAlias(text);
                     return null;
                 } else {

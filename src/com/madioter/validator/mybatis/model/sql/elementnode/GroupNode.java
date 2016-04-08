@@ -57,4 +57,9 @@ public class GroupNode implements SelectElement {
     public void rebuild() {
         return;
     }
+
+    @Override
+    public Boolean getIsComplete() {
+        return true;
+    }
 }

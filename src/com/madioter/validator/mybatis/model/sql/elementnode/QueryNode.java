@@ -45,6 +45,7 @@ public class QueryNode implements SelectElement {
      */
     private String tableAlias;
 
+
     /**
      * Gets column name.
      * @return column name
@@ -102,6 +103,11 @@ public class QueryNode implements SelectElement {
             this.tableAlias = strArr[0];
             this.columnName = strArr[1];
         }
+    }
+
+    @Override
+    public Boolean getIsComplete() {
+        return true;
     }
 
     /**
